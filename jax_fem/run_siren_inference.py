@@ -37,7 +37,7 @@ cell_type = get_meshio_cell_type(ele_type)
 Lx, Ly = 60., 30.
 
 
-trained_siren_loaded = eqx.tree_deserialise_leaves("trained_siren_75.93.eqx", siren_dummy)
+trained_siren_loaded = eqx.tree_deserialise_leaves("./jax_fem/trained_siren_fixed.eqx", siren_dummy)
 meshio_mesh_inf = rectangle_mesh(Nx=120*10, Ny=60*10, domain_x=Lx, domain_y=Ly)
 mesh_inf = Mesh(meshio_mesh_inf.points, meshio_mesh_inf.cells_dict[cell_type])
 coords_inf = get_element_centroids(mesh_inf)

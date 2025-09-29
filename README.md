@@ -42,5 +42,5 @@
    - [FluTO](https://github.com/UW-ERSL/FluTO)
    - [TOMAS](https://github.com/UW-ERSL/TOMAS)
 
-
-
+## SIREN-based implicit density representation (using jax-fem) of the basic TO problem:
+![](./images/result.png)
