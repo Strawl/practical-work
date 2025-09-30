@@ -1,4 +1,9 @@
 # Practical Work
+## Install petsc4py (needed by jax_fem)
+    PETSC_DIR=/opt/homebrew/opt/petsc
+    PETSC_ARCH=""
+    MPICC=/opt/homebrew/bin/mpicc
+    poetry run pip install --no-binary=petsc4py petsc4py
 
 ## Finite Element Solvers
 
