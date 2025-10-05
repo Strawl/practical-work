@@ -37,14 +37,14 @@ cell_type = get_meshio_cell_type(ele_type)
 Lx, Ly = 60., 30.
 
 
-trained_siren_loaded = eqx.tree_deserialise_leaves("./jax_fem/trained_siren_fixed.eqx", siren_dummy)
-meshio_mesh_inf = rectangle_mesh(Nx=120*10, Ny=60*10, domain_x=Lx, domain_y=Ly)
+trained_siren_loaded = eqx.tree_deserialise_leaves("./jax_fem/trained_siren.eqx", siren_dummy)
+meshio_mesh_inf = rectangle_mesh(Nx=60, Ny=30, domain_x=Lx, domain_y=Ly)
 mesh_inf = Mesh(meshio_mesh_inf.points, meshio_mesh_inf.cells_dict[cell_type])
 coords_inf = get_element_centroids(mesh_inf)
 
 rho_pred_inf = jax.nn.sigmoid(trained_siren_loaded(coords_inf))
 
-rho_img_inf = np.reshape(rho_pred_inf, (60*10, 120*10), order="F")
+rho_img_inf = np.reshape(rho_pred_inf, (30, 60), order="F")
 
 plt.figure(figsize=(8, 4))
 plt.imshow(rho_img_inf, cmap="gray_r", origin="lower")

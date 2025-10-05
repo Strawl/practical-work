@@ -3,7 +3,7 @@
     PETSC_DIR=/opt/homebrew/opt/petsc
     PETSC_ARCH=""
     MPICC=/opt/homebrew/bin/mpicc
-    poetry run pip install --no-binary=petsc4py petsc4py
+    poetry run pip install --no-cache-dir --force-reinstall --no-binary=petsc4py petsc4py
 
 ## Finite Element Solvers
 

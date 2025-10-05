@@ -19,3 +19,6 @@ pyvista = "^0.46.3"
 optax = "^0.2.6"
 tqdm = "^4.67.1"
 feax = {path = "../feax", develop = true }
+xprof = "^2.20.6"
+tensorflow = "^2.20.0"
+tensorboard-plugin-profile = "^2.20.6"

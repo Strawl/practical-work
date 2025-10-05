@@ -10,6 +10,7 @@ from tqdm import tqdm
 from siren import SIREN
 import matplotlib.pyplot as plt
 import logging
+import time
 
 logging.getLogger("jax_fem").setLevel(logging.WARNING)
 
@@ -69,7 +70,7 @@ class Elasticity(Problem):
 ele_type = 'QUAD4'
 cell_type = get_meshio_cell_type(ele_type)
 Lx, Ly = 60., 30.
-meshio_mesh = rectangle_mesh(Nx=240, Ny=120, domain_x=Lx, domain_y=Ly)
+meshio_mesh = rectangle_mesh(Nx=60, Ny=30, domain_x=Lx, domain_y=Ly)
 mesh = Mesh(meshio_mesh.points, meshio_mesh.cells_dict[cell_type])
 
 def fixed_location(point): return np.isclose(point[0], 0., atol=1e-5)
@@ -85,9 +86,19 @@ problem = Elasticity(mesh, vec=2, dim=2, ele_type=ele_type,
                      location_fns=location_fns)
 
 # Differentiable solver
+
+# solver_options = {
+        # 'tol':1e-8,
+        # 'petsc_solver': {
+            # 'ksp_type': 'bcgsl',
+            # 'pc_type': 'jacobi',
+        # }
+# }  
+
+solver_options = {'umfpack_solver': {}, 'tol':1e-8, 'precond': True}
 fwd_pred = ad_wrapper(problem,
-                      solver_options={'umfpack_solver': {}},
-                      adjoint_solver_options={'umfpack_solver': {}})
+                      solver_options=solver_options,
+                      adjoint_solver_options=solver_options)
 
 def J_total(params):
     sol_list = fwd_pred(params)
@@ -103,6 +114,7 @@ def get_element_centroids(mesh):
     xmax, ymax = np.max(centroids, axis=0)
     centroids = (centroids - np.array([xmin, ymin])) / (np.array([xmax - xmin, ymax - ymin]))
     centroids = 2.0 * centroids - 1.0
+
     return centroids.astype(np.float32)
 
 def fem_loss(model, coords, vf=0.3, penalty=200.0):
@@ -126,7 +138,7 @@ def train_siren(model, coords, num_epochs=500, lr=1e-3):
     for epoch in tqdm(range(num_epochs), desc="Epochs"):
         model, opt_state, loss = optimisation_step(model, optimiser, opt_state, coords)
 
-        if epoch % 50 == 0:
+        if epoch % 1 == 0:
             print(f"Epoch {epoch}, loss = {float(loss)}")
 
     return model
@@ -143,5 +155,5 @@ siren = SIREN(
     rng_key=rng
 )
 
-trained_siren = train_siren(siren, coords, num_epochs=1000, lr=1e-3)
+trained_siren = train_siren(siren, coords, num_epochs=500, lr=1e-3)
 eqx.tree_serialise_leaves("trained_siren.eqx", trained_siren)
