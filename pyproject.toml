@@ -1,24 +1,31 @@
-[tool.poetry]
-package-mode = false
+[project]
+name = "practical_work"
+version = "0.0.1"
+requires-python = ">=3.13"
+dependencies = [
+    "equinox>=0.13.1,<0.14.0",
+    "jax-fem>=0.0.11,<0.0.12",
+    "matplotlib>=3.10.6,<4",
+    "pyfiglet>=1.0.4,<2",
+    "meshio>=5.3.5,<6",
+    "gmsh>=4.14.1,<5",
+    "petsc4py==3.23.6",
+    "fenics-basix>=0.9.0,<0.10",
+    "pyvista>=0.46.3,<0.47",
+    "optax>=0.2.6,<0.3",
+    "tqdm>=4.67.1,<5",
+    "feax",
+    "xprof>=2.20.6,<3",
+    "tensorflow>=2.20.0,<3",
+    "tensorboard-plugin-profile>=2.20.6,<3",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+feax = { path = "../feax", editable = true }
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.dependencies]
-python = ">=3.13"
-equinox = ">=0.13.1,<0.14.0"
-jax-fem = "^0.0.11"
-matplotlib = "^3.10.6"
-pyfiglet = "^1.0.4"
-meshio = "^5.3.5"
-gmsh = "^4.14.1"
-petsc4py = "3.23.6"
-fenics-basix = "^0.9.0"
-pyvista = "^0.46.3"
-optax = "^0.2.6"
-tqdm = "^4.67.1"
-feax = {path = "../feax", develop = true }
-xprof = "^2.20.6"
-tensorflow = "^2.20.0"
-tensorboard-plugin-profile = "^2.20.6"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
