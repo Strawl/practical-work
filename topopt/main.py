@@ -20,6 +20,10 @@ from pathlib import Path
 from datetime import datetime
 
 jax.config.update("jax_enable_x64", True)  # Use 64-bit precision
+# jax.config.update("jax_disable_jit", True)
+jax.config.update("jax_debug_nans", True)
+# jax.config.update("jax_debug_infs", True)
+# jax.config.update("jax_traceback_filtering", "tracebackhide")
 
 ele_type = 'QUAD4'
 Lx, Ly = 60., 30.
@@ -78,13 +82,11 @@ def get_element_centroids(mesh):
     return centroids.astype(np.float32)
 
 def J_total(params):
-    global last_solution
     internal_vars = InternalVars(
         volume_vars=(params,),
         surface_vars=[(traction_array,)]
     )
     sol = solver(internal_vars, initial_guess)
-    last_solution = sol 
     return compute_compliance(sol)
 
 @eqx.filter_jit
@@ -105,6 +107,7 @@ def fem_loss(model, coords):
     # jax.debug.callback(_plot_callback, rho)
 
     J = J_total(rho)
+
     vol_penalty = 200 * (np.mean(rho) - 0.3) ** 2
     total_loss = J + vol_penalty
     return total_loss 
@@ -118,8 +121,11 @@ def optimisation_step(model, optimiser, opt_state, coords):
     return model, opt_state, loss
 
 def train_siren(model, coords, num_epochs=500, lr=1e-3):
-    optimiser = optax.adam(lr)
-    opt_state = optimiser.init(eqx.filter(model, eqx.is_array))
+    optimizer = optax.chain(
+        optax.clip_by_global_norm(1.0),
+        optax.adam(lr)
+    )
+    opt_state = optimizer.init(eqx.filter(model, eqx.is_array))
 
     # opt_state = eqx.tree_deserialise_leaves(
         # f"./feax/opt_state_epoch_85.eqx", opt_state
@@ -128,10 +134,10 @@ def train_siren(model, coords, num_epochs=500, lr=1e-3):
     prev_loss = float("inf")
 
     for epoch in tqdm(range(num_epochs), desc="Epochs"):
-        model, opt_state, loss = optimisation_step(model, optimiser, opt_state, coords)
+        model, opt_state, loss = optimisation_step(model, optimizer, opt_state, coords)
         loss_val = float(loss)
 
-        print(f"Epoch {epoch}, loss = {loss_val:.6e}")
+        print(f"Epoch {epoch}, loss = {loss_val}")
 
         # Stop if loss increases compared to previous step
         if loss_val > prev_loss:
@@ -155,7 +161,7 @@ siren = SIREN(
 )
 
 # siren = eqx.tree_deserialise_leaves(f"./feax/siren_epoch_85.eqx", siren)
-trained_siren, opt_state = train_siren(siren, coords, num_epochs=200, lr=1e-3)
+trained_siren, opt_state = train_siren(siren, coords, num_epochs=200, lr=5e-4)
 base_dir = Path("outputs")
 
 run_dir = base_dir / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

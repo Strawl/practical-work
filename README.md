@@ -5,6 +5,12 @@
     PETSC_ARCH=real
     uv pip install --no-binary=petsc4py petsc4py
 
+# For ubuntu 
+    apt-get install libatlas-base-dev libblas-dev liblapack-dev libhdf5-dev libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev libxinerama1
+    unset LD_LIBRARY_PATH
+    uv add "jax[cuda12]"
+
+
 ## Finite Element Solvers
 
 ### Differentiable Finite Element Method with JAX: 'jax_fem'
