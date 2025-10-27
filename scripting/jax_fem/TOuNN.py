@@ -95,7 +95,8 @@ problem = Elasticity(mesh, vec=2, dim=2, ele_type=ele_type,
         # }
 # }  
 
-solver_options = {'umfpack_solver': {}, 'tol':1e-8, 'precond': True}
+# solver_options = {'umfpack_solver': {}, 'tol':1e-8, 'precond': True}
+solver_options = {'jax_solver': {}, 'tol':1e-8, 'precond': True}
 fwd_pred = ad_wrapper(problem,
                       solver_options=solver_options,
                       adjoint_solver_options=solver_options)

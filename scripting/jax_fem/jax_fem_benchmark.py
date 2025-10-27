@@ -18,13 +18,13 @@ import jax
 jax.config.update("jax_enable_x64", True)  # Use 64-bit precision for higher accuracy
 
 import logging
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 # Material properties.
 E = 70e3
+T = 1e2
 nu = 0.3
-mu = E/(2.*(1.+nu))
-lmbda = E*nu/((1+nu)*(1-2*nu))
+p = 3
 
 # Weak forms.
 class LinearElasticity(Problem):
@@ -32,18 +32,19 @@ class LinearElasticity(Problem):
     # solves -div(f(u_grad)) = b. Here, we have f(u_grad) = sigma.
     def get_tensor_map(self):
         def stress(u_grad):
+            mu = E / (2. * (1. + nu))
+            lmbda = E * nu / ((1 + nu) * (1 - 2 * nu))
             epsilon = 0.5 * (u_grad + u_grad.T)
-            sigma = lmbda * np.trace(epsilon) * np.eye(self.dim) + 2*mu*epsilon
-            return sigma
+            return lmbda * np.trace(epsilon) * np.eye(self.dim) + 2 * mu * epsilon
         return stress
 
     def set_params(self, params):
-        pass
+        surface_params = params
+        self.internal_vars_surfaces = [[surface_params]]
 
     def get_surface_maps(self):
-
-        def surface_map(u, x):
-            return np.array([0., 0., 100.])
+        def surface_map(u, x, load_value):
+            return np.array([0., 0., load_value])
         return [surface_map]
 
 # Specify mesh-related information (second-order tetrahedron element).
@@ -94,7 +95,7 @@ problem = LinearElasticity(mesh,
 
 
 import time
-# solver_options = {'jax_solver': {}, 'tol':1e-8, 'precond': False}
+solver_options = {'jax_solver': {}, 'tol':1e-8, 'precond': False}
 # solver_options = {'umfpack_solver': {}, 'tol':1e-8, 'precond': True}
 # solver_options = {
         # 'tol':1e-8,
@@ -104,13 +105,13 @@ import time
         # }
 # }  
 
-solver_options = {
-        'tol':1e-8,
-        'petsc_solver': {
-            'ksp_type': 'bcgsl',
-            'pc_type': 'jacobi',
-        }
-}  
+# solver_options = {
+        # 'tol':1e-8,
+        # 'petsc_solver': {
+            # 'ksp_type': 'bcgsl',
+            # 'pc_type': 'jacobi',
+        # }
+# }  
 
 # solver_options = {
         # 'tol':1e-8,
@@ -125,26 +126,34 @@ fwd_pred = ad_wrapper(problem,
 
 total_time = 0.0
 # Define loss function using jax.numpy
-def loss_fn(_=()):
-    u = fwd_pred(())
+def loss_fn(traction):
+    u = fwd_pred(traction)
     return np.mean(u[0]**2)
+
+num_surface_faces = len(problem.boundary_inds_list[0])
+num_face_quads = problem.fes[0].face_shape_vals.shape[1]
+print(num_surface_faces)
+print(num_face_quads)
+traction = np.full((num_surface_faces, num_face_quads), 100.0)
 
 grad_fn = jax.grad(loss_fn)
 
-g = grad_fn(())          # Compute gradient (backward pass)
+g = grad_fn(traction)          # Compute gradient (backward pass)
 
 print("Starting timed runs...")
 for i in range(50):
     print(f"Run {i + 1}/50...")
     start = time.perf_counter()
-    g = grad_fn(())          # Compute gradient (backward pass)
+    g = grad_fn(traction)          # Compute gradient (backward pass)
+    jax.debug.print("shape {}", g.shape)
+    jax.debug.print("Gradients: {}", g)
     end = time.perf_counter()
 
     duration = end - start
     total_time += duration
     print(f"Execution {i + 1} took {duration:.4f} seconds")
 
-print(f"\nTotal time for 20 runs: {total_time:.4f} seconds")
+print(f"\nTotal time for 50 runs: {total_time:.4f} seconds")
 print(f"Average time per run: {total_time / 50:.4f} seconds")
 
 

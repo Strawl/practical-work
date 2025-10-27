@@ -1,5 +1,5 @@
 [project]
-name = "practical_work"
+name = "topology-optimization"
 version = "0.0.1"
 requires-python = ">=3.13"
 dependencies = [
@@ -9,15 +9,12 @@ dependencies = [
     "pyfiglet>=1.0.4,<2",
     "meshio>=5.3.5,<6",
     "gmsh>=4.14.1,<5",
-    "petsc4py==3.23.6",
+    "petsc4py==3.24.0",
     "fenics-basix>=0.9.0,<0.10",
     "pyvista>=0.46.3,<0.47",
     "optax>=0.2.6,<0.3",
     "tqdm>=4.67.1,<5",
     "feax",
-    "xprof>=2.20.6,<3",
-    "tensorflow>=2.20.0,<3",
-    "tensorboard-plugin-profile>=2.20.6,<3",
 ]
 
 [tool.uv]

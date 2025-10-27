@@ -163,17 +163,13 @@ def train_siren(model, coords, num_epochs=500, lr=1e-3, save_dir="./checkpoints"
         model, opt_state, loss = optimisation_step(model, optimiser, opt_state, coords)
         loss_val = float(loss)
 
-        # Every 5 epochs: log + save checkpoint
-        if epoch % 5 == 0:
-            print(f"Epoch {epoch}, loss = {loss_val:.6e}")
-            # eqx.tree_serialise_leaves(f"{save_dir}/siren_epoch_{epoch}.eqx", model)
-            # eqx.tree_serialise_leaves(f"{save_dir}/opt_state_epoch_{epoch}.eqx", opt_state)
+        print(f"Epoch {epoch}, loss = {loss_val:.6e}")
 
         # Stop if loss increases compared to previous step
         if loss_val > prev_loss:
             print(f"⚠️ Loss increased at epoch {epoch}: {loss_val:.6e} (prev {prev_loss:.6e})")
-            # eqx.tree_serialise_leaves(f"{save_dir}/siren_epoch_{epoch}_loss_increase.eqx", model)
-            # eqx.tree_serialise_leaves(f"{save_dir}/opt_state_epoch_{epoch}_loss_increase.eqx", opt_state)
+            eqx.tree_serialise_leaves(f"{save_dir}/siren_epoch_{epoch}_loss_increase.eqx", model)
+            eqx.tree_serialise_leaves(f"{save_dir}/opt_state_epoch_{epoch}_loss_increase.eqx", opt_state)
             break
 
         prev_loss = loss_val

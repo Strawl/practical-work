@@ -38,13 +38,13 @@ Lx, Ly = 60., 30.
 
 
 trained_siren_loaded = eqx.tree_deserialise_leaves("./feax/trained_siren.eqx", siren_dummy)
-meshio_mesh_inf = rectangle_mesh(Nx=120*10, Ny=60*10, domain_x=Lx, domain_y=Ly)
+meshio_mesh_inf = rectangle_mesh(Nx=60*2, Ny=30*2, domain_x=Lx, domain_y=Ly)
 mesh_inf = Mesh(meshio_mesh_inf.points, meshio_mesh_inf.cells_dict[cell_type])
 coords_inf = get_element_centroids(mesh_inf)
 
 rho_pred_inf = jax.nn.sigmoid(trained_siren_loaded(coords_inf))
 
-rho_img_inf = np.reshape(rho_pred_inf, (60*10, 120*10), order="F")
+rho_img_inf = np.reshape(rho_pred_inf, (60, 120), order="F")
 
 plt.figure(figsize=(8, 4))
 plt.imshow(rho_img_inf, cmap="gray_r", origin="lower")
