@@ -21,7 +21,6 @@ from datetime import datetime
 
 jax.config.update("jax_enable_x64", True)  # Use 64-bit precision
 
-
 ele_type = 'QUAD4'
 Lx, Ly = 60., 30.
 mesh = rectangle_mesh(Nx=60, Ny=30, domain_x=Lx, domain_y=Ly)

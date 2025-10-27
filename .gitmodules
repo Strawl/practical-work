@@ -1,0 +1,3 @@
+[submodule "feax"]
+	path = feax
+	url = git@github.com:Strawl/feax.git
