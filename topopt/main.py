@@ -1,43 +1,51 @@
 """
-Minimal example: Compute compliance for a 3D elasticity problem
+Parallel training of multiple SIREN models using vmap.
+Each SIREN learns for a different target density (volume fraction).
 """
 
 import time
 import jax
-import optax
 import jax.numpy as np
+import optax
+import equinox as eqx
+from tqdm import tqdm
 from feax import InternalVars, create_solver
 from feax import SolverOptions, zero_like_initial_guess
 from feax import DirichletBCSpec, DirichletBCConfig
 from feax.mesh import rectangle_mesh
 from feax.topopt_toolkit import create_compliance_fn
 from problems import DensityElasticityProblem
-import equinox as eqx
-from tqdm import tqdm
-from siren import SIREN
-import matplotlib.pyplot as plt
 from pathlib import Path
 from datetime import datetime
+from siren import SIREN
+from utils import get_element_centroids
+from serialization import (
+    ModelEnsembleConfig,
+    ModelInstanceConfig,
+    TrainingParams,
+    create_models,
+    serialize_ensemble
+)
+import config as config
 
-jax.config.update("jax_enable_x64", True)  # Use 64-bit precision
-# jax.config.update("jax_disable_jit", True)
-jax.config.update("jax_debug_nans", True)
-# jax.config.update("jax_debug_infs", True)
-# jax.config.update("jax_traceback_filtering", "tracebackhide")
 
-ele_type = 'QUAD4'
-Lx, Ly = 60., 30.
-mesh = rectangle_mesh(Nx=60, Ny=30, domain_x=Lx, domain_y=Ly)
+# ---------------- FE Problem Setup ----------------
+ele_type = "QUAD4"
+Lx, Ly = 60.0, 30.0
+scale=3
+mesh = rectangle_mesh(Nx=60*scale, Ny=30*scale, domain_x=Lx, domain_y=Ly)
 
-# Boundary conditions
-def fixed_location(point): return np.isclose(point[0], 0., atol=1e-5)
-def load_location(point): return np.logical_and(np.isclose(point[0], Lx, atol=1e-5),
-                                               np.isclose(point[1], 0., atol=0.1*Ly + 1e-5))
+def fixed_location(point):
+    return np.isclose(point[0], 0.0, atol=1e-5)
+
+def load_location(point):
+    return np.logical_and(np.isclose(point[0], Lx, atol=1e-5),
+                          np.isclose(point[1], 0.0, atol=0.1 * Ly + 1e-5))
 
 bc_config = DirichletBCConfig([
     DirichletBCSpec(
         location=fixed_location,
-        component='all',
+        component="all",
         value=0.0
     )
 ])
@@ -47,127 +55,81 @@ problem = DensityElasticityProblem(
     vec=2,
     dim=2,
     ele_type=ele_type,
-    gauss_order=1,
+    gauss_order=2,
     location_fns=[load_location],
-    additional_info = (70e3, 1e-3, 0.3, 3, 1e2)
+    # additional_info=(70e3, 1e1, 0.3, 3, 1e2)
+    additional_info=(70e3, 7, 0.3, 3, 1e2)
 )
 
-# Initial density field (all solid = 1.0)
-num_elements = mesh.cells.shape[0]
-
-
-# Setup FE solver
 bc = bc_config.create_bc(problem)
-# solver_option = SolverOptions(tol=1e-8, linear_solver="cg", use_jacobi_preconditioner=True)
-solver_option = SolverOptions(tol=1e-8, linear_solver="bicgstab", use_jacobi_preconditioner=True)
-solver = create_solver(problem, bc=bc, solver_options=solver_option, adjoint_solver_options=solver_option, iter_num=1)
-
+solver_opts = SolverOptions(tol=1e-8, linear_solver="bicgstab", use_jacobi_preconditioner=True)
+solver = create_solver(problem, bc=bc, solver_options=solver_opts, adjoint_solver_options=solver_opts, iter_num=1)
 initial_guess = zero_like_initial_guess(problem, bc)
 traction_array = InternalVars.create_uniform_surface_var(problem, problem.T)
-
-# Compliance function
 compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
+num_elements = mesh.cells.shape[0]
 
-def get_element_centroids(mesh):
-    pts = np.array(mesh.points)
-    cells = np.array(mesh.cells)
-    centroids = np.mean(pts[cells], axis=1)  # (num_cells, 2)
-
-    # normalize to [-1, 1] for SIREN stability
-    xmin, ymin = np.min(centroids, axis=0)
-    xmax, ymax = np.max(centroids, axis=0)
-    centroids = (centroids - np.array([xmin, ymin])) / (np.array([xmax - xmin, ymax - ymin]))
-    centroids = 2.0 * centroids - 1.0
-
-    return centroids.astype(np.float32)
-
-def J_total(params):
-    internal_vars = InternalVars(
-        volume_vars=(params,),
-        surface_vars=[(traction_array,)]
-    )
+def J_total(rho):
+    internal_vars = InternalVars(volume_vars=(rho,), surface_vars=[(traction_array,)])
     sol = solver(internal_vars, initial_guess)
     return compute_compliance(sol)
 
-@eqx.filter_jit
-def fem_loss(model, coords):
+coords = get_element_centroids(mesh)
 
-    rho = jax.nn.sigmoid(model(coords))
+# ---------------- MODEL Definition ----------------
 
-    # def _plot_callback(rho_host):
-        # rho_img = np.reshape(rho_host, (30, 60), order="F")
-        # plt.figure(figsize=(8, 4))
-        # plt.imshow(rho_img, cmap="gray_r", origin="lower")
-        # plt.colorbar(label="Density (rho)")
-        # plt.title("Predicted Density Field")
-        # plt.xlabel("x")
-        # plt.ylabel("y")
-        # plt.show()
+ensemble_config: ModelEnsembleConfig = ModelEnsembleConfig.from_json(config.TRAIN_CONFIG_PATH)
+rng = jax.random.PRNGKey(42)
+model_batch, target_densities, penalties = create_models(
+    ensemble_config,
+    rng,
+)
 
-    # jax.debug.callback(_plot_callback, rho)
-
+# ---------------- Loss Functions ----------------
+@jax.jit
+def fem_loss_single(model, coords, target_density, penalty):
+    rho = jax.nn.sigmoid(np.nan_to_num(model(coords), nan=0.0, posinf=1.0, neginf=0.0))
     J = J_total(rho)
+    vol_penalty = penalty * (np.mean(rho) - target_density) ** 2
+    jax.debug.print("mean(rho)={mean_rho:.3e}, J={J}, finite(J)={finite_J}",
+                    mean_rho=np.mean(rho),
+                    J=J,
+                    finite_J=np.all(np.isfinite(J)))
+    return J + vol_penalty
 
-    vol_penalty = 200 * (np.mean(rho) - 0.3) ** 2
-    total_loss = J + vol_penalty
-    return total_loss 
+single_loss_and_grad = eqx.filter_value_and_grad(fem_loss_single)
 
-loss_and_grad = eqx.filter_value_and_grad(fem_loss)
+def batched_loss_and_grad(models, coords, target_densities, penalties):
+    return jax.vmap(single_loss_and_grad, in_axes=(0, None, 0, 0))(models, coords, target_densities, penalties)
 
-def optimisation_step(model, optimiser, opt_state, coords):
-    loss, grads = loss_and_grad(model, coords)
-    updates, opt_state = optimiser.update(grads, opt_state)
-    model = eqx.apply_updates(model, updates)
-    return model, opt_state, loss
+# ---------------- Optimizer & Training ----------------
+def optimisation_step(models, opt_states, optimizer, coords, target_densities, penalties):
+    losses, grads = batched_loss_and_grad(models, coords, target_densities, penalties)
+    updates, opt_states = jax.vmap(optimizer.update)(grads, opt_states)
+    models = jax.vmap(eqx.apply_updates)(models, updates)
+    return models, opt_states, losses
 
-def train_siren(model, coords, num_epochs=500, lr=1e-3):
+def train_multiple_sirens(models, coords, target_densities, penalties, num_epochs=150, lr=1e-4):
     optimizer = optax.chain(
         optax.clip_by_global_norm(1.0),
         optax.adam(lr)
     )
-    opt_state = optimizer.init(eqx.filter(model, eqx.is_array))
-
-    # opt_state = eqx.tree_deserialise_leaves(
-        # f"./feax/opt_state_epoch_85.eqx", opt_state
-    # )
-
-    prev_loss = float("inf")
+    opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
 
     for epoch in tqdm(range(num_epochs), desc="Epochs"):
-        model, opt_state, loss = optimisation_step(model, optimizer, opt_state, coords)
-        loss_val = float(loss)
+        models, opt_states, losses = optimisation_step(models, opt_states, optimizer, coords, target_densities, penalties)
 
-        print(f"Epoch {epoch}, loss = {loss_val}")
+        loss_values = np.array(losses)
+        mean_loss = float(np.mean(loss_values))
 
-        # Stop if loss increases compared to previous step
-        if loss_val > prev_loss:
-            print(f"⚠️ Loss increased at epoch {epoch}: {loss_val:.6e} (prev {prev_loss:.6e})")
-            break
+        loss_str = " | ".join([f"{loss_values[i]:.6f}" for i in range(len(loss_values))])
+        print(f"Epoch {epoch:03d} | mean loss = {mean_loss:.6f} | individual = [{loss_str}]")
 
-        prev_loss = loss_val
+    return models, opt_states
 
-    return model, opt_state
-
-coords = get_element_centroids(mesh)
-
-rng = jax.random.PRNGKey(42)
-siren = SIREN(
-    num_channels_in=2,
-    num_channels_out=1,
-    num_layers=4,
-    num_latent_channels=64,
-    omega=30.0,
-    rng_key=rng
+# ---------------- Train All Models ----------------
+trained_models, opt_states = train_multiple_sirens(
+    model_batch, coords, target_densities, penalties, num_epochs=200, lr=5e-4
 )
 
-# siren = eqx.tree_deserialise_leaves(f"./feax/siren_epoch_85.eqx", siren)
-trained_siren, opt_state = train_siren(siren, coords, num_epochs=200, lr=5e-4)
-base_dir = Path("outputs")
-
-run_dir = base_dir / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-run_dir.mkdir(parents=True, exist_ok=True)
-
-eqx.tree_serialise_leaves(run_dir / "trained_siren.eqx", trained_siren)
-eqx.tree_serialise_leaves(run_dir / "opt_state.eqx", opt_state)
-
-print(f"Saved model and optimizer to {run_dir}")
+serialize_ensemble(trained_models, opt_states, ensemble_config)

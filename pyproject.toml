@@ -3,18 +3,12 @@ name = "topology-optimization"
 version = "0.0.1"
 requires-python = ">=3.13"
 dependencies = [
+    "feax",
     "equinox>=0.13.1,<0.14.0",
-    # "jax-fem>=0.0.11,<0.0.12",
-    "matplotlib>=3.10.6,<4",
-    "pyfiglet>=1.0.4,<2",
-    "meshio>=5.3.5,<6",
-    "gmsh>=4.14.1,<5",
-    # "petsc4py==3.24.0",
-    "pyvista>=0.46.3,<0.47",
     "optax>=0.2.6,<0.3",
     "tqdm>=4.67.1,<5",
-    "feax",
-    "jax[cuda12]>=0.7.2 ; sys_platform == 'linux'",
+    "matplotlib>=3.10.6,<4",
+    "jax[cuda13] ; sys_platform == 'linux'"
 ]
 
 [tool.uv]
@@ -22,6 +16,7 @@ package = false
 
 [tool.uv.sources]
 feax = { path = "./feax", editable = true }
+jax = { path = "./jax", editable = true }
 
 [build-system]
 requires = ["hatchling"]
