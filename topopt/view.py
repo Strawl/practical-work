@@ -82,18 +82,32 @@ def show_paged_images(images, titles, per_page=6):
     pages = (total + per_page - 1) // per_page
     current_page = 0
 
+    def _get_fontsizes(fig):
+        w, h = fig.get_size_inches()
+        base = min(w, h)
+
+        title_fs = max(6, int(base * 1.5))
+        suptitle_fs = max(8, int(base * 2))
+
+        return title_fs, suptitle_fs
+
     def draw_page(page_idx):
+        fig = plt.gcf()
+        title_fs, suptitle_fs = _get_fontsizes(fig)
+
         plt.clf()
         start = page_idx * per_page
         end = min(start + per_page, total)
         ncols = 3
         nrows = int(np.ceil((end - start) / ncols))
+
         for i, (img, title) in enumerate(zip(images[start:end], titles[start:end])):
             ax = plt.subplot(nrows, ncols, i + 1)
             ax.imshow(img, cmap="gray_r", origin="lower")
-            ax.set_title(title, fontsize=9)
+            ax.set_title(title, fontsize=title_fs)
             ax.axis("off")
-        plt.suptitle(f"Page {page_idx + 1}/{pages}", fontsize=12)
+
+        plt.suptitle(f"Page {page_idx + 1}/{pages}", fontsize=suptitle_fs)
         plt.tight_layout(rect=[0, 0, 1, 0.95])
         plt.draw()
 
@@ -105,8 +119,14 @@ def show_paged_images(images, titles, per_page=6):
             current_page = (current_page - 1) % pages
         draw_page(current_page)
 
+    def on_resize(event):
+        # Just redraw current page with updated font sizes
+        draw_page(current_page)
+
     fig = plt.figure(figsize=(10, 6))
     fig.canvas.mpl_connect("key_press_event", on_key)
+    fig.canvas.mpl_connect("resize_event", on_resize)
+
     draw_page(0)
     plt.show()
 
