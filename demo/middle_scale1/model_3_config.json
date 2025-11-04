@@ -1,0 +1,16 @@
+{
+  "model_type": "SIREN",
+  "model_kwargs": {
+    "num_channels_in": 2,
+    "num_channels_out": 1,
+    "num_layers": 4,
+    "num_latent_channels": 64,
+    "omega": 20.0
+  },
+  "training": {
+    "target_density": 0.1,
+    "penalty": 100
+  },
+  "weights_file": "model_3.eqx",
+  "opt_state_file": "opt_state_3.eqx"
+}
