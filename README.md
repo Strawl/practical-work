@@ -1,56 +1,46 @@
-# Practical Work
-## Install petsc4py (needed by jax_fem)
-    MPICC=/opt/homebrew/bin/mpicc
-    PETSC_DIR=$(brew --prefix petsc)
-    PETSC_ARCH=real
-    uv pip install --no-binary=petsc4py petsc4py
+# Topology Optimization with FEAX
 
-# For ubuntu 
-    apt-get install libatlas-base-dev libblas-dev liblapack-dev libhdf5-dev libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev libxinerama1
-    unset LD_LIBRARY_PATH
+This project performs topology optimization using **FEAX**, a finite element analysis library written in JAX.  
+Follow the instructions below to set up your environment and run the training and visualization scripts.
 
+## Installation
 
-## Finite Element Solvers
+### Ubuntu / Debian
 
-### Differentiable Finite Element Method with JAX: 'jax_fem'
- - biggest FEM library in jax
- - JIT does not seem to be supported
- - provides an example on how to perform TO
+Install system dependencies:
 
-### A compact, high-performance finite element analysis engine built on JAX:  "feax"
- - supports jit
- - will require more effort to get to work, examples are not up-to-date with the current codebase
- - provides an example on how to perform TO
+```bash
+sudo apt-get install libatlas-base-dev libblas-dev liblapack-dev libhdf5-dev \
+libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev libxinerama1
+unset LD_LIBRARY_PATH
+```
 
-### Not investigated:
- - Grid-based approximation of partial differential equations in Julia: "Gridap.jl"
- - taichi
- - https://github.com/meyer-nils/torch-fem
+## Train the model
 
-## Siren
+```bash
+uv run ./topopt/main.py
+```
 
-### JAX implementation of SIREN using Equinox: github project: [(equinox-siren)](https://github.com/sukjulian/equinox-siren)
- -  JIT compatibily to be evaluated it
- -  works quite well (tested with jax_fem)
+## Visualize the results
+```bash
+uv run ./topopt/view.py --scale 3 --domain 60,30
+```
 
-### Not investigated:
-- [Pytorch implementation of SIREN - Implicit Neural Representations with Periodic Activation Function](https://github.com/lucidrains/siren-pytorch)
-- [Pytorch implementation from the original SIREN paper](https://github.com/scart97/Siren-fastai2/blob/master/siren.py)
-- For Julia: could be implemented in flux with (some) effort
+### Arguments
+- 	--domain: The domain used during training (e.g., 60,30).
+- 	--scale: The visualization resolution (default: 1 -> equal to the domain).
+- 	--dir: Directory where the outputs are stored.
+If not specified, the script will automatically use the latest results from ./outputs
 
-## TOuNN Authors
- - since the original paper, they have made several projects based on some form of TO
-   - [TOuNN github project](https://github.com/UW-ERSL/TOuNN)
-   - written in pytorch
- - A JAX implementation of TOuNN was created 2 years later
-   - [JAXTOuNN](https://github.com/UW-ERSL/JAXTOuNN)
-   - uses standard mlp with LeakyRELU
- - Since then their other projects that go into TO have also been implemeted using JAX:
-   - [AuTO](https://github.com/UW-ERSL/AuTO)
- - Expanding into Fluidic Problems:
-   - [TOFLUX](https://github.com/UW-ERSL/TOFLUX)
-   - [FluTO](https://github.com/UW-ERSL/FluTO)
-   - [TOMAS](https://github.com/UW-ERSL/TOMAS)
+## Acknowledgements
+- [FEAX](https://github.com/Naruki-Ichihara/feax)
+- [jax-fem](https://github.com/deepmodeling/jax-fem)
 
-## SIREN-based implicit density representation (using jax-fem) of the basic TO problem:
-![](./images/result.png)
+## Deprecated
+###  Install petsc4py (needed by jax_fem)
+```bash
+MPICC=/opt/homebrew/bin/mpicc
+PETSC_DIR=$(brew --prefix petsc)
+PETSC_ARCH=real
+uv pip install --no-binary=petsc4py petsc4py
+```
