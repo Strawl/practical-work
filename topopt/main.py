@@ -3,26 +3,31 @@ Parallel training of multiple SIREN models using vmap.
 Each SIREN learns for a different target density (volume fraction).
 """
 
-import jax
+import config as config
+import equinox as eqx
 import jax.numpy as np
 import optax
-import equinox as eqx
-from tqdm import tqdm
-from feax import InternalVars, create_solver
-from feax import SolverOptions, zero_like_initial_guess
-from feax import DirichletBCSpec, DirichletBCConfig
+from bc import make_bc_preset
 from feax.mesh import rectangle_mesh
 from feax.topopt_toolkit import create_compliance_fn
 from problems import DensityElasticityProblem
-from bc import make_bc_preset
-from utils import get_element_centroids
 from serialization import (
     ModelEnsembleConfig,
     create_models,
     serialize_ensemble,
 )
-import config as config
+from tqdm import tqdm
+from utils import get_element_centroids
 
+import jax
+from feax import (
+    DirichletBCConfig,
+    DirichletBCSpec,
+    InternalVars,
+    SolverOptions,
+    create_solver,
+    zero_like_initial_guess,
+)
 
 # ---------------- FE Problem Setup ----------------
 ele_type = "QUAD4"

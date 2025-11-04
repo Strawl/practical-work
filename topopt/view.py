@@ -14,15 +14,15 @@ import argparse
 import json
 from pathlib import Path
 
-import jax
-import jax.numpy as np
 import equinox as eqx
+import jax.numpy as np
 import matplotlib.pyplot as plt
-
 from feax.mesh import rectangle_mesh
 from jax.nn import sigmoid
 from siren import SIREN
 from utils import get_element_centroids
+
+import jax
 
 
 def load_model_from_config(cfg_path: Path, base_dir: Path):

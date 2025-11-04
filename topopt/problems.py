@@ -1,5 +1,6 @@
-from feax import Problem
 import jax.numpy as jnp
+
+from feax import Problem
 
 
 class DensityElasticityProblem(Problem):

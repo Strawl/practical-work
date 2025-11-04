@@ -1,15 +1,16 @@
-from datetime import datetime
 import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Type
-from dataclasses import dataclass, asdict, field
+
 import equinox as eqx
+import numpy as np
 from jaxtyping import PyTree
 from matplotlib.pylab import Enum
-import jax
-import numpy as np
-
 from siren import SIREN
+
+import jax
 
 
 class ModelType(str, Enum):

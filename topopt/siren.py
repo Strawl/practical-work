@@ -1,8 +1,10 @@
-import jax
-import jax.numpy as jnp
 import math
-import equinox as eqx
 from typing import List
+
+import equinox as eqx
+import jax.numpy as jnp
+
+import jax
 
 
 def _get_siren_weights_init_fun(omega: float, first_layer: bool = False):
