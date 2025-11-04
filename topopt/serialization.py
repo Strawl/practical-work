@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Type
 from dataclasses import dataclass, asdict, field
 import equinox as eqx
 from jaxtyping import PyTree

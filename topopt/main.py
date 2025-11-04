@@ -3,7 +3,6 @@ Parallel training of multiple SIREN models using vmap.
 Each SIREN learns for a different target density (volume fraction).
 """
 
-import time
 import jax
 import jax.numpy as np
 import optax
@@ -15,15 +14,10 @@ from feax import DirichletBCSpec, DirichletBCConfig
 from feax.mesh import rectangle_mesh
 from feax.topopt_toolkit import create_compliance_fn
 from problems import DensityElasticityProblem
-from pathlib import Path
-from datetime import datetime
-from siren import SIREN
 from bc import make_bc_preset
 from utils import get_element_centroids
 from serialization import (
     ModelEnsembleConfig,
-    ModelInstanceConfig,
-    TrainingParams,
     create_models,
     serialize_ensemble,
 )
