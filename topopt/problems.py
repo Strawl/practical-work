@@ -1,13 +1,11 @@
 from feax import Problem
 import jax.numpy as jnp
 
+
 class DensityElasticityProblem(Problem):
-    def custom_init(self,
-                    E0: float,
-                    E_eps: float,
-                    nu: float,
-                    p: float,
-                    T: float) -> None:
+    def custom_init(
+        self, E0: float, E_eps: float, nu: float, p: float, T: float
+    ) -> None:
         """
         E0 : float
             Young's modulus of solid material.
@@ -32,6 +30,7 @@ class DensityElasticityProblem(Problem):
         """
         Returns a stress function σ(u_grad, ρ) implementing SIMP interpolation.
         """
+
         def stress(u_grad, rho):
             # Material interpolation: E(ρ) = (E0 - E_eps) * ρ^p + E_eps
             E = (self.E0 - self.E_eps) * rho**self.p + self.E_eps
@@ -44,7 +43,6 @@ class DensityElasticityProblem(Problem):
 
         return stress
 
-
     def get_surface_maps(self):
         """
         Returns a list of surface traction mapping functions.
@@ -52,6 +50,7 @@ class DensityElasticityProblem(Problem):
 
         Automatically adapts to 2D or 3D based on self.dim.
         """
+
         def surface_map(u, x, load: float) -> jnp.ndarray:
             # Initialize zero traction vector
             traction = jnp.zeros(self.dim)
@@ -65,13 +64,9 @@ class DensityElasticityProblem(Problem):
 
         return [surface_map]
 
+
 class PlaneStressElasticityProblem(Problem):
-    def custom_init(self,
-                 Emax: float,
-                 Emin: float,
-                 nu: float,
-                 penal: float,
-                 T: float):
+    def custom_init(self, Emax: float, Emin: float, nu: float, penal: float, T: float):
         """
         Parameters
         ----------
@@ -96,9 +91,10 @@ class PlaneStressElasticityProblem(Problem):
         """
         Returns the stress tensor σ(u_grad, θ) for plane stress elasticity.
         """
+
         def stress(u_grad: jnp.ndarray, rho: float) -> jnp.ndarray:
             # SIMP interpolation for Young's modulus
-            E = self.Emin + (self.Emax - self.Emin) * rho ** self.penal
+            E = self.Emin + (self.Emax - self.Emin) * rho**self.penal
 
             # Small strain tensor
             epsilon = 0.5 * (u_grad + u_grad.T)
@@ -109,8 +105,7 @@ class PlaneStressElasticityProblem(Problem):
             sig22 = E / (1 + self.nu) / (1 - self.nu) * (self.nu * eps11 + eps22)
             sig12 = E / (1 + self.nu) * eps12
 
-            return jnp.array([[sig11, sig12],
-                             [sig12, sig22]])
+            return jnp.array([[sig11, sig12], [sig12, sig22]])
 
         return stress
 
@@ -118,7 +113,9 @@ class PlaneStressElasticityProblem(Problem):
         """
         Returns a surface traction mapping function for 2D plane stress.
         """
+
         def surface_map(u, x, load: float) -> jnp.ndarray:
             # Traction in y-direction
             return jnp.array([0.0, load])
+
         return [surface_map]

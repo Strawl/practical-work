@@ -11,12 +11,15 @@ import numpy as np
 
 from siren import SIREN
 
+
 class ModelType(str, Enum):
     SIREN = "SIREN"
+
 
 MODEL_REGISTRY: Dict[ModelType, Type] = {
     ModelType.SIREN: SIREN,
 }
+
 
 class JSONSerializable:
     """General superclass: provides to_dict / from_dict / to_json / from_json."""
@@ -43,6 +46,7 @@ class JSONSerializable:
         with open(path, "r") as f:
             data = json.load(f)
         return cls.from_dict(data)
+
 
 @dataclass
 class TrainingParams(JSONSerializable):
@@ -71,6 +75,7 @@ class ModelInstanceConfig(JSONSerializable):
             training=TrainingParams.from_dict(data["training"]),
         )
 
+
 @dataclass
 class ModelEnsembleConfig(JSONSerializable):
     models: List[ModelInstanceConfig] = field(default_factory=list)
@@ -82,12 +87,13 @@ class ModelEnsembleConfig(JSONSerializable):
     def from_dict(cls, data: Dict[str, Any]) -> "ModelEnsembleConfig":
         return cls(models=[ModelInstanceConfig.from_dict(m) for m in data["models"]])
 
+
 def serialize_ensemble(
     trained_models: PyTree,
     opt_states: PyTree,
     ensemble_config: ModelEnsembleConfig,
-    base_dir : str = "outputs",
-    prefix : str = "model",
+    base_dir: str = "outputs",
+    prefix: str = "model",
 ):
     """
     Serialize a batched collection of models, optimizer states, and their
@@ -171,17 +177,15 @@ def create_models(
     if not all(mt == first_type for mt in model_types):
         raise ValueError(
             "All models in one ensemble must share the same model_type "
-            "for batched construction. Got: " + ", ".join(mt.value for mt in model_types)
+            "for batched construction. Got: "
+            + ", ".join(mt.value for mt in model_types)
         )
 
     model_cls = MODEL_REGISTRY[first_type]
 
     keys = jax.random.split(rng_key, num_models)
 
-    models = [
-        model_cls(rng_key=k, **cfg.model_kwargs)
-        for k, cfg in zip(keys, configs)
-    ]
+    models = [model_cls(rng_key=k, **cfg.model_kwargs) for k, cfg in zip(keys, configs)]
 
     model_batch = jax.tree_util.tree_map(lambda *xs: np.stack(xs), *models)
 

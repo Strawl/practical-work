@@ -1,4 +1,5 @@
 import jax
+
 TRAIN_CONFIG_PATH = "train_config.json"
 
 # ---------------- JAX Config ----------------

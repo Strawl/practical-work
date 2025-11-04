@@ -49,7 +49,9 @@ def load_model_from_config(cfg_path: Path, base_dir: Path):
     weights_path = base_dir / weights_file
 
     if model_type != "SIREN":
-        raise NotImplementedError(f"model_type '{model_type}' is not supported yet in view_models.py")
+        raise NotImplementedError(
+            f"model_type '{model_type}' is not supported yet in view_models.py"
+        )
 
     # Build a dummy SIREN from the kwargs in the JSON.
     # The arrays will be overwritten by tree_deserialise_leaves, but static
@@ -135,10 +137,24 @@ def show_paged_images(images, titles, per_page=6):
 # Main
 # -------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="Visualize model outputs saved by serialize_ensemble.")
-    parser.add_argument("--dir", type=str, help="Directory containing model files + *_config.json.")
-    parser.add_argument("--scale", type=int, default=5, help="Scaling factor for resolution (default: 5).")
-    parser.add_argument("--domain", type=str, default="60,30", help="Domain size as Lx,Ly (default: 60,30).")
+    parser = argparse.ArgumentParser(
+        description="Visualize model outputs saved by serialize_ensemble."
+    )
+    parser.add_argument(
+        "--dir", type=str, help="Directory containing model files + *_config.json."
+    )
+    parser.add_argument(
+        "--scale",
+        type=int,
+        default=5,
+        help="Scaling factor for resolution (default: 5).",
+    )
+    parser.add_argument(
+        "--domain",
+        type=str,
+        default="60,30",
+        help="Domain size as Lx,Ly (default: 60,30).",
+    )
     args = parser.parse_args()
 
     # --- Determine base directory ---

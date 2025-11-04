@@ -8,14 +8,15 @@ from typing import List
 def _get_siren_weights_init_fun(omega: float, first_layer: bool = False):
     def init_fun(key: jax.random.PRNGKey, shape: tuple, dtype=jnp.float32):
         fan_in, _ = shape[-2:]
-        limit = 1. / fan_in if first_layer else math.sqrt(6. / fan_in) / omega
+        limit = 1.0 / fan_in if first_layer else math.sqrt(6.0 / fan_in) / omega
         return jax.random.uniform(key, shape, dtype, minval=-limit, maxval=limit)
+
     return init_fun
 
 
 def _siren_bias_init(key: jax.random.PRNGKey, shape: tuple, dtype=jnp.float32):
     fan_in = fan_out = shape[-1]
-    limit = math.sqrt(1. / fan_in)
+    limit = math.sqrt(1.0 / fan_in)
     return jax.random.uniform(key, (fan_out,), dtype, minval=-limit, maxval=limit)
 
 
@@ -36,7 +37,11 @@ class SIREN(eqx.Module):
         self.omega = omega
 
         # define layer sizes
-        channels = (num_channels_in, *[num_latent_channels] * (num_layers - 1), num_channels_out)
+        channels = (
+            num_channels_in,
+            *[num_latent_channels] * (num_layers - 1),
+            num_channels_out,
+        )
 
         # initialize weights and biases for each layer
         keys = jax.random.split(rng_key, 2 * (len(channels) - 1))
@@ -45,7 +50,9 @@ class SIREN(eqx.Module):
 
         weights, biases = [], []
         is_first = True
-        for (in_c, out_c, wk, bk) in zip(channels[:-1], channels[1:], weight_keys, bias_keys):
+        for in_c, out_c, wk, bk in zip(
+            channels[:-1], channels[1:], weight_keys, bias_keys
+        ):
             w_init = _get_siren_weights_init_fun(omega, first_layer=is_first)
             weights.append(w_init(wk, (in_c, out_c)))
             biases.append(_siren_bias_init(bk, (out_c,)))
