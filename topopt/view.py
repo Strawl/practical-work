@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from feax.mesh import rectangle_mesh
 from jax.nn import sigmoid
 from siren import SIREN
+from serialization import MODEL_REGISTRY, ModelType
 from utils import get_element_centroids
 
 import jax
@@ -37,35 +38,47 @@ def load_model_from_config(cfg_path: Path, base_dir: Path):
     with cfg_path.open("r") as f:
         cfg = json.load(f)
 
-    model_type = cfg.get("model_type", "SIREN")
-    model_kwargs = cfg.get("model_kwargs", {})
-    training = cfg.get("training", {})
-    weights_file = cfg.get("weights_file", None)
+    model_type_str = cfg.get("model_type")
+    try:
+        model_type = ModelType(model_type_str)
+    except ValueError:
+        raise NotImplementedError(
+            f"model_type '{model_type_str}' is not supported yet in view_models.py"
+        )
 
+    model_kwargs = cfg.get("model_kwargs", {})
+    training_cfg = cfg.get("training", {})
+
+    weights_file = cfg.get("weights_file", None)
     if weights_file is None:
         base = cfg_path.stem.replace("_config", "")
         weights_file = f"{base}.eqx"
 
     weights_path = base_dir / weights_file
 
-    if model_type != "SIREN":
+    try:
+        model_cls = MODEL_REGISTRY[model_type]
+    except KeyError:
         raise NotImplementedError(
-            f"model_type '{model_type}' is not supported yet in view_models.py"
+            f"model_type '{model_type.value}' is not supported yet in view_models.py"
         )
 
-    # Build a dummy SIREN from the kwargs in the JSON.
-    # The arrays will be overwritten by tree_deserialise_leaves, but static
-    # fields (like omega) must match the original model, so we use model_kwargs.
     rng = jax.random.PRNGKey(0)
-    siren_dummy = SIREN(
+    model_dummy = model_cls(
         rng_key=rng,
         **model_kwargs,
     )
 
-    model = eqx.tree_deserialise_leaves(weights_path, siren_dummy)
+    model = eqx.tree_deserialise_leaves(weights_path, model_dummy)
 
-    target_density = training.get("target_density")
-    penalty = training.get("penalty")
+    # --- Training params (support dict or dataclass-like) --------------------
+    if isinstance(training_cfg, dict):
+        target_density = training_cfg.get("target_density")
+        penalty = training_cfg.get("penalty")
+    else:
+        # In case someone passes a TrainingParams object instead of a dict
+        target_density = getattr(training_cfg, "target_density", None)
+        penalty = getattr(training_cfg, "penalty", None)
 
     return model, target_density, penalty, cfg
 
@@ -74,7 +87,7 @@ def predict_density(model, Lx, Ly, Nx, Ny):
     mesh = rectangle_mesh(Nx=Nx, Ny=Ny, domain_x=Lx, domain_y=Ly)
     coords = get_element_centroids(mesh)
     rho_pred = sigmoid(model(coords))
-    # rho_pred = (rho_pred >= 0.8).astype(rho_pred.dtype)
+    # rho_pred = (rho_pred >= 0.3).astype(rho_pred.dtype)
     rho_pred = np.reshape(rho_pred, (Ny, Nx), order="F")
     return rho_pred
 
