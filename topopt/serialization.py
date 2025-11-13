@@ -9,21 +9,15 @@ import numpy as np
 from jaxtyping import PyTree
 from matplotlib.pylab import Enum
 from siren import SIREN
-from wire import WIRE
 
 import jax
 
-
 class ModelType(str, Enum):
     SIREN = "SIREN"
-    WIRE = "WIRE"
-
 
 MODEL_REGISTRY: Dict[ModelType, Type] = {
     ModelType.SIREN: SIREN,
-    ModelType.WIRE: WIRE
 }
-
 
 class JSONSerializable:
     """General superclass: provides to_dict / from_dict / to_json / from_json."""

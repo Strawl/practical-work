@@ -10,8 +10,7 @@ Follow the instructions below to set up your environment and run the training an
 Install system dependencies:
 
 ```bash
-sudo apt-get install libatlas-base-dev libblas-dev liblapack-dev libhdf5-dev \
-libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev libxinerama1
+sudo apt-get install libatlas-base-dev libblas-dev liblapack-dev libhdf5-dev libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev libxinerama1
 unset LD_LIBRARY_PATH
 ```
 

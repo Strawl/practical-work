@@ -123,10 +123,15 @@ def optimisation_step(
     return models, opt_states, losses
 
 
-def train_multiple_sirens(
+def train_multiple_models(
     models, coords, target_densities, penalties, num_epochs=150, lr=1e-4
 ):
-    optimizer = optax.chain(optax.clip_by_global_norm(1.0), optax.adabelief(lr))
+    schedule = optax.exponential_decay(
+        init_value=lr,
+        transition_steps=1000,
+        decay_rate=0.99,
+    )
+    optimizer = optax.chain(optax.clip_by_global_norm(1.0), optax.adabelief(schedule))
     opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
 
     for epoch in tqdm(range(num_epochs), desc="Epochs"):
@@ -148,8 +153,8 @@ def train_multiple_sirens(
 
 
 # ---------------- Train All Models ----------------
-trained_models, opt_states = train_multiple_sirens(
-    model_batch, coords, target_densities, penalties, num_epochs=50, lr=1e-3
+trained_models, opt_states = train_multiple_models(
+    model_batch, coords, target_densities, penalties, num_epochs=200, lr=1e-3
 )
 
 serialize_ensemble(trained_models, opt_states, ensemble_config)

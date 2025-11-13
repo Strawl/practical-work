@@ -1,7 +1,6 @@
 import jax
 
 TRAIN_CONFIG_PATH = "train_siren.json"
-# TRAIN_CONFIG_PATH = "train_wire.json"
 
 # ---------------- JAX Config ----------------
 jax.config.update("jax_enable_x64", True)
