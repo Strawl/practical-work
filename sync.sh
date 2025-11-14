@@ -15,7 +15,7 @@ IDENTITY_FILE="$HOME/.ssh/id_ed25519_vast_ai"
 
 EXCLUDE_FILE=$(mktemp)
 {
-  echo ".git/"
+  # echo ".git/"
   git status --ignored --short | awk '/^!! /{print substr($0,4)}'
 } > "$EXCLUDE_FILE"
 

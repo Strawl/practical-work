@@ -11,7 +11,7 @@
       },
       "training": {
         "target_density": 0.4,
-        "penalty": 5
+        "penalty": 10
       }
     },
     {
@@ -25,7 +25,7 @@
       },
       "training": {
         "target_density": 0.5,
-        "penalty": 5
+        "penalty": 10
       }
     },
     {
@@ -39,7 +39,7 @@
       },
       "training": {
         "target_density": 0.6,
-        "penalty": 5
+        "penalty": 10
       }
     },
     {
@@ -53,7 +53,7 @@
       },
       "training": {
         "target_density": 0.4,
-        "penalty": 5
+        "penalty": 10
       }
     },
     {
@@ -67,7 +67,7 @@
       },
       "training": {
         "target_density": 0.5,
-        "penalty": 5
+        "penalty": 10
       }
     },
     {
@@ -81,7 +81,7 @@
       },
       "training": {
         "target_density": 0.6,
-        "penalty": 5
+        "penalty": 10
       }
     }
   ]

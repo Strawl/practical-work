@@ -55,7 +55,7 @@ problem = DensityElasticityProblem(
     gauss_order=2,
     location_fns=[load_location],
     # additional_info=(70e3, 1e1, 0.3, 3, 1e2)
-    additional_info=(70e3, 70, 0.3, 3, 1e2),
+    additional_info=(70e3, 7, 0.3, 3, 1e2),
 )
 
 bc = bc_config.create_bc(problem)
@@ -94,19 +94,22 @@ model_batch, target_densities, penalties = create_models(
     rng,
 )
 
-
 # ---------------- Loss Functions ----------------
 def fem_loss_single(model, coords, target_density, lam, penalty):
     rho = jax.nn.sigmoid(model(coords))
     J = J_total(rho)
-    C = np.mean(rho) - target_density
+    mean_rho = np.mean(rho)
+    C_raw = mean_rho - target_density
+    C = np.maximum(C_raw, 0.0) 
+    penalty_term = penalty * C**2
+    lagrangian_term = lam * C
+    vol_cond = lagrangian_term + penalty_term
+    loss = J + vol_cond
     jax.debug.print(
-        "mean(rho)={mean_rho:.3e}, J={J}, finite(J)={finite_J}",
-        mean_rho=np.mean(rho),
-        J=J,
-        finite_J=np.all(np.isfinite(J)),
+        "mean(rho)={mean_rho:.4f} | C={C:.4f} | J={J:.4f} | vol={vol_cond:.4f} | loss={loss:.4f}",
+        mean_rho=mean_rho, C=C, J=J, vol_cond=vol_cond, loss=loss
     )
-    loss = J + lam * C + penalty * C**2
+
     return loss, C
 
 
@@ -173,10 +176,11 @@ def train_multiple_models(
     penalties,
     num_epochs=100,
     lr=1e-4,
-    patience=3,
-    min_delta=0.1,
+    patience=5,
+    min_delta=0.005,
 ):
-    optimizer = optax.chain(optax.clip_by_global_norm(1.0), optax.adam(lr))
+    optimizer = optax.chain(optax.clip_by_global_norm(1.0),
+                            optax.adabelief(lr))
     opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
 
     # rng = jax.random.PRNGKey(42)
@@ -238,7 +242,7 @@ def train_multiple_models(
 
 # ---------------- Train All Models ----------------
 trained_models, opt_states = train_multiple_models(
-    model_batch, coords, target_densities, penalties, num_epochs=200, lr=5e-4
+    model_batch, coords, target_densities, penalties, num_epochs=500, lr=1e-4
 )
 
 serialize_ensemble(trained_models, opt_states, ensemble_config, problem)
