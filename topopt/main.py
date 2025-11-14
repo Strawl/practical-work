@@ -8,8 +8,8 @@ import equinox as eqx
 import jax.numpy as np
 import optax
 from bc import make_bc_preset
+from feax.experimental.topopt_toolkit import create_compliance_fn
 from feax.mesh import rectangle_mesh
-from feax.topopt_toolkit import create_compliance_fn
 from problems import DensityElasticityProblem
 from serialization import (
     ModelEnsembleConfig,
@@ -33,7 +33,13 @@ from feax import (
 ele_type = "QUAD4"
 Lx, Ly = 60.0, 30.0
 scale = 1
-mesh = rectangle_mesh(Nx=60 * scale, Ny=30 * scale, domain_x=Lx, domain_y=Ly)
+Nx = 60 * scale
+Ny = 30 * scale
+dx = Lx / Nx
+dy = Ly / Ny
+dx_norm = 2 * dx / Lx
+dy_norm = 2 * dy / Ly
+mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
 
 fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
 
@@ -49,7 +55,7 @@ problem = DensityElasticityProblem(
     gauss_order=2,
     location_fns=[load_location],
     # additional_info=(70e3, 1e1, 0.3, 3, 1e2)
-    additional_info=(70e3, 7, 0.3, 3, 1e2),
+    additional_info=(70e3, 70, 0.3, 3, 1e2),
 )
 
 bc = bc_config.create_bc(problem)
@@ -90,54 +96,115 @@ model_batch, target_densities, penalties = create_models(
 
 
 # ---------------- Loss Functions ----------------
-@jax.jit
-def fem_loss_single(model, coords, target_density, penalty):
-    rho = jax.nn.sigmoid(np.nan_to_num(model(coords), nan=0.0, posinf=1.0, neginf=0.0))
+def fem_loss_single(model, coords, target_density, lam, penalty):
+    rho = jax.nn.sigmoid(model(coords))
     J = J_total(rho)
-    vol_penalty = penalty * (np.mean(rho) - target_density) ** 2
+    C = np.mean(rho) - target_density
     jax.debug.print(
         "mean(rho)={mean_rho:.3e}, J={J}, finite(J)={finite_J}",
         mean_rho=np.mean(rho),
         J=J,
         finite_J=np.all(np.isfinite(J)),
     )
-    return J + vol_penalty
+    loss = J + lam * C + penalty * C**2
+    return loss, C
 
 
-single_loss_and_grad = eqx.filter_value_and_grad(fem_loss_single)
+single_loss_and_grad = eqx.filter_value_and_grad(fem_loss_single, has_aux=True)
 
 
-def batched_loss_and_grad(models, coords, target_densities, penalties):
-    return jax.vmap(single_loss_and_grad, in_axes=(0, None, 0, 0))(
-        models, coords, target_densities, penalties
-    )
+def batched_loss_and_grad(models, coords, target_densities, lams, penalties):
+    # vmapped over models/targets/lams/penalties
+    (losses, Cs), grads = jax.vmap(
+        single_loss_and_grad,
+        in_axes=(0, None, 0, 0, 0),
+    )(models, coords, target_densities, lams, penalties)
+    return losses, Cs, grads
+
+
+batched_loss_and_grad = jax.jit(batched_loss_and_grad)
 
 
 # ---------------- Optimizer & Training ----------------
-def optimisation_step(
-    models, opt_states, optimizer, coords, target_densities, penalties
+def _optimisation_step(
+    models, opt_states, optimizer, coords, target_densities, lams, penalties
 ):
-    losses, grads = batched_loss_and_grad(models, coords, target_densities, penalties)
+    losses, Cs, grads = batched_loss_and_grad(
+        models, coords, target_densities, lams, penalties
+    )
     updates, opt_states = jax.vmap(optimizer.update)(grads, opt_states)
     models = jax.vmap(eqx.apply_updates)(models, updates)
-    return models, opt_states, losses
+    return models, opt_states, losses, Cs
+
+
+def optimisation_step(
+    models, opt_states, optimizer, coords, target_densities, lams, penalties
+):
+    losses, Cs, grads = batched_loss_and_grad(
+        models, coords, target_densities, lams, penalties
+    )
+
+    good = np.isfinite(losses)
+    updates, new_opt_states = jax.vmap(optimizer.update)(grads, opt_states)
+
+    def mask_updates(update, keep):
+        return jax.tree.map(lambda u: np.where(keep, u, np.zeros_like(u)), update)
+
+    masked_updates = jax.vmap(mask_updates)(updates, good)
+
+    def apply_or_keep(model, masked_update, keep):
+        new_model = eqx.apply_updates(model, masked_update)
+        return jax.tree.map(lambda new, old: np.where(keep, new, old), new_model, model)
+
+    models = jax.vmap(apply_or_keep)(models, masked_updates, good)
+
+    def mask_opt_state(new, old, keep):
+        return jax.tree.map(lambda n, o: np.where(keep, n, o), new, old)
+
+    opt_states = jax.vmap(mask_opt_state)(new_opt_states, opt_states, good)
+
+    return models, opt_states, losses, Cs
 
 
 def train_multiple_models(
-    models, coords, target_densities, penalties, num_epochs=150, lr=1e-4
+    models,
+    coords,
+    target_densities,
+    penalties,
+    num_epochs=100,
+    lr=1e-4,
+    patience=3,
+    min_delta=0.1,
 ):
-    schedule = optax.exponential_decay(
-        init_value=lr,
-        transition_steps=1000,
-        decay_rate=0.99,
-    )
-    optimizer = optax.chain(optax.clip_by_global_norm(1.0), optax.adabelief(schedule))
+    optimizer = optax.chain(optax.clip_by_global_norm(1.0), optax.adam(lr))
     opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
 
+    # rng = jax.random.PRNGKey(42)
+    lams = np.zeros_like(target_densities)
+
+    # Early stopping state
+    best_mean_loss = np.inf
+    epochs_no_improve = 0
+
     for epoch in tqdm(range(num_epochs), desc="Epochs"):
-        models, opt_states, losses = optimisation_step(
-            models, opt_states, optimizer, coords, target_densities, penalties
+        # rng, kx, ky = jax.random.split(rng, 3)
+        # ux = jax.random.uniform(kx, (num_elements,), minval=-0.5, maxval=0.5)
+        # uy = jax.random.uniform(ky, (num_elements,), minval=-0.5, maxval=0.5)
+
+        # jittered_coords = np.stack(
+        # [
+        # coords[:, 0] + ux * dx_norm,
+        # coords[:, 1] + uy * dy_norm,
+        # ],
+        # axis=-1,
+        # )
+
+        models, opt_states, losses, Cs = optimisation_step(
+            models, opt_states, optimizer, coords, target_densities, lams, penalties
         )
+
+        good = np.isfinite(Cs)
+        lams = np.where(good, lams + 2.0 * penalties * Cs, lams)
 
         loss_values = np.array(losses)
         mean_loss = float(np.mean(loss_values))
@@ -149,12 +216,29 @@ def train_multiple_models(
             f"Epoch {epoch:03d} | mean loss = {mean_loss:.6f} | individual = [{loss_str}]"
         )
 
+        # ----- Early stopping logic -----
+        if best_mean_loss - mean_loss > min_delta:
+            # Significant improvement
+            best_mean_loss = mean_loss
+            epochs_no_improve = 0
+        else:
+            # Little or no improvement
+            epochs_no_improve += 1
+            if epochs_no_improve >= patience:
+                print(
+                    f"Early stopping at epoch {epoch:03d} "
+                    f"(no significant improvement for {patience} epochs; "
+                    f"best mean loss = {best_mean_loss:.6f})"
+                )
+                break
+        # -------------------------------
+
     return models, opt_states
 
 
 # ---------------- Train All Models ----------------
 trained_models, opt_states = train_multiple_models(
-    model_batch, coords, target_densities, penalties, num_epochs=200, lr=1e-3
+    model_batch, coords, target_densities, penalties, num_epochs=200, lr=5e-4
 )
 
-serialize_ensemble(trained_models, opt_states, ensemble_config)
+serialize_ensemble(trained_models, opt_states, ensemble_config, problem)

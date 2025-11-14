@@ -11,13 +11,17 @@ from matplotlib.pylab import Enum
 from siren import SIREN
 
 import jax
+from feax import Problem
+
 
 class ModelType(str, Enum):
     SIREN = "SIREN"
 
+
 MODEL_REGISTRY: Dict[ModelType, Type] = {
     ModelType.SIREN: SIREN,
 }
+
 
 class JSONSerializable:
     """General superclass: provides to_dict / from_dict / to_json / from_json."""
@@ -90,6 +94,7 @@ def serialize_ensemble(
     trained_models: PyTree,
     opt_states: PyTree,
     ensemble_config: ModelEnsembleConfig,
+    problem: Problem,
     base_dir: str = "outputs",
     prefix: str = "model",
 ):
@@ -191,3 +196,58 @@ def create_models(
     penalties = np.array([cfg.training.penalty for cfg in configs])
 
     return model_batch, target_densities, penalties
+
+
+def load_model_from_config(cfg_path: Path, base_dir: Path):
+    """Load a trained model using its per-model config JSON.
+
+    Assumes the config was created by `serialize_ensemble`, i.e. it contains:
+      - model_type
+      - model_kwargs
+      - training
+      - weights_file
+    """
+    with cfg_path.open("r") as f:
+        cfg = json.load(f)
+
+    model_type_str = cfg.get("model_type")
+    try:
+        model_type = ModelType(model_type_str)
+    except ValueError:
+        raise NotImplementedError(
+            f"model_type '{model_type_str}' is not supported yet in view_models.py"
+        )
+
+    model_kwargs = cfg.get("model_kwargs", {})
+    training_cfg = cfg.get("training", {})
+
+    weights_file = cfg.get("weights_file", None)
+    if weights_file is None:
+        base = cfg_path.stem.replace("_config", "")
+        weights_file = f"{base}.eqx"
+
+    weights_path = base_dir / weights_file
+
+    try:
+        model_cls = MODEL_REGISTRY[model_type]
+    except KeyError:
+        raise NotImplementedError(
+            f"model_type '{model_type.value}' is not supported yet in view_models.py"
+        )
+
+    rng = jax.random.PRNGKey(0)
+    model_dummy = model_cls(
+        rng_key=rng,
+        **model_kwargs,
+    )
+
+    model = eqx.tree_deserialise_leaves(weights_path, model_dummy)
+
+    if isinstance(training_cfg, dict):
+        target_density = training_cfg.get("target_density")
+        penalty = training_cfg.get("penalty")
+    else:
+        target_density = getattr(training_cfg, "target_density", None)
+        penalty = getattr(training_cfg, "penalty", None)
+
+    return model, target_density, penalty, cfg

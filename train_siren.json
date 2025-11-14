@@ -10,8 +10,8 @@
         "omega": 10.0
       },
       "training": {
-        "target_density": 0.1,
-        "penalty": 100
+        "target_density": 0.4,
+        "penalty": 5
       }
     },
     {
@@ -24,8 +24,8 @@
         "omega": 10.0
       },
       "training": {
-        "target_density": 0.2,
-        "penalty": 100
+        "target_density": 0.5,
+        "penalty": 5
       }
     },
     {
@@ -38,23 +38,8 @@
         "omega": 10.0
       },
       "training": {
-        "target_density": 0.3,
-        "penalty": 100
-      }
-    },
-
-    {
-      "model_type": "SIREN",
-      "model_kwargs": {
-        "num_channels_in": 2,
-        "num_channels_out": 1,
-        "num_layers": 4,
-        "num_latent_channels": 64,
-        "omega": 20.0
-      },
-      "training": {
-        "target_density": 0.1,
-        "penalty": 100
+        "target_density": 0.6,
+        "penalty": 5
       }
     },
     {
@@ -67,8 +52,8 @@
         "omega": 20.0
       },
       "training": {
-        "target_density": 0.2,
-        "penalty": 100
+        "target_density": 0.4,
+        "penalty": 5
       }
     },
     {
@@ -81,8 +66,8 @@
         "omega": 20.0
       },
       "training": {
-        "target_density": 0.3,
-        "penalty": 100
+        "target_density": 0.5,
+        "penalty": 5
       }
     },
     {
@@ -92,39 +77,11 @@
         "num_channels_out": 1,
         "num_layers": 4,
         "num_latent_channels": 64,
-        "omega": 30.0
+        "omega": 20.0
       },
       "training": {
-        "target_density": 0.1,
-        "penalty": 100
-      }
-    },
-    {
-      "model_type": "SIREN",
-      "model_kwargs": {
-        "num_channels_in": 2,
-        "num_channels_out": 1,
-        "num_layers": 4,
-        "num_latent_channels": 64,
-        "omega": 30.0
-      },
-      "training": {
-        "target_density": 0.2,
-        "penalty": 100
-      }
-    },
-    {
-      "model_type": "SIREN",
-      "model_kwargs": {
-        "num_channels_in": 2,
-        "num_channels_out": 1,
-        "num_layers": 4,
-        "num_latent_channels": 64,
-        "omega": 30.0
-      },
-      "training": {
-        "target_density": 0.3,
-        "penalty": 100
+        "target_density": 0.6,
+        "penalty": 5
       }
     }
   ]

@@ -38,8 +38,9 @@ If not specified, the script will automatically use the latest results from ./ou
 ## Deprecated
 ###  Install petsc4py (needed by jax_fem)
 ```bash
-MPICC=/opt/homebrew/bin/mpicc
-PETSC_DIR=$(brew --prefix petsc)
-PETSC_ARCH=real
+export MPICC=/opt/homebrew/bin/mpicc
+export PETSC_DIR=$(brew --prefix petsc)
+export PETSC_ARCH=real
+export PEP517_BUILD_BACKEND=setuptools.build_meta
 uv pip install --no-binary=petsc4py petsc4py
 ```
