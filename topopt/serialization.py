@@ -120,11 +120,16 @@ def serialize_ensemble(
     -------
     run_dir : Path
         The directory where all files were written.
+    models_list : list[PyTree]
+        List of individual (unbatched) model PyTrees, one per ensemble member.
+    opt_states_list : list[PyTree]
+        List of individual (unbatched) optimizer state PyTrees, one per model.
     """
     base_dir = Path(base_dir)
     run_dir = base_dir / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    # Split trainable arrays vs. static parts for models and optimizer states
     model_arrays, model_static = eqx.partition(trained_models, eqx.is_array)
     state_arrays, state_static = eqx.partition(opt_states, eqx.is_array)
 
@@ -138,12 +143,18 @@ def serialize_ensemble(
                 f"({len(ensemble_config.models)})"
             )
 
+    models_list = []
+    opt_states_list = []
+
     for i in range(num_models):
         model_arrays_i = jax.tree_util.tree_map(lambda x: x[i], model_arrays)
         state_arrays_i = jax.tree_util.tree_map(lambda x: x[i], state_arrays)
 
         model_i = eqx.combine(model_arrays_i, model_static)
         state_i = eqx.combine(state_arrays_i, state_static)
+
+        models_list.append(model_i)
+        opt_states_list.append(state_i)
 
         model_path = run_dir / f"{prefix}_{i}.eqx"
         state_path = run_dir / f"opt_state_{i}.eqx"
@@ -162,7 +173,7 @@ def serialize_ensemble(
             with open(cfg_path, "w") as f:
                 json.dump(cfg_dict, f, indent=2)
 
-    return run_dir
+    return run_dir, models_list, opt_states_list
 
 
 def create_models(

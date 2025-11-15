@@ -17,7 +17,7 @@ from serialization import (
     serialize_ensemble,
 )
 from tqdm import tqdm
-from utils import get_element_centroids
+from utils import adaptive_rectangle_mesh, get_element_areas, get_element_centroids
 
 import jax
 from feax import (
@@ -81,7 +81,8 @@ def J_total(rho):
     return compute_compliance(sol)
 
 
-coords = get_element_centroids(mesh)
+centroids, coords = get_element_centroids(mesh)
+areas, total_area = get_element_areas(mesh)
 
 # ---------------- MODEL Definition ----------------
 
@@ -95,10 +96,10 @@ model_batch, target_densities, penalties = create_models(
 )
 
 # ---------------- Loss Functions ----------------
-def fem_loss_single(model, coords, target_density, lam, penalty):
+def loss(model, coords, areas, target_density, lam, penalty):
     rho = jax.nn.sigmoid(model(coords))
     J = J_total(rho)
-    mean_rho = np.mean(rho)
+    mean_rho = (np.sum(rho.squeeze() * areas) / total_area)
     C_raw = mean_rho - target_density
     C = np.maximum(C_raw, 0.0) 
     penalty_term = penalty * C**2
@@ -113,15 +114,15 @@ def fem_loss_single(model, coords, target_density, lam, penalty):
     return loss, C
 
 
-single_loss_and_grad = eqx.filter_value_and_grad(fem_loss_single, has_aux=True)
+loss_and_grad = eqx.filter_value_and_grad(loss, has_aux=True)
 
 
-def batched_loss_and_grad(models, coords, target_densities, lams, penalties):
+def batched_loss_and_grad(models, coords, areas, target_densities, lams, penalties):
     # vmapped over models/targets/lams/penalties
     (losses, Cs), grads = jax.vmap(
-        single_loss_and_grad,
-        in_axes=(0, None, 0, 0, 0),
-    )(models, coords, target_densities, lams, penalties)
+        loss_and_grad,
+        in_axes=(0, None, None, 0, 0, 0),
+    )(models, coords, areas, target_densities, lams, penalties)
     return losses, Cs, grads
 
 
@@ -141,10 +142,10 @@ def _optimisation_step(
 
 
 def optimisation_step(
-    models, opt_states, optimizer, coords, target_densities, lams, penalties
+    models, opt_states, optimizer, coords, areas, target_densities, lams, penalties
 ):
     losses, Cs, grads = batched_loss_and_grad(
-        models, coords, target_densities, lams, penalties
+        models, coords, areas, target_densities, lams, penalties
     )
 
     good = np.isfinite(losses)
@@ -172,11 +173,12 @@ def optimisation_step(
 def train_multiple_models(
     models,
     coords,
+    areas,
     target_densities,
     penalties,
     num_epochs=100,
     lr=1e-4,
-    patience=5,
+    patience=20,
     min_delta=0.005,
 ):
     optimizer = optax.chain(optax.clip_by_global_norm(1.0),
@@ -204,7 +206,7 @@ def train_multiple_models(
         # )
 
         models, opt_states, losses, Cs = optimisation_step(
-            models, opt_states, optimizer, coords, target_densities, lams, penalties
+            models, opt_states, optimizer, coords, areas, target_densities, lams, penalties
         )
 
         good = np.isfinite(Cs)
@@ -240,9 +242,59 @@ def train_multiple_models(
     return models, opt_states
 
 
-# ---------------- Train All Models ----------------
-trained_models, opt_states = train_multiple_models(
-    model_batch, coords, target_densities, penalties, num_epochs=500, lr=1e-4
-)
+# # ---------------- Train All Models ----------------
+# trained_models, opt_states = train_multiple_models(
+    # model_batch, coords, areas, target_densities, penalties, num_epochs=150, lr=1e-4
+# )
 
-serialize_ensemble(trained_models, opt_states, ensemble_config, problem)
+# run_dir, models, opt_states = serialize_ensemble(
+    # trained_models, opt_states, ensemble_config, problem
+# )
+
+
+# mesh2 = rectangle_mesh(Nx=60*10, Ny=30*10, domain_x=Lx, domain_y=Ly)
+# centroids, coords = get_element_centroids(mesh2)
+# rho = jax.nn.sigmoid(models[0](coords))
+# new_mesh = adaptive_rectangle_mesh(
+    # initial_size=5,
+    # coords=centroids,
+    # values=rho,
+    # domain_x=60.0,
+    # domain_y=30.0,
+    # origin=(0.0, 0.0),
+    # max_depth=4,
+    # threshold_low=0.05,
+    # threshold_high=0.96,
+# )
+# centroids, coords = get_element_centroids(new_mesh)
+# areas, total_area = get_element_areas(new_mesh)
+# problem = DensityElasticityProblem(
+    # mesh=new_mesh,
+    # vec=2,
+    # dim=2,
+    # ele_type=ele_type,
+    # gauss_order=2,
+    # location_fns=[load_location],
+    # # additional_info=(70e3, 1e1, 0.3, 3, 1e2)
+    # additional_info=(70e3, 7, 0.3, 3, 1e2),
+# )
+
+# bc = bc_config.create_bc(problem)
+# solver_opts = SolverOptions(
+    # tol=1e-8, linear_solver="bicgstab", use_jacobi_preconditioner=True
+# )
+# solver = create_solver(
+    # problem,
+    # bc=bc,
+    # solver_options=solver_opts,
+    # adjoint_solver_options=solver_opts,
+    # iter_num=1,
+# )
+# initial_guess = zero_like_initial_guess(problem, bc)
+# traction_array = InternalVars.create_uniform_surface_var(problem, problem.T)
+# compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
+# num_elements = new_mesh.cells.shape[0]
+
+# trained_models, opt_states = train_multiple_models(
+    # model_batch, coords, areas, target_densities, penalties, num_epochs=100, lr=5e-4
+# )

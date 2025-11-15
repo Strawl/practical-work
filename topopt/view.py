@@ -15,17 +15,140 @@ from pathlib import Path
 
 import jax.numpy as np
 import matplotlib.pyplot as plt
-from feax.mesh import rectangle_mesh
+from feax.mesh import rectangle_mesh, Mesh
 from jax.nn import sigmoid
 from serialization import load_model_from_config
-from utils import get_element_centroids
+from utils import adaptive_rectangle_mesh, get_element_centroids
+import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+from typing import Optional, Tuple
 
+def plot_mesh(
+    mesh: Mesh,
+    x_range: Optional[Tuple[float, float]] = None,
+    y_range: Optional[Tuple[float, float]] = None,
+    ax: Optional[plt.Axes] = None,
+    linewidth: float = 0.5,
+):
+    """
+    Plot a FEAX Mesh in black & white using matplotlib.
+
+    Parameters
+    ----------
+    mesh : Mesh
+        Mesh instance to plot. Uses mesh.points, mesh.cells, mesh.ele_type.
+    x_range : (float, float), optional
+        (xmin, xmax) for the x-axis. If None, use mesh bounds.
+    y_range : (float, float), optional
+        (ymin, ymax) for the y-axis. If None, use mesh bounds.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw on. If None, a new figure and axes are created.
+    linewidth : float, optional
+        Line width for element edges.
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        The axes with the mesh plot.
+    """
+    # Require at least 2D coordinates
+    if mesh.points.shape[1] < 2:
+        raise ValueError("Need at least 2D points to plot the mesh.")
+
+    xy = mesh.points[:, :2]
+
+    # Edges for each supported element type (using only corner nodes)
+    element_edges = {
+        # 2D
+        'TRI3': [(0, 1), (1, 2), (2, 0)],
+        'TRI6': [(0, 1), (1, 2), (2, 0)],            # ignore midside nodes
+        'QUAD4': [(0, 1), (1, 2), (2, 3), (3, 0)],
+        'QUAD8': [(0, 1), (1, 2), (2, 3), (3, 0)],   # ignore midside nodes
+
+        # 3D (projected to x-y)
+        'TET4':  [(0, 1), (1, 2), (2, 0),
+                  (0, 3), (1, 3), (2, 3)],
+        'TET10': [(0, 1), (1, 2), (2, 0),
+                  (0, 3), (1, 3), (2, 3)],          # ignore midside nodes
+        'HEX8':  [(0, 1), (1, 2), (2, 3), (3, 0),
+                  (4, 5), (5, 6), (6, 7), (7, 4),
+                  (0, 4), (1, 5), (2, 6), (3, 7)],
+        'HEX20': [(0, 1), (1, 2), (2, 3), (3, 0),
+                  (4, 5), (5, 6), (6, 7), (7, 4),
+                  (0, 4), (1, 5), (2, 6), (3, 7)],  # ignore midside nodes
+        'HEX27': [(0, 1), (1, 2), (2, 3), (3, 0),
+                  (4, 5), (5, 6), (6, 7), (7, 4),
+                  (0, 4), (1, 5), (2, 6), (3, 7)],
+    }
+
+    ele_type = mesh.ele_type.upper()
+    if ele_type not in element_edges:
+        raise ValueError(
+            f"Unsupported ele_type '{mesh.ele_type}' for plotting. "
+            f"Supported types: {list(element_edges.keys())}"
+        )
+
+    edges = element_edges[ele_type]
+
+    # Build line segments (each segment is [p0, p1] in 2D)
+    segments = []
+    for cell in mesh.cells:
+        for i_local, j_local in edges:
+            i = cell[i_local]
+            j = cell[j_local]
+            segments.append([xy[i], xy[j]])
+
+    # Prepare axes
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 6))
+    else:
+        fig = ax.figure
+
+    # White background
+    fig.patch.set_facecolor('white')
+    ax.set_facecolor('white')
+
+    # Add all edges as a LineCollection in black
+    lc = LineCollection(segments, colors='k', linewidths=linewidth)
+    ax.add_collection(lc)
+
+    # Axis limits
+    if x_range is not None:
+        ax.set_xlim(*x_range)
+    else:
+        ax.set_xlim(xy[:, 0].min(), xy[:, 0].max())
+
+    if y_range is not None:
+        ax.set_ylim(*y_range)
+    else:
+        ax.set_ylim(xy[:, 1].min(), xy[:, 1].max())
+
+    ax.set_aspect('equal', adjustable='box')
+
+    # Optional: clean look (no ticks)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    return ax
 
 def predict_density(model, Lx, Ly, Nx, Ny):
     mesh = rectangle_mesh(Nx=Nx, Ny=Ny, domain_x=Lx, domain_y=Ly)
-    coords = get_element_centroids(mesh)
+    centroids, coords = get_element_centroids(mesh)
     rho_pred = sigmoid(model(coords))
+    # new_mesh = adaptive_rectangle_mesh(
+        # initial_size=5.0,
+        # coords=centroids,
+        # values=rho_pred,
+        # domain_x=60.0,
+        # domain_y=30.0,
+        # origin=(0.0, 0.0),
+        # max_depth=5,
+        # threshold_low=0.05,
+        # threshold_high=0.95,
+    # )
     rho_pred = np.reshape(rho_pred, (Ny, Nx), order="F")
+    # plot_mesh(new_mesh, (0, Lx), (0, Ly), None, 0.2)
+    # plt.show()
     return rho_pred
 
 

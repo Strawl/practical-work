@@ -17,6 +17,7 @@ jax = { path = "./jax", editable = true }
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.1.0",
     "ruff>=0.14.3",
 ]
 jax-fem = [
