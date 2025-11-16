@@ -11,7 +11,6 @@ from matplotlib.pylab import Enum
 from siren import SIREN
 
 import jax
-from feax import Problem
 
 
 class ModelType(str, Enum):
@@ -94,7 +93,6 @@ def serialize_ensemble(
     trained_models: PyTree,
     opt_states: PyTree,
     ensemble_config: ModelEnsembleConfig,
-    problem: Problem,
     base_dir: str = "outputs",
     prefix: str = "model",
 ):

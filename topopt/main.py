@@ -8,26 +8,16 @@ import equinox as eqx
 import jax.numpy as np
 import optax
 from bc import make_bc_preset
-from feax.experimental.topopt_toolkit import create_compliance_fn
 from feax.mesh import rectangle_mesh
-from problems import DensityElasticityProblem
+from fem_utils import create_J_total, get_element_areas, get_element_centroids
 from serialization import (
     ModelEnsembleConfig,
     create_models,
     serialize_ensemble,
 )
 from tqdm import tqdm
-from utils import adaptive_rectangle_mesh, get_element_areas, get_element_centroids
 
 import jax
-from feax import (
-    DirichletBCConfig,
-    DirichletBCSpec,
-    InternalVars,
-    SolverOptions,
-    create_solver,
-    zero_like_initial_guess,
-)
 
 # ---------------- FE Problem Setup ----------------
 ele_type = "QUAD4"
@@ -43,72 +33,29 @@ mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
 
 fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
 
-bc_config = DirichletBCConfig(
-    [DirichletBCSpec(location=fixed_location, component="all", value=0.0)]
-)
+J_total = create_J_total(mesh, fixed_location, load_location, ele_type=ele_type)
 
-problem = DensityElasticityProblem(
-    mesh=mesh,
-    vec=2,
-    dim=2,
-    ele_type=ele_type,
-    gauss_order=2,
-    location_fns=[load_location],
-    # additional_info=(70e3, 1e1, 0.3, 3, 1e2)
-    additional_info=(70e3, 7, 0.3, 3, 1e2),
-)
-
-bc = bc_config.create_bc(problem)
-solver_opts = SolverOptions(
-    tol=1e-8, linear_solver="bicgstab", use_jacobi_preconditioner=True
-)
-solver = create_solver(
-    problem,
-    bc=bc,
-    solver_options=solver_opts,
-    adjoint_solver_options=solver_opts,
-    iter_num=1,
-)
-initial_guess = zero_like_initial_guess(problem, bc)
-traction_array = InternalVars.create_uniform_surface_var(problem, problem.T)
-compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
-num_elements = mesh.cells.shape[0]
-
-
-def J_total(rho):
-    internal_vars = InternalVars(volume_vars=(rho,), surface_vars=[(traction_array,)])
-    sol = solver(internal_vars, initial_guess)
-    return compute_compliance(sol)
-
-
-centroids, coords = get_element_centroids(mesh)
-areas, total_area = get_element_areas(mesh)
-
-# ---------------- MODEL Definition ----------------
-
-ensemble_config: ModelEnsembleConfig = ModelEnsembleConfig.from_json(
-    config.TRAIN_CONFIG_PATH
-)
-rng = jax.random.PRNGKey(42)
-model_batch, target_densities, penalties = create_models(
-    ensemble_config,
-    rng,
-)
 
 # ---------------- Loss Functions ----------------
-def loss(model, coords, areas, target_density, lam, penalty):
+def loss(
+    model, target_density, lam, penalty, coords, areas, total_area, complience_func
+):
     rho = jax.nn.sigmoid(model(coords))
-    J = J_total(rho)
-    mean_rho = (np.sum(rho.squeeze() * areas) / total_area)
+    J = complience_func(rho)
+    mean_rho = np.sum(rho.squeeze() * areas) / total_area
     C_raw = mean_rho - target_density
-    C = np.maximum(C_raw, 0.0) 
+    C = np.maximum(C_raw, 0.0)
     penalty_term = penalty * C**2
     lagrangian_term = lam * C
     vol_cond = lagrangian_term + penalty_term
     loss = J + vol_cond
     jax.debug.print(
         "mean(rho)={mean_rho:.4f} | C={C:.4f} | J={J:.4f} | vol={vol_cond:.4f} | loss={loss:.4f}",
-        mean_rho=mean_rho, C=C, J=J, vol_cond=vol_cond, loss=loss
+        mean_rho=mean_rho,
+        C=C,
+        J=J,
+        vol_cond=vol_cond,
+        loss=loss,
     )
 
     return loss, C
@@ -117,35 +64,62 @@ def loss(model, coords, areas, target_density, lam, penalty):
 loss_and_grad = eqx.filter_value_and_grad(loss, has_aux=True)
 
 
-def batched_loss_and_grad(models, coords, areas, target_densities, lams, penalties):
-    # vmapped over models/targets/lams/penalties
+def batched_loss_and_grad(
+    models,
+    target_densities,
+    lams,
+    penalties,
+    coords,
+    areas,
+    total_area,
+    complience_func,
+):
     (losses, Cs), grads = jax.vmap(
         loss_and_grad,
-        in_axes=(0, None, None, 0, 0, 0),
-    )(models, coords, areas, target_densities, lams, penalties)
+        in_axes=(0, 0, 0, 0, None, None, None, None),
+    )(
+        models,
+        target_densities,
+        lams,
+        penalties,
+        coords,
+        areas,
+        total_area,
+        complience_func,
+    )
     return losses, Cs, grads
 
 
-batched_loss_and_grad = jax.jit(batched_loss_and_grad)
-
-
-# ---------------- Optimizer & Training ----------------
-def _optimisation_step(
-    models, opt_states, optimizer, coords, target_densities, lams, penalties
-):
-    losses, Cs, grads = batched_loss_and_grad(
-        models, coords, target_densities, lams, penalties
-    )
-    updates, opt_states = jax.vmap(optimizer.update)(grads, opt_states)
-    models = jax.vmap(eqx.apply_updates)(models, updates)
-    return models, opt_states, losses, Cs
+batched_loss_and_grad = jax.jit(
+    batched_loss_and_grad,
+    static_argnames=(
+        "total_area",
+        "complience_func",
+    ),
+)
 
 
 def optimisation_step(
-    models, opt_states, optimizer, coords, areas, target_densities, lams, penalties
+    models,
+    opt_states,
+    optimizer,
+    target_densities,
+    lams,
+    penalties,
+    coords,
+    areas,
+    total_area,
+    complience_func,
 ):
     losses, Cs, grads = batched_loss_and_grad(
-        models, coords, areas, target_densities, lams, penalties
+        models,
+        target_densities,
+        lams,
+        penalties,
+        coords,
+        areas,
+        total_area,
+        complience_func,
     )
 
     good = np.isfinite(losses)
@@ -172,17 +146,18 @@ def optimisation_step(
 
 def train_multiple_models(
     models,
-    coords,
-    areas,
     target_densities,
     penalties,
+    coords,
+    areas,
+    total_area,
+    complienec_func=J_total,
     num_epochs=100,
     lr=1e-4,
     patience=20,
     min_delta=0.005,
 ):
-    optimizer = optax.chain(optax.clip_by_global_norm(1.0),
-                            optax.adabelief(lr))
+    optimizer = optax.chain(optax.clip_by_global_norm(1.0), optax.adabelief(lr))
     opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
 
     # rng = jax.random.PRNGKey(42)
@@ -206,7 +181,16 @@ def train_multiple_models(
         # )
 
         models, opt_states, losses, Cs = optimisation_step(
-            models, opt_states, optimizer, coords, areas, target_densities, lams, penalties
+            models,
+            opt_states,
+            optimizer,
+            target_densities,
+            lams,
+            penalties,
+            coords,
+            areas,
+            int(total_area),
+            complience_func=complienec_func,
         )
 
         good = np.isfinite(Cs)
@@ -242,59 +226,33 @@ def train_multiple_models(
     return models, opt_states
 
 
-# # ---------------- Train All Models ----------------
-# trained_models, opt_states = train_multiple_models(
-    # model_batch, coords, areas, target_densities, penalties, num_epochs=150, lr=1e-4
-# )
+def main():
+    _, coords = get_element_centroids(mesh)
+    areas, total_area = get_element_areas(mesh)
 
-# run_dir, models, opt_states = serialize_ensemble(
-    # trained_models, opt_states, ensemble_config, problem
-# )
+    # ---------------- MODEL Definition ----------------
+
+    ensemble_config: ModelEnsembleConfig = ModelEnsembleConfig.from_json(
+        config.TRAIN_CONFIG_PATH
+    )
+    rng = jax.random.PRNGKey(42)
+    model_batch, target_densities, penalties = create_models(
+        ensemble_config,
+        rng,
+    )
+
+    trained_models, opt_states = train_multiple_models(
+        model_batch,
+        target_densities,
+        penalties,
+        coords,
+        areas,
+        total_area,
+        num_epochs=150,
+        lr=1e-4,
+    )
+    serialize_ensemble(trained_models, opt_states, ensemble_config)
 
 
-# mesh2 = rectangle_mesh(Nx=60*10, Ny=30*10, domain_x=Lx, domain_y=Ly)
-# centroids, coords = get_element_centroids(mesh2)
-# rho = jax.nn.sigmoid(models[0](coords))
-# new_mesh = adaptive_rectangle_mesh(
-    # initial_size=5,
-    # coords=centroids,
-    # values=rho,
-    # domain_x=60.0,
-    # domain_y=30.0,
-    # origin=(0.0, 0.0),
-    # max_depth=4,
-    # threshold_low=0.05,
-    # threshold_high=0.96,
-# )
-# centroids, coords = get_element_centroids(new_mesh)
-# areas, total_area = get_element_areas(new_mesh)
-# problem = DensityElasticityProblem(
-    # mesh=new_mesh,
-    # vec=2,
-    # dim=2,
-    # ele_type=ele_type,
-    # gauss_order=2,
-    # location_fns=[load_location],
-    # # additional_info=(70e3, 1e1, 0.3, 3, 1e2)
-    # additional_info=(70e3, 7, 0.3, 3, 1e2),
-# )
-
-# bc = bc_config.create_bc(problem)
-# solver_opts = SolverOptions(
-    # tol=1e-8, linear_solver="bicgstab", use_jacobi_preconditioner=True
-# )
-# solver = create_solver(
-    # problem,
-    # bc=bc,
-    # solver_options=solver_opts,
-    # adjoint_solver_options=solver_opts,
-    # iter_num=1,
-# )
-# initial_guess = zero_like_initial_guess(problem, bc)
-# traction_array = InternalVars.create_uniform_surface_var(problem, problem.T)
-# compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
-# num_elements = new_mesh.cells.shape[0]
-
-# trained_models, opt_states = train_multiple_models(
-    # model_batch, coords, areas, target_densities, penalties, num_epochs=100, lr=5e-4
-# )
+if __name__ == "__main__":
+    main()

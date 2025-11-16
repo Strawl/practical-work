@@ -1,8 +1,18 @@
-from jax import jax
-import jax.numpy as np
+from typing import Tuple
 
-from feax import Mesh
-from typing import  Tuple
+import jax.numpy as np
+from feax.experimental.topopt_toolkit import create_compliance_fn
+from problems import DensityElasticityProblem
+
+from feax import (
+    DirichletBCConfig,
+    DirichletBCSpec,
+    InternalVars,
+    Mesh,
+    SolverOptions,
+    create_solver,
+    zero_like_initial_guess,
+)
 
 
 def get_element_centroids(mesh: Mesh):
@@ -17,6 +27,7 @@ def get_element_centroids(mesh: Mesh):
     )
     normalized_centroids = 2.0 * normalized_centroids - 1.0
     return centroids.astype(np.float64), normalized_centroids.astype(np.float64)
+
 
 def get_element_areas(mesh: Mesh):
     pts = np.asarray(mesh.points)[:, :2]
@@ -39,11 +50,77 @@ def get_element_areas(mesh: Mesh):
         areas = tri1 + tri2
 
     else:
-        raise NotImplementedError(f"Area calculation not implemented for {mesh.ele_type}")
+        raise NotImplementedError(
+            f"Area calculation not implemented for {mesh.ele_type}"
+        )
 
     total_area = np.sum(areas)
     return areas, total_area
 
+
+def create_J_total(
+    mesh,
+    fixed_location,
+    load_location,
+    ele_type="QUAD4",
+    E0=70e3,
+    E_eps=7,
+    nu=0.3,
+    p=3,
+    T=1e2,
+    gauss_order=2,
+    iter_num=1,
+):
+    """
+    Create and return a J_total(rho) function that evaluates compliance
+    for a given density field rho.
+    """
+
+    bc_config = DirichletBCConfig(
+        [DirichletBCSpec(location=fixed_location, component="all", value=0.0)]
+    )
+
+    problem = DensityElasticityProblem(
+        mesh=mesh,
+        vec=2,
+        dim=2,
+        ele_type=ele_type,
+        gauss_order=gauss_order,
+        location_fns=[load_location],
+        additional_info=(E0, E_eps, nu, p, T),
+    )
+
+    bc = bc_config.create_bc(problem)
+
+    solver_opts = SolverOptions(
+        tol=1e-8,
+        linear_solver="bicgstab",
+        use_jacobi_preconditioner=True,
+    )
+
+    solver = create_solver(
+        problem,
+        bc=bc,
+        solver_options=solver_opts,
+        adjoint_solver_options=solver_opts,
+        iter_num=iter_num,
+    )
+
+    initial_guess = zero_like_initial_guess(problem, bc)
+
+    traction_array = InternalVars.create_uniform_surface_var(problem, T)
+
+    compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
+
+    def J_total(rho):
+        internal_vars = InternalVars(
+            volume_vars=(rho,),
+            surface_vars=[(traction_array,)],
+        )
+        sol = solver(internal_vars, initial_guess)
+        return compute_compliance(sol)
+
+    return J_total
 
 
 def adaptive_rectangle_mesh(
@@ -149,7 +226,6 @@ def adaptive_rectangle_mesh(
             leaf_cells.append((xmin, xmax, ymin, ymax))
             return
 
-
         # Mixed cell -> subdivide into 4 children
         xm = 0.5 * (xmin + xmax)
         ym = 0.5 * (ymin + ymax)
@@ -173,9 +249,9 @@ def adaptive_rectangle_mesh(
         idx3 = point_indices[mask3]
 
         refine_cell(xmin, xm, ymin, ym, depth + 1, idx0)
-        refine_cell(xm,   xmax, ymin, ym, depth + 1, idx1)
-        refine_cell(xm,   xmax, ym,   ymax, depth + 1, idx2)
-        refine_cell(xmin, xm,   ym,   ymax, depth + 1, idx3)
+        refine_cell(xm, xmax, ymin, ym, depth + 1, idx1)
+        refine_cell(xm, xmax, ym, ymax, depth + 1, idx2)
+        refine_cell(xmin, xm, ym, ymax, depth + 1, idx3)
 
     # ------------------------------------------------------------------
     # 3. Run refinement over all coarse cells
@@ -191,8 +267,10 @@ def adaptive_rectangle_mesh(
             ymax = y0 + (j + 1) * hy
 
             mask = (
-                (xs_all >= xmin) & (xs_all <= xmax) &
-                (ys_all >= ymin) & (ys_all <= ymax)
+                (xs_all >= xmin)
+                & (xs_all <= xmax)
+                & (ys_all >= ymin)
+                & (ys_all <= ymax)
             )
             cell_indices = all_indices[mask]
             refine_cell(xmin, xmax, ymin, ymax, depth=0, point_indices=cell_indices)
@@ -200,9 +278,9 @@ def adaptive_rectangle_mesh(
     # ------------------------------------------------------------------
     # 4. Build points and connectivity from leaf_cells
     # ------------------------------------------------------------------
-    node_map = {}   # (x,y) -> node_id
+    node_map = {}  # (x,y) -> node_id
     points_list = []  # [[x,y], ...]
-    cells_list = []   # [[n0,n1,n2,n3], ...]
+    cells_list = []  # [[n0,n1,n2,n3], ...]
 
     def get_node_id(x, y):
         # rounding to avoid floating point duplicates
@@ -212,7 +290,7 @@ def adaptive_rectangle_mesh(
             points_list.append([x, y])
         return node_map[key]
 
-    for (xmin, xmax, ymin, ymax) in leaf_cells:
+    for xmin, xmax, ymin, ymax in leaf_cells:
         # Node ordering: 0--1
         #                |  |
         #                3--2
