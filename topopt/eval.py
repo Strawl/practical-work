@@ -220,7 +220,7 @@ def main():
         J = calculate_compliance(model, coords, problem, fwd_pred)
         J_val = float(J)
         compliances.append((cfg_path.name, J_val))
-        print(f"Compliance (scale {scale}) for {cfg_path.name}: {J_val:.6e}")
+        print(f"Compliance (scale {scale}) for {cfg_path.name}: {J_val}")
 
     # Summary
     print("\n=== Compliance summary (scale = {}) ===".format(scale))

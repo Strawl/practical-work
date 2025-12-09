@@ -1,3 +1,4 @@
+import math
 from typing import Tuple
 
 import jax.numpy as np
@@ -15,18 +16,53 @@ from feax import (
 )
 
 
-def get_element_centroids(mesh: Mesh):
-    pts = np.array(mesh.points)
-    cells = np.array(mesh.cells)
-    centroids = np.mean(pts[cells], axis=1)
-    # normalize to [-1, 1]
-    xmin, ymin = np.min(centroids, axis=0)
-    xmax, ymax = np.max(centroids, axis=0)
-    normalized_centroids = (centroids - np.array([xmin, ymin])) / (
-        np.array([xmax - xmin, ymax - ymin])
-    )
-    normalized_centroids = 2.0 * normalized_centroids - 1.0
-    return centroids.astype(np.float64), normalized_centroids.astype(np.float64)
+def get_element_geometry(mesh):
+    """
+    Computes:
+      - raw centroids
+      - centroids normalized to [-1, 1] using centroid min/max (your current scheme)
+      - per-element bbox sizes in raw space
+      - per-element bbox sizes converted into the SAME normalized space
+      - num_elements
+
+    Returns JAX arrays (except num_elements).
+    """
+    pts = np.asarray(mesh.points)[:, :2]
+    cells = np.asarray(mesh.cells, dtype=np.int32)
+
+    elem_pts = pts[cells]
+    centroids = elem_pts.mean(axis=1)
+
+    cmin = centroids.min(axis=0)
+    cmax = centroids.max(axis=0)
+    crange = cmax - cmin
+
+    crange = np.where(crange == 0, 1.0, crange)
+
+    centroids_scaled = 2.0 * ((centroids - cmin) / crange) - 1.0
+
+    mins = elem_pts.min(axis=1)
+    maxs = elem_pts.max(axis=1)
+    sizes_raw = maxs - mins
+    dx_raw = sizes_raw[:, 0]
+    dy_raw = sizes_raw[:, 1]
+
+    dx_scaled = 2.0 * dx_raw / crange[0]
+    dy_scaled = 2.0 * dy_raw / crange[1]
+
+    num_elements = cells.shape[0]
+
+    return {
+        "centroids": np.asarray(centroids, dtype=np.float64),
+        "centroids_scaled": np.asarray(centroids_scaled, dtype=np.float64),
+        "dx_raw": np.asarray(dx_raw),
+        "dy_raw": np.asarray(dy_raw),
+        "dx_scaled": np.asarray(dx_scaled),
+        "dy_scaled": np.asarray(dy_scaled),
+        "centroid_min": np.asarray(cmin),
+        "centroid_range": np.asarray(crange),
+        "num_elements": int(num_elements),
+    }
 
 
 def get_element_areas(mesh: Mesh):
@@ -122,6 +158,181 @@ def create_J_total(
 
     return J_total
 
+def adaptive_rectangle_mesh_new(
+    initial_size: float,
+    coords,
+    values,
+    domain_x: float = 1.0,
+    domain_y: float = 1.0,
+    origin: Tuple[float, float] = (0.0, 0.0),
+    max_depth: int = 5,
+    threshold_low: float = 0.1,
+    threshold_high: float = 0.9,
+):
+
+    x0, y0 = origin
+
+    # Convert to JAX arrays
+    coords = np.asarray(coords, dtype=np.float32)
+    rho = np.asarray(values, dtype=np.float32)
+
+    # Check shapes
+    if coords.ndim != 2 or coords.shape[1] != 2:
+        raise ValueError("coords must be of shape (N, 2)")
+    if rho.shape[0] != coords.shape[0]:
+        raise ValueError("values must have same length as coords")
+
+    # -------------------------------------------------------------
+    # 1. Coarse grid + finest grid
+    # -------------------------------------------------------------
+    Nx0 = max(1, int(math.ceil(domain_x / float(initial_size))))
+    Ny0 = max(1, int(math.ceil(domain_y / float(initial_size))))
+
+    hx0 = domain_x / Nx0
+    hy0 = domain_y / Ny0
+
+    factor = 1 << max_depth  # 2**max_depth
+    Nx_fine = Nx0 * factor
+    Ny_fine = Ny0 * factor
+
+    hx_fine = hx0 / factor
+    hy_fine = hy0 / factor
+
+    # -------------------------------------------------------------
+    # 2. Bin points to finest cells
+    # -------------------------------------------------------------
+    xs = coords[:, 0]
+    ys = coords[:, 1]
+
+    ix_f = np.floor((xs - x0) / hx_fine).astype(np.int32)
+    iy_f = np.floor((ys - y0) / hy_fine).astype(np.int32)
+
+    ix_f = np.clip(ix_f, 0, Nx_fine - 1)
+    iy_f = np.clip(iy_f, 0, Ny_fine - 1)
+
+    # 1D ID
+    cell_ids = ix_f * Ny_fine + iy_f
+    n_cells_fine = Nx_fine * Ny_fine
+
+    # Init aggregates
+    min_rho_flat = np.full((n_cells_fine,), np.inf, dtype=np.float32)
+    max_rho_flat = np.full((n_cells_fine,), -np.inf, dtype=np.float32)
+    cnt_flat = np.zeros((n_cells_fine,), dtype=np.int32)
+
+    # Scatter reduce
+    min_rho_flat = min_rho_flat.at[cell_ids].min(rho)
+    max_rho_flat = max_rho_flat.at[cell_ids].max(rho)
+    cnt_flat = cnt_flat.at[cell_ids].add(1)
+
+    # Finest level 2D arrays
+    min_rho_fine = min_rho_flat.reshape(Nx_fine, Ny_fine)
+    max_rho_fine = max_rho_flat.reshape(Nx_fine, Ny_fine)
+    cnt_fine = cnt_flat.reshape(Nx_fine, Ny_fine)
+
+    # -------------------------------------------------------------
+    # 3. Bottom-up construction of per-level aggregates
+    # -------------------------------------------------------------
+    min_levels = [None] * (max_depth + 1)
+    max_levels = [None] * (max_depth + 1)
+    cnt_levels = [None] * (max_depth + 1)
+
+    min_levels[max_depth] = min_rho_fine
+    max_levels[max_depth] = max_rho_fine
+    cnt_levels[max_depth] = cnt_fine
+
+    Nx_level = Nx_fine
+    Ny_level = Ny_fine
+
+    for d in range(max_depth - 1, -1, -1):
+        Nx_parent = Nx_level // 2
+        Ny_parent = Ny_level // 2
+
+        min_child = min_levels[d + 1]
+        max_child = max_levels[d + 1]
+        cnt_child = cnt_levels[d + 1]
+
+        # Shape (Nx_parent,2,Ny_parent,2)
+        min_parent = min_child.reshape(Nx_parent, 2, Ny_parent, 2).min(axis=(1, 3))
+        max_parent = max_child.reshape(Nx_parent, 2, Ny_parent, 2).max(axis=(1, 3))
+        cnt_parent = cnt_child.reshape(Nx_parent, 2, Ny_parent, 2).sum(axis=(1, 3))
+
+        min_levels[d] = min_parent
+        max_levels[d] = max_parent
+        cnt_levels[d] = cnt_parent
+
+        Nx_level = Nx_parent
+        Ny_level = Ny_parent
+
+    assert Nx_level == Nx0 and Ny_level == Ny0
+
+    # -------------------------------------------------------------
+    # 4. Top-down AMR to get leaf cells
+    # -------------------------------------------------------------
+    stack = [(0, i, j) for i in range(Nx0) for j in range(Ny0)]
+    leaves = []
+
+    while stack:
+        d, i, j = stack.pop()
+
+        min_d = float(min_levels[d][i, j])
+        max_d = float(max_levels[d][i, j])
+        cnt_d = int(cnt_levels[d][i, j])
+
+        if cnt_d == 0:
+            leaves.append((d, i, j))
+            continue
+
+        if d >= max_depth:
+            leaves.append((d, i, j))
+            continue
+
+        if (max_d < threshold_low) or (min_d > threshold_high):
+            leaves.append((d, i, j))
+            continue
+
+        # refine
+        child = d + 1
+        ci0 = 2 * i
+        cj0 = 2 * j
+        stack.append((child, ci0, cj0))
+        stack.append((child, ci0 + 1, cj0))
+        stack.append((child, ci0 + 1, cj0 + 1))
+        stack.append((child, ci0, cj0 + 1))
+
+    # -------------------------------------------------------------
+    # 5. Build mesh nodes and connectivity
+    # -------------------------------------------------------------
+    x_nodes = np.linspace(x0, x0 + domain_x, Nx_fine + 1)
+    y_nodes = np.linspace(y0, y0 + domain_y, Ny_fine + 1)
+
+    Xg, Yg = np.meshgrid(x_nodes, y_nodes, indexing="ij")
+    points = np.stack([Xg.ravel(), Yg.ravel()], axis=1)
+
+    n_cells = len(leaves)
+    cells = np.zeros((n_cells, 4), dtype=np.int32)
+
+    n_y_nodes = Ny_fine + 1
+
+    # Build connectivity with .at[]
+    for e, (d, i, j) in enumerate(leaves):
+        step = 1 << (max_depth - d)
+
+        ix0 = i * step
+        ix1 = (i + 1) * step
+        iy0 = j * step
+        iy1 = (j + 1) * step
+
+        n0 = ix0 * n_y_nodes + iy0
+        n1 = ix1 * n_y_nodes + iy0
+        n2 = ix1 * n_y_nodes + iy1
+        n3 = ix0 * n_y_nodes + iy1
+
+        cells = cells.at[e, :].set(np.array([n0, n1, n2, n3], dtype=np.int32))
+
+    # -------------------------------------------------------------
+    # 6. Return mesh
+    # -------------------------------------------------------------
+    return Mesh(points, cells, ele_type="QUAD4")
 
 def adaptive_rectangle_mesh(
     initial_size: float,
@@ -220,6 +431,8 @@ def adaptive_rectangle_mesh(
 
         cell_rho = rho[point_indices]
         cell_mean = np.mean(cell_rho)
+        # maximum = np.max(cell_rho)
+        # minimum = np.min(cell_rho)
 
         # Homogeneous: mostly 0 or mostly 1 -> do not refine further
         if (cell_mean < threshold_low) or (cell_mean > threshold_high):

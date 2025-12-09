@@ -16,14 +16,14 @@ from pathlib import Path
 import jax.numpy as np
 import matplotlib.pyplot as plt
 from feax.mesh import rectangle_mesh
-from fem_utils import get_element_centroids
+from fem_utils import get_element_geometry
 from jax.nn import sigmoid
 from serialization import load_model_from_config
 
 
 def predict_density(model, Lx, Ly, Nx, Ny):
     mesh = rectangle_mesh(Nx=Nx, Ny=Ny, domain_x=Lx, domain_y=Ly)
-    centroids, coords = get_element_centroids(mesh)
+    coords = get_element_geometry(mesh)["centroids_scaled"]
     rho_pred = sigmoid(model(coords))
     rho_pred = np.reshape(rho_pred, (Ny, Nx), order="F")
     return rho_pred

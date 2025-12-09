@@ -2,7 +2,7 @@ import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Optional, Type
 
 import equinox as eqx
 import numpy as np
@@ -11,6 +11,7 @@ from matplotlib.pylab import Enum
 from siren import SIREN
 
 import jax
+from monitoring import save_ensemble_history_plots
 
 
 class ModelType(str, Enum):
@@ -93,8 +94,9 @@ def serialize_ensemble(
     trained_models: PyTree,
     opt_states: PyTree,
     ensemble_config: ModelEnsembleConfig,
+    history: Optional[tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]] = None,
     base_dir: str = "outputs",
-    prefix: str = "model",
+    prefix: str = "model"
 ):
     """
     Serialize a batched collection of models, optimizer states, and their
@@ -170,6 +172,16 @@ def serialize_ensemble(
 
             with open(cfg_path, "w") as f:
                 json.dump(cfg_dict, f, indent=2)
+
+    if history is not None:
+        try:
+            save_ensemble_history_plots(
+                history=history,
+                run_dir=run_dir,
+                prefix=prefix,
+            )
+        except Exception as e:
+            print(f"[WARN] Failed to save history plots: {e}")
 
     return run_dir, models_list, opt_states_list
 
