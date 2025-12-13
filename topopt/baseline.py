@@ -52,7 +52,7 @@ def run_topopt_mdmm(
         Dict with lists of 'J', 'vol', 'infeas'.
     """
 
-    volume_constraint = mdmm.eq(
+    volume_constraint = mdmm.ineq(
         lambda rho: vol_frac - jnp.mean(rho),
         damping=constraint_damping,
         weight=constraint_weight,
@@ -63,7 +63,6 @@ def run_topopt_mdmm(
     alpha0 = jnp.log(initial_rho / (1.0 - initial_rho))
 
     mdmm_params0 = volume_constraint.init(initial_rho)
-    print(mdmm_params0)
 
     params = {
         "alpha": alpha0,
@@ -78,6 +77,7 @@ def run_topopt_mdmm(
         J = J_total(rho)
 
         c_loss, infeas = volume_constraint.loss(mdmm_params, rho)
+        c_loss = jnp.maximum(c_loss, 0)
         total_loss = J + c_loss
 
         aux = {
@@ -88,9 +88,13 @@ def run_topopt_mdmm(
         }
         return total_loss, aux
 
-    optimizer = optax.chain(
+    inner_optim = optax.chain(
         optax.adabelief(learning_rate),
         mdmm.optax_prepare_update(),
+    )
+    optimizer = optax.apply_if_finite(
+        inner_optim,
+        max_consecutive_errors=30,
     )
     opt_state = optimizer.init(params)
 
@@ -174,7 +178,7 @@ def run_feax_topopt(
         rho_shape=rho_shape,
         vol_frac=vol_frac,
         num_steps=num_steps,
-        constraint_weight=15,
+        constraint_weight=5,
         learning_rate=learning_rate,
     )
 
@@ -194,7 +198,7 @@ rho_opt, history = run_feax_topopt(
     bc_preset_name="cantilever_corner",
     vol_frac=0.5,
     num_steps=500,
-    learning_rate=0.05,
+    learning_rate=0.1,
 )
 
 
@@ -228,4 +232,4 @@ def plot_rho_evolution(rho_list, Nx, Ny, interval=50):
     plt.tight_layout()
     plt.show()
 
-plot_rho_evolution(history["rho"], Nx=Nx, Ny=Ny)
+# plot_rho_evolution(history["rho"], Nx=Nx, Ny=Ny)

@@ -106,6 +106,8 @@ def create_J_total(
     T=1e2,
     gauss_order=2,
     iter_num=1,
+    check_convergence=False,
+    verbose=False,
 ):
     """
     Create and return a J_total(rho) function that evaluates compliance
@@ -132,6 +134,9 @@ def create_J_total(
         tol=1e-8,
         linear_solver="bicgstab",
         use_jacobi_preconditioner=True,
+        check_convergence=check_convergence,
+        verbose=verbose,
+        linear_solver_maxiter=10000,
     )
 
     solver = create_solver(

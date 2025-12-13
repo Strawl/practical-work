@@ -385,7 +385,7 @@ wheels = [
 
 [[package]]
 name = "jax"
-version = "0.8.1.dev20251030+0772c7799"
+version = "0.8.2.dev20251213+cd50850a76"
 source = { editable = "jax" }
 dependencies = [
     { name = "jaxlib" },
@@ -403,24 +403,24 @@ cuda13 = [
 
 [package.metadata]
 requires-dist = [
-    { name = "jax-cuda12-plugin", marker = "extra == 'cuda12-local'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jax-cuda12-plugin", extras = ["with-cuda"], marker = "extra == 'cuda'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jax-cuda12-plugin", extras = ["with-cuda"], marker = "extra == 'cuda12'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jax-cuda13-plugin", marker = "extra == 'cuda13-local'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jax-cuda13-plugin", extras = ["with-cuda"], marker = "extra == 'cuda13'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jax-rocm60-plugin", marker = "extra == 'rocm'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", marker = "extra == 'ci'", specifier = "==0.8.0" },
-    { name = "jaxlib", marker = "extra == 'cuda'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", marker = "extra == 'cuda12'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", marker = "extra == 'cuda12-local'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", marker = "extra == 'cuda13'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", marker = "extra == 'cuda13-local'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", marker = "extra == 'minimum-jaxlib'", specifier = "==0.8.0" },
-    { name = "jaxlib", marker = "extra == 'rocm'", specifier = ">=0.8.0,<=0.8.1" },
-    { name = "jaxlib", marker = "extra == 'tpu'", specifier = ">=0.8.0,<=0.8.1" },
+    { name = "jax-cuda12-plugin", marker = "extra == 'cuda12-local'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jax-cuda12-plugin", extras = ["with-cuda"], marker = "extra == 'cuda'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jax-cuda12-plugin", extras = ["with-cuda"], marker = "extra == 'cuda12'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jax-cuda13-plugin", marker = "extra == 'cuda13-local'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jax-cuda13-plugin", extras = ["with-cuda"], marker = "extra == 'cuda13'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jax-rocm7-plugin", marker = "extra == 'rocm'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", marker = "extra == 'ci'", specifier = "==0.8.1" },
+    { name = "jaxlib", marker = "extra == 'cuda'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", marker = "extra == 'cuda12'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", marker = "extra == 'cuda12-local'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", marker = "extra == 'cuda13'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", marker = "extra == 'cuda13-local'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", marker = "extra == 'minimum-jaxlib'", specifier = "==0.8.1" },
+    { name = "jaxlib", marker = "extra == 'rocm'", specifier = ">=0.8.1,<=0.8.2" },
+    { name = "jaxlib", marker = "extra == 'tpu'", specifier = ">=0.8.1,<=0.8.2" },
     { name = "kubernetes", marker = "extra == 'k8s'" },
-    { name = "libtpu", marker = "extra == 'tpu'", specifier = "==0.0.24.*" },
+    { name = "libtpu", marker = "extra == 'tpu'", specifier = "==0.0.30.*" },
     { name = "ml-dtypes", specifier = ">=0.5.0" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "opt-einsum" },

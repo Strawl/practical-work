@@ -4,8 +4,8 @@ Each SIREN learns for a different target density (volume fraction).
 """
 
 import sys
-from typing import Callable, Optional
-import config as config
+from typing import Callable
+import config
 import equinox as eqx
 import jax.numpy as np
 import optax
@@ -222,7 +222,7 @@ def train_multiple_models(
     return models, opt_states, history
 
 
-def main(train_config_path: Optional[str] = config.TRAIN_CONFIG_PATH):
+def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
     # ---------------- FE Problem Setup ----------------
     ele_type = "QUAD4"
     Lx, Ly = 60.0, 30.0
@@ -233,7 +233,7 @@ def main(train_config_path: Optional[str] = config.TRAIN_CONFIG_PATH):
 
     fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
 
-    J_total = create_J_total(mesh, fixed_location, load_location, ele_type=ele_type)
+    J_total = create_J_total(mesh, fixed_location, load_location, ele_type=ele_type, check_convergence=True, verbose=True)
 
     # ---------------- MODEL Definition ----------------
 
@@ -260,5 +260,7 @@ def main(train_config_path: Optional[str] = config.TRAIN_CONFIG_PATH):
 
 
 if __name__ == "__main__":
-    cli_path = sys.argv[1] if len(sys.argv) > 1 else None
-    main(cli_path)
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
+    else:
+        main()
