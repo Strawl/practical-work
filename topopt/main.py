@@ -227,8 +227,8 @@ def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
     ele_type = "QUAD4"
     Lx, Ly = 60.0, 30.0
     scale = 1
-    Nx = 60 * scale
-    Ny = 30 * scale
+    Nx = int(Lx * scale)
+    Ny = int(Ly * scale)
     mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
 
     fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)

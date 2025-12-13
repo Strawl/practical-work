@@ -1,8 +1,8 @@
-from typing import Optional, Tuple
 
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 from feax.mesh import Mesh
+import jax.numpy as np
 
 
 def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
@@ -22,27 +22,10 @@ def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
     fig, ax : matplotlib Figure and Axes
     """
 
-    xy = mesh.points[:, :2]  # first two dimensions only
+    xy = mesh.points[:, :2]
 
-    # Supported element edge definitions
     element_edges = {
-        'TRI3':  [(0, 1), (1, 2), (2, 0)],
-        'TRI6':  [(0, 1), (1, 2), (2, 0)],   # ignore midside nodes
         'QUAD4': [(0, 1), (1, 2), (2, 3), (3, 0)],
-        'QUAD8': [(0, 1), (1, 2), (2, 3), (3, 0)],
-
-        'TET4':  [(0, 1), (1, 2), (2, 0), (0, 3), (1, 3), (2, 3)],
-        'TET10': [(0, 1), (1, 2), (2, 0), (0, 3), (1, 3), (2, 3)],
-
-        'HEX8':  [(0, 1), (1, 2), (2, 3), (3, 0),
-                  (4, 5), (5, 6), (6, 7), (7, 4),
-                  (0, 4), (1, 5), (2, 6), (3, 7)],
-        'HEX20': [(0, 1), (1, 2), (2, 3), (3, 0),
-                  (4, 5), (5, 6), (6, 7), (7, 4),
-                  (0, 4), (1, 5), (2, 6), (3, 7)],
-        'HEX27': [(0, 1), (1, 2), (2, 3), (3, 0),
-                  (4, 5), (5, 6), (6, 7), (7, 4),
-                  (0, 4), (1, 5), (2, 6), (3, 7)],
     }
 
     ele_type = mesh.ele_type.upper()
@@ -54,7 +37,6 @@ def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
 
     edges = element_edges[ele_type]
 
-    # Build line segments for LineCollection
     segments = []
     for cell in mesh.cells:
         for a, b in edges:
@@ -62,24 +44,84 @@ def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
             j = int(cell[b])
             segments.append([xy[i], xy[j]])
 
-    # Create figure and axes
     fig, ax = plt.subplots(figsize=(6, 6))
 
-    # White background
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
 
-    # Draw edge segments
     lc = LineCollection(segments, colors="k", linewidths=linewidth)
     ax.add_collection(lc)
 
-    # Bounds
     ax.set_xlim(xy[:, 0].min(), xy[:, 0].max())
     ax.set_ylim(xy[:, 1].min(), xy[:, 1].max())
     ax.set_aspect("equal")
 
-    # Remove ticks
     ax.set_xticks([])
     ax.set_yticks([])
 
     return fig, ax
+
+
+def show_rho_pages(
+    rho_list,
+    titles,
+    Nx,
+    Ny,
+    per_page=6,
+    cmap="gray_r"
+):
+    """
+    Paginated viewer for topology optimization density fields.
+
+    Arrow keys:
+        → next page
+        ← previous page
+    """
+
+    # Pre-reshape all rho fields once
+    images = [
+        np.reshape(np.asarray(rho), (Ny, Nx), order="F")
+        for rho in rho_list
+    ]
+
+    total = len(images)
+    pages = (total + per_page - 1) // per_page
+    current_page = 0
+
+    fig = plt.figure(figsize=(10, 6))
+
+    def draw_page(page_idx):
+        plt.clf()
+
+        start = page_idx * per_page
+        end = min(start + per_page, total)
+        n = end - start
+
+        ncols = 3
+        nrows = int(np.ceil(n / ncols))
+
+        for i in range(n):
+            ax = plt.subplot(nrows, ncols, i + 1)
+            ax.imshow(images[start + i], cmap=cmap, origin="lower", vmin=0, vmax=1)
+            ax.set_title(titles[start + i], fontsize=10)
+            ax.axis("off")
+
+        plt.suptitle(
+            f"Page {page_idx + 1}/{pages}  (← / →)",
+            fontsize=14
+        )
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+        plt.draw()
+
+    def on_key(event):
+        nonlocal current_page
+        if event.key == "right":
+            current_page = (current_page + 1) % pages
+        elif event.key == "left":
+            current_page = (current_page - 1) % pages
+        draw_page(current_page)
+
+    fig.canvas.mpl_connect("key_press_event", on_key)
+
+    draw_page(0)
+    plt.show()

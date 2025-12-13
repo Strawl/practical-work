@@ -9,6 +9,8 @@ from bc import make_bc_preset
 from fem_utils import create_J_total
 import matplotlib.pyplot as plt
 
+from visualize import show_rho_pages
+
 
 
 
@@ -178,7 +180,7 @@ def run_feax_topopt(
         rho_shape=rho_shape,
         vol_frac=vol_frac,
         num_steps=num_steps,
-        constraint_weight=5,
+        constraint_weight=15,
         learning_rate=learning_rate,
     )
 
@@ -187,9 +189,12 @@ def run_feax_topopt(
 ele_type = "QUAD4"
 Lx, Ly = 60.0, 30.0
 scale = 1
-Nx = 60 * scale
-Ny = 30 * scale
+Nx = int(Lx * scale)
+Ny = int(Ly * scale)
 mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
+
+num_steps =100
+
 
 rho_opt, history = run_feax_topopt(
     mesh=mesh,
@@ -197,39 +202,17 @@ rho_opt, history = run_feax_topopt(
     Ly=Ly,
     bc_preset_name="cantilever_corner",
     vol_frac=0.5,
-    num_steps=500,
+    num_steps=num_steps,
     learning_rate=0.1,
 )
 
+display_step = 5
+rho_list = list(history["rho"][::display_step])
+rho_list.append(rho_opt)
 
+iters = list(range(0, num_steps, display_step))
+iters.append(num_steps)
 
-def plot_rho_evolution(rho_list, Nx, Ny, interval=50):
-    """
-    Plot the evolution of density fields during topology optimization.
+titles = [f"Iteration {it}" for it in iters]
 
-    Args:
-        rho_list: list of 1D arrays (jnp.ndarray or np.ndarray) of length Nx * Ny
-            Densities at different iterations.
-        Nx, Ny : int
-            Number of elements in x and y directions.
-        interval: int
-            Plot every `interval` steps (to reduce frames for long runs).
-    """
-    n = len(rho_list)
-    steps = list(range(0, n, interval))
-    n_plots = len(steps)
-
-    plt.figure(figsize=(3 * n_plots, 3))
-    for i, k in enumerate(steps):
-        rho_flat = jnp.asarray(rho_list[k])
-        rho = jnp.reshape(rho_flat, (Ny, Nx), order="F")
-
-        plt.subplot(1, n_plots, i + 1)
-        plt.imshow(rho, cmap="gray_r", origin="lower", vmin=0, vmax=1)
-        plt.title(f"iter {k}")
-        plt.axis("off")
-
-    plt.tight_layout()
-    plt.show()
-
-# plot_rho_evolution(history["rho"], Nx=Nx, Ny=Ny)
+show_rho_pages(rho_list, titles, Nx=Nx, Ny=Ny)

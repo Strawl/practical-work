@@ -19,6 +19,7 @@ from feax.mesh import rectangle_mesh
 from fem_utils import get_element_geometry
 from jax.nn import sigmoid
 from serialization import load_model_from_config
+from visualize import show_rho_pages
 
 
 def predict_density(model, Lx, Ly, Nx, Ny):
@@ -27,60 +28,6 @@ def predict_density(model, Lx, Ly, Nx, Ny):
     rho_pred = sigmoid(model(coords))
     rho_pred = np.reshape(rho_pred, (Ny, Nx), order="F")
     return rho_pred
-
-
-def show_paged_images(images, titles, per_page=6):
-    total = len(images)
-    pages = (total + per_page - 1) // per_page
-    current_page = 0
-
-    def _get_fontsizes(fig):
-        w, h = fig.get_size_inches()
-        base = min(w, h)
-
-        title_fs = max(6, int(base * 1.5))
-        suptitle_fs = max(8, int(base * 2))
-
-        return title_fs, suptitle_fs
-
-    def draw_page(page_idx):
-        fig = plt.gcf()
-        title_fs, suptitle_fs = _get_fontsizes(fig)
-
-        plt.clf()
-        start = page_idx * per_page
-        end = min(start + per_page, total)
-        ncols = 3
-        nrows = int(np.ceil((end - start) / ncols))
-
-        for i, (img, title) in enumerate(zip(images[start:end], titles[start:end])):
-            ax = plt.subplot(nrows, ncols, i + 1)
-            ax.imshow(img, cmap="gray_r", origin="lower")
-            ax.set_title(title, fontsize=title_fs)
-            ax.axis("off")
-
-        plt.suptitle(f"Page {page_idx + 1}/{pages}", fontsize=suptitle_fs)
-        plt.tight_layout(rect=[0, 0, 1, 0.95])
-        plt.draw()
-
-    def on_key(event):
-        nonlocal current_page
-        if event.key == "right":
-            current_page = (current_page + 1) % pages
-        elif event.key == "left":
-            current_page = (current_page - 1) % pages
-        draw_page(current_page)
-
-    def on_resize(event):
-        # Just redraw current page with updated font sizes
-        draw_page(current_page)
-
-    fig = plt.figure(figsize=(10, 6))
-    fig.canvas.mpl_connect("key_press_event", on_key)
-    fig.canvas.mpl_connect("resize_event", on_resize)
-
-    draw_page(0)
-    plt.show()
 
 
 def main():
@@ -159,7 +106,7 @@ def main():
         out_path = base_dir / f"{base_name}_rho.png"
         plt.imsave(out_path, rho_pred, cmap="gray_r", origin="lower")
 
-    show_paged_images(images, titles, per_page=6)
+    show_rho_pages(images, titles, Nx=Nx, Ny=Ny, per_page=6)
 
 
 if __name__ == "__main__":
