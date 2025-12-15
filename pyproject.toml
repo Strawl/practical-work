@@ -8,7 +8,7 @@ dependencies = [
     "equinox>=0.13.1,<0.14.0",
     "optax>=0.2.6,<0.3",
     "tqdm>=4.67.1,<5",
-    "matplotlib>=3.10.6,<4"
+    "matplotlib>=3.10.6,<4",
 ]
 
 [tool.uv.sources]
@@ -19,6 +19,7 @@ jax = { path = "./jax", editable = true }
 dev = [
     "ipykernel>=7.1.0",
     "ruff>=0.14.3",
+    "pandas>=2.3.3",
 ]
 jax-fem = [
     "jax-fem>=0.0.11",

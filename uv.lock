@@ -1435,6 +1435,7 @@ cuda = [
 ]
 dev = [
     { name = "ipykernel" },
+    { name = "pandas" },
     { name = "ruff" },
 ]
 jax-fem = [
@@ -1456,6 +1457,7 @@ requires-dist = [
 cuda = [{ name = "jax", extras = ["cuda13"], marker = "sys_platform == 'linux'", editable = "jax" }]
 dev = [
     { name = "ipykernel", specifier = ">=7.1.0" },
+    { name = "pandas", specifier = ">=2.3.3" },
     { name = "ruff", specifier = ">=0.14.3" },
 ]
 jax-fem = [
