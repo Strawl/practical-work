@@ -2,8 +2,11 @@ from typing import Callable
 import jax
 import jax.numpy as jnp
 import optax
+import os
 from feax.experimental.topopt_toolkit import mdmm
 from feax.mesh import rectangle_mesh, Mesh
+from sklearn.model_selection import ParameterGrid
+import pandas as pd
 
 from bc import make_bc_preset
 from fem_utils import create_J_total
@@ -23,6 +26,8 @@ def run_topopt_mdmm(
     constraint_damping: float = 1.0,
     constraint_weight: float = 1.0,
     print_every: int = 10,
+    vol_tol: float = 1e-3,
+    J_tol: float = 1e-6
 ):
     """
     Minimize compliance subject to a volume-fraction constraint using MDMM.
@@ -107,7 +112,10 @@ def run_topopt_mdmm(
         params = optax.apply_updates(params, updates)
         return params, opt_state, loss_val, aux
 
+    J_window = 30
+    J_window_tol = 1e-2
     history = {"J": [], "vol": [], "infeas": [], "rho": []}
+    final_iter = num_steps
 
     for it in range(num_steps):
         params, opt_state, loss_val, aux = step(params, opt_state)
@@ -124,14 +132,32 @@ def run_topopt_mdmm(
         if (it % print_every) == 0 or it == num_steps - 1:
             print(
                 f"[{it:05d}] "
-                f"J = {J_val}, "
-                f"vol = {vol_val}, "
-                f"infeas = {infeas_val}"
+                f"J = {J_val:.6e}, "
+                f"vol = {vol_val:.4f}, "
+                f"infeas = {infeas_val:.4e}"
             )
+
+        # ---- Windowed stagnation criterion ----
+        if it >= J_window:
+            J_start = history["J"][it - J_window]
+            J_end = history["J"][it]
+            J_delta = abs(J_end - J_start)
+
+            vol_close = abs(vol_val - vol_frac) <= vol_tol
+            J_delta_rel = abs(J_end - J_start) / (abs(J_start) + 1e-12)
+
+            if vol_close and J_delta_rel <= J_window_tol:
+                print(
+                    f"Early stopping at iter {it}: "
+                    f"|ΔJ| over last {J_window} iters = {J_delta:.3e}"
+                )
+                final_iter = it + 1
+                break
+
 
     # Final density field
     rho_opt = jax.nn.sigmoid(params["alpha"])
-    return rho_opt, history   
+    return rho_opt, history, final_iter
 
 def run_feax_topopt(
     mesh,
@@ -149,6 +175,7 @@ def run_feax_topopt(
     iter_num: int = 1,
     num_steps: int = 1000,
     learning_rate: float = 5e-2,
+    constraint_weight: int = 15
 ):
     """
     High-level helper: set up feax problem, build J_total(rho), and run MDMM
@@ -175,44 +202,102 @@ def run_feax_topopt(
     rho_shape = mesh.cells.shape[0]
 
     # 4) Call the generic MDMM driver
-    rho_opt, history = run_topopt_mdmm(
+    rho_opt, history, final_iter = run_topopt_mdmm(
         J_total=J_total,
         rho_shape=rho_shape,
         vol_frac=vol_frac,
         num_steps=num_steps,
-        constraint_weight=15,
+        constraint_weight=constraint_weight,
         learning_rate=learning_rate,
     )
 
-    return rho_opt, history
+    return rho_opt, history, final_iter
 
+
+# ----------------------------
+# Grid search parameters
+# ----------------------------
+param_grid = {
+    # "scale": [1, 2, 3, 4],
+    # "vol_frac": [0.3, 0.4, 0.5, 0.6],
+    # "learning_rate": [0.02, 0.05, 0.1, 0.2],
+    # "constraint_weight": [3, 5, 8, 15],
+    "scale": [1],
+    "vol_frac": [0.6],
+    "learning_rate": [0.05],
+}
+
+num_steps = 4000
 ele_type = "QUAD4"
 Lx, Ly = 60.0, 30.0
-scale = 1
-Nx = int(Lx * scale)
-Ny = int(Ly * scale)
-mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
 
-num_steps =100
+output_dir = "grid_search_results"
+os.makedirs(output_dir, exist_ok=True)
 
+results = []
+run_id = 0
 
-rho_opt, history = run_feax_topopt(
-    mesh=mesh,
-    Lx=Lx,
-    Ly=Ly,
-    bc_preset_name="cantilever_corner",
-    vol_frac=0.5,
-    num_steps=num_steps,
-    learning_rate=0.1,
+for cfg in ParameterGrid(param_grid):
+    run_id += 1
+
+    scale = cfg["scale"]
+    vol_frac = cfg["vol_frac"]
+    lr = cfg["learning_rate"]
+
+    Nx = int(Lx * scale)
+    Ny = int(Ly * scale)
+
+    mesh = rectangle_mesh(
+        Nx, Ny,
+        domain_x=Lx,
+        domain_y=Ly,
+    )
+
+    print(
+        f"\nRun {run_id} | "
+        f"scale={scale}, "
+        f"vol_frac={vol_frac}, "
+        f"lr={lr}"
+    )
+
+    rho_opt, history, final_iter = run_feax_topopt(
+        mesh=mesh,
+        Lx=Lx,
+        Ly=Ly,
+        bc_preset_name="cantilever_corner",
+        vol_frac=vol_frac,
+        num_steps=num_steps,
+        learning_rate=lr,
+    )
+
+    rho_fname = f"rho_scale{scale}_vf{vol_frac}_lr{lr}.npy"
+    rho_path = os.path.join(output_dir, rho_fname)
+    jnp.save(rho_path, jnp.array(rho_opt))
+
+    results.append(
+        {
+            **cfg,
+            "Nx": Nx,
+            "Ny": Ny,
+            "Complience": history["J"][-1],
+            "Volume": history["vol"][-1],
+            # "Infe": history["infeas"][-1],
+            "Iteration": final_iter
+        }
+    )
+
+df = pd.DataFrame(results)
+
+df = df.sort_values(
+    by=["final_J", "final_infeas"],
+    ascending=[True, True],
+).reset_index(drop=True)
+
+print(
+    df.to_latex(
+        index=False,
+        float_format="%.4e",
+        caption="Baseline Grid search results for topology optimization",
+        label="tab:topopt_grid",
+    )
 )
-
-display_step = 5
-rho_list = list(history["rho"][::display_step])
-rho_list.append(rho_opt)
-
-iters = list(range(0, num_steps, display_step))
-iters.append(num_steps)
-
-titles = [f"Iteration {it}" for it in iters]
-
-show_rho_pages(rho_list, titles, Nx=Nx, Ny=Ny)

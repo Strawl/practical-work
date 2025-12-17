@@ -9,6 +9,7 @@ dependencies = [
     "optax>=0.2.6,<0.3",
     "tqdm>=4.67.1,<5",
     "matplotlib>=3.10.6,<4",
+    "scikit-learn>=1.8.0",
 ]
 
 [tool.uv.sources]
