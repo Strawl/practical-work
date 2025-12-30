@@ -14,14 +14,15 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any, Dict
 
+import config
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from feax.mesh import rectangle_mesh
 from fem_utils import get_element_geometry
 from jax.nn import sigmoid
 from serialization import (
+    TrainingConfig,
     load_model_from_config,
 )
 from visualize import show_rho_pages
@@ -35,51 +36,36 @@ def predict_density(model, Lx: float, Ly: float, Nx: int, Ny: int):
     return rho_pred
 
 
-def _infer_base_name(cfg_path: Path, cfg: Dict[str, Any]) -> str:
-    weights_file = cfg.get("weights_file")
-    if isinstance(weights_file, str) and weights_file:
-        return Path(weights_file).stem
-
-
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Visualize model outputs saved by serialize_ensemble."
     )
     parser.add_argument(
-        "--dir", type=str, help="Directory containing model files *_config.(yaml)."
-    )
-    parser.add_argument(
         "--scale",
         type=int,
-        default=5,
-        help="Scaling factor for resolution (default: 5).",
-    )
-    parser.add_argument(
-        "--domain",
-        type=str,
-        default="60,30",
-        help="Domain size as Lx,Ly (default: 60,30).",
+        default=None,
+        help="Override resolution scaling factor (defaults to training_config_snapshot.yaml).",
     )
     args = parser.parse_args()
 
-    if args.dir:
-        base_dir = (Path.cwd() / args.dir).resolve()
-    else:
-        outputs_dir = (Path.cwd() / "outputs").resolve()
-        if not outputs_dir.exists() or not any(outputs_dir.iterdir()):
-            print("No output directories found in ./outputs")
-            return
-        base_dir = sorted(outputs_dir.iterdir())[-1]
-
+    base_dir = Path(config.SAVE_DIR).resolve()
     if not base_dir.exists():
-        print(f"Directory not found: {base_dir}")
+        print(f"SAVE_DIR not found: {base_dir}")
         return
 
-    print(f"Using directory: {base_dir}")
+    print(f"Using directory (SAVE_DIR): {base_dir}")
 
-    Lx, Ly = map(float, args.domain.split(","))
-    scale = args.scale
+    train_config_path = base_dir / "training_config_snapshot.yaml"
+    train_config: TrainingConfig = TrainingConfig.from_yaml(train_config_path)
+
+    Lx = float(train_config.training.Lx)
+    Ly = float(train_config.training.Ly)
+    scale = (
+        int(args.scale) if args.scale is not None else int(train_config.training.scale)
+    )
+
     Nx, Ny = int(Lx * scale), int(Ly * scale)
+    print(f"Domain: Lx={Lx}, Ly={Ly} | scale={scale} -> Nx={Nx}, Ny={Ny}")
 
     config_files = sorted(base_dir.glob("*_config.yaml"))
     if not config_files:
@@ -92,35 +78,35 @@ def main():
     for cfg_path in config_files:
         print(f"Loading from {cfg_path.name} ...")
 
-        model, target_density, penalty, cfg = load_model_from_config(cfg_path, base_dir)
+        model, _, _, cfg = load_model_from_config(cfg_path, base_dir)
 
         rho_pred = predict_density(model, Lx, Ly, Nx, Ny)
-        images.append(jnp.array(rho_pred))
+        rho_pred = jnp.array(rho_pred)
+        images.append(rho_pred)
 
         actual_density = float(jnp.mean(rho_pred))
+        weights_file = cfg.get("weights_file")
+        base_name = Path(weights_file).stem
 
-        base_name = _infer_base_name(cfg_path, cfg)
-
-        # Build a helpful title using new config structure
         title = base_name
-        training = cfg.get("training")
+        training = cfg.get("training", {}) if isinstance(cfg, dict) else {}
         td = training.get("target_density")
         pen = training.get("penalty")
 
         if td is not None:
-            title += f"\nρ*={td:.2f}"
+            title += f"\nρ*={float(td):.2f}"
         title += f"\nρ_actual={actual_density:.3f}"
         if pen is not None:
             title += f"\npenalty={pen:g}"
 
-        model_kwargs = cfg.get("model_kwargs", {})
+        model_kwargs = cfg.get("model_kwargs", {}) if isinstance(cfg, dict) else {}
         if isinstance(model_kwargs, dict) and model_kwargs.get("omega") is not None:
             title += f"\nomega={model_kwargs['omega']}"
 
         titles.append(title)
 
         print(
-            f"  Range: [{rho_pred.min():.3f}, {rho_pred.max():.3f}], "
+            f"  Range: [{float(rho_pred.min()):.3f}, {float(rho_pred.max()):.3f}], "
             f"mean ρ = {actual_density:.3f}"
         )
 

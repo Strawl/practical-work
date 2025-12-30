@@ -12,11 +12,13 @@ basefilename = Path(TRAIN_CONFIG_PATH).stem
 timestamp = datetime.now().strftime("%m-%d_%H-%M-%S")
 default_dir = Path("./outputs") / f"{timestamp}_{basefilename}"
 
-SAVE_DIR = Path(os.environ.get("SAVE_DIR", str(default_dir))).expanduser().resolve()
+save_dir_str = os.environ.get("SAVE_DIR")
+if not save_dir_str:
+    save_dir_str = str(default_dir)
+SAVE_DIR = Path(save_dir_str).expanduser().resolve()
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
 print(f"Saving data to: {SAVE_DIR}")
-
 
 # ---------------- JAX Config ----------------
 jax.config.update("jax_enable_x64", True)
