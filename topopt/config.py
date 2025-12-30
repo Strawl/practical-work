@@ -1,6 +1,21 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from datetime import datetime
 import jax
 
-TRAIN_CONFIG_PATH = "train_siren.json"
+TRAIN_CONFIG_PATH = os.getenv("TRAIN_CONFIG_PATH", "./train_configs/train_siren.yaml")
+basefilename = Path(TRAIN_CONFIG_PATH).stem
+
+timestamp = datetime.now().strftime("%m-%d_%H-%M-%S")
+default_dir = Path("./outputs") / f"{timestamp}_{basefilename}"
+
+SAVE_DIR = Path(os.environ.get("SAVE_DIR", str(default_dir))).expanduser().resolve()
+SAVE_DIR.mkdir(parents=True, exist_ok=True)
+
+print(f"Saving data to: {SAVE_DIR}")
+
 
 # ---------------- JAX Config ----------------
 jax.config.update("jax_enable_x64", True)

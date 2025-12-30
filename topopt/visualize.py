@@ -2,7 +2,7 @@
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 from feax.mesh import Mesh
-import jax.numpy as np
+import jax.numpy as jnp
 
 
 def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
@@ -80,7 +80,7 @@ def show_rho_pages(
 
     # Pre-reshape all rho fields once
     images = [
-        np.reshape(np.asarray(rho), (Ny, Nx), order="F")
+        jnp.reshape(jnp.asarray(rho), (Ny, Nx), order="F")
         for rho in rho_list
     ]
 
@@ -98,7 +98,7 @@ def show_rho_pages(
         n = end - start
 
         ncols = 3
-        nrows = int(np.ceil(n / ncols))
+        nrows = int(jnp.ceil(n / ncols))
 
         for i in range(n):
             ax = plt.subplot(nrows, ncols, i + 1)
@@ -125,3 +125,41 @@ def show_rho_pages(
 
     draw_page(0)
     plt.show()
+
+def save_rho_png(
+    rho,
+    title,
+    Nx,
+    Ny,
+    path,
+    cmap="gray_r",
+    dpi=300
+):
+    """
+    Save a single topology optimization density field as a PNG.
+
+    Parameters
+    ----------
+    rho : array-like
+        Density field (flattened or array-like).
+    title : str
+        Title for the figure.
+    Nx, Ny : int
+        Grid dimensions.
+    path : str
+        Output file path (e.g., "result.png").
+    cmap : str, optional
+        Matplotlib colormap.
+    dpi : int, optional
+        Resolution of saved image.
+    """
+
+    rho_img = jnp.reshape(jnp.asarray(rho), (Ny, Nx), order="F")
+
+    plt.figure(figsize=(5, 5))
+    plt.imshow(rho_img, cmap=cmap, origin="lower", vmin=0, vmax=1)
+    plt.title(title)
+    plt.axis("off")
+    plt.tight_layout()
+    plt.savefig(path, dpi=dpi, bbox_inches="tight")
+    plt.close()

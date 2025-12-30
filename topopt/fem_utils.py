@@ -1,8 +1,9 @@
 import math
 from typing import Tuple
 
-import jax.numpy as np
-from feax.experimental.topopt_toolkit import create_compliance_fn
+import jax.numpy as jnp
+from feax.experimental.topopt_toolkit import create_compliance_fn, create_volume_fn
+import feax.flat as flat
 from problems import DensityElasticityProblem
 
 from feax import (
@@ -27,8 +28,8 @@ def get_element_geometry(mesh):
 
     Returns JAX arrays (except num_elements).
     """
-    pts = np.asarray(mesh.points)[:, :2]
-    cells = np.asarray(mesh.cells, dtype=np.int32)
+    pts = jnp.asarray(mesh.points)[:, :2]
+    cells = jnp.asarray(mesh.cells, dtype=jnp.int32)
 
     elem_pts = pts[cells]
     centroids = elem_pts.mean(axis=1)
@@ -37,7 +38,7 @@ def get_element_geometry(mesh):
     cmax = centroids.max(axis=0)
     crange = cmax - cmin
 
-    crange = np.where(crange == 0, 1.0, crange)
+    crange = jnp.where(crange == 0, 1.0, crange)
 
     centroids_scaled = 2.0 * ((centroids - cmin) / crange) - 1.0
 
@@ -53,51 +54,24 @@ def get_element_geometry(mesh):
     num_elements = cells.shape[0]
 
     return {
-        "centroids": np.asarray(centroids, dtype=np.float64),
-        "centroids_scaled": np.asarray(centroids_scaled, dtype=np.float64),
-        "dx_raw": np.asarray(dx_raw),
-        "dy_raw": np.asarray(dy_raw),
-        "dx_scaled": np.asarray(dx_scaled),
-        "dy_scaled": np.asarray(dy_scaled),
-        "centroid_min": np.asarray(cmin),
-        "centroid_range": np.asarray(crange),
+        "centroids": jnp.asarray(centroids, dtype=jnp.float64),
+        "centroids_scaled": jnp.asarray(centroids_scaled, dtype=jnp.float64),
+        "dx_raw": jnp.asarray(dx_raw),
+        "dy_raw": jnp.asarray(dy_raw),
+        "dx_scaled": jnp.asarray(dx_scaled),
+        "dy_scaled": jnp.asarray(dy_scaled),
+        "centroid_min": jnp.asarray(cmin),
+        "centroid_range": jnp.asarray(crange),
         "num_elements": int(num_elements),
     }
 
 
-def get_element_areas(mesh: Mesh):
-    pts = np.asarray(mesh.points)[:, :2]
-    cells = np.asarray(mesh.cells)
 
-    if mesh.ele_type in ("TRI3", "TRI6"):
-        p0 = pts[cells[:, 0]]
-        p1 = pts[cells[:, 1]]
-        p2 = pts[cells[:, 2]]
-        areas = 0.5 * np.abs(np.cross(p1 - p0, p2 - p0))
-
-    elif mesh.ele_type in ("QUAD4", "QUAD8"):
-        p0 = pts[cells[:, 0]]
-        p1 = pts[cells[:, 1]]
-        p2 = pts[cells[:, 2]]
-        p3 = pts[cells[:, 3]]
-
-        tri1 = 0.5 * np.abs(np.cross(p1 - p0, p2 - p0))
-        tri2 = 0.5 * np.abs(np.cross(p2 - p0, p3 - p0))
-        areas = tri1 + tri2
-
-    else:
-        raise NotImplementedError(
-            f"Area calculation not implemented for {mesh.ele_type}"
-        )
-
-    total_area = np.sum(areas)
-    return areas, total_area
-
-
-def create_J_total(
+def create_objective_functions(
     mesh,
     fixed_location,
     load_location,
+    target_fraction=None,
     ele_type="QUAD4",
     E0=70e3,
     E_eps=7,
@@ -108,12 +82,8 @@ def create_J_total(
     iter_num=1,
     check_convergence=False,
     verbose=False,
+    radius: float = 0,
 ):
-    """
-    Create and return a J_total(rho) function that evaluates compliance
-    for a given density field rho.
-    """
-
     bc_config = DirichletBCConfig(
         [DirichletBCSpec(location=fixed_location, component="all", value=0.0)]
     )
@@ -150,18 +120,35 @@ def create_J_total(
     initial_guess = zero_like_initial_guess(problem, bc)
 
     traction_array = InternalVars.create_uniform_surface_var(problem, T)
-
     compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
 
-    def J_total(rho):
+    if radius <= 0:
+        filter_fn = lambda rho: rho
+    else:
+        filter_fn = flat.filters.create_helmholtz_filter(mesh, radius)
+
+    def solve_forward(rho):
+        """Compute compliance for given node-based density field."""
+        rho_f = filter_fn(rho)
         internal_vars = InternalVars(
-            volume_vars=(rho,),
+            volume_vars=(rho_f,),
             surface_vars=[(traction_array,)],
         )
         sol = solver(internal_vars, initial_guess)
         return compute_compliance(sol)
 
-    return J_total
+
+    volume_fn = create_volume_fn(problem)
+    def evaluate_volume(rho):
+        """Compute volume fraction for given node-based density field."""
+        rho_filtered = filter_fn(rho)
+        return volume_fn(rho_filtered)
+
+    rho_init = None
+    if target_fraction:
+        rho_init = InternalVars.create_node_var(problem, target_fraction)
+
+    return solve_forward, evaluate_volume, rho_init, mesh.points.shape[0]
 
 def adaptive_rectangle_mesh_new(
     initial_size: float,
@@ -178,8 +165,8 @@ def adaptive_rectangle_mesh_new(
     x0, y0 = origin
 
     # Convert to JAX arrays
-    coords = np.asarray(coords, dtype=np.float32)
-    rho = np.asarray(values, dtype=np.float32)
+    coords = jnp.asarray(coords, dtype=jnp.float32)
+    rho = jnp.asarray(values, dtype=jnp.float32)
 
     # Check shapes
     if coords.ndim != 2 or coords.shape[1] != 2:
@@ -209,20 +196,20 @@ def adaptive_rectangle_mesh_new(
     xs = coords[:, 0]
     ys = coords[:, 1]
 
-    ix_f = np.floor((xs - x0) / hx_fine).astype(np.int32)
-    iy_f = np.floor((ys - y0) / hy_fine).astype(np.int32)
+    ix_f = jnp.floor((xs - x0) / hx_fine).astype(jnp.int32)
+    iy_f = jnp.floor((ys - y0) / hy_fine).astype(jnp.int32)
 
-    ix_f = np.clip(ix_f, 0, Nx_fine - 1)
-    iy_f = np.clip(iy_f, 0, Ny_fine - 1)
+    ix_f = jnp.clip(ix_f, 0, Nx_fine - 1)
+    iy_f = jnp.clip(iy_f, 0, Ny_fine - 1)
 
     # 1D ID
     cell_ids = ix_f * Ny_fine + iy_f
     n_cells_fine = Nx_fine * Ny_fine
 
     # Init aggregates
-    min_rho_flat = np.full((n_cells_fine,), np.inf, dtype=np.float32)
-    max_rho_flat = np.full((n_cells_fine,), -np.inf, dtype=np.float32)
-    cnt_flat = np.zeros((n_cells_fine,), dtype=np.int32)
+    min_rho_flat = jnp.full((n_cells_fine,), jnp.inf, dtype=jnp.float32)
+    max_rho_flat = jnp.full((n_cells_fine,), -jnp.inf, dtype=jnp.float32)
+    cnt_flat = jnp.zeros((n_cells_fine,), dtype=jnp.int32)
 
     # Scatter reduce
     min_rho_flat = min_rho_flat.at[cell_ids].min(rho)
@@ -307,14 +294,14 @@ def adaptive_rectangle_mesh_new(
     # -------------------------------------------------------------
     # 5. Build mesh nodes and connectivity
     # -------------------------------------------------------------
-    x_nodes = np.linspace(x0, x0 + domain_x, Nx_fine + 1)
-    y_nodes = np.linspace(y0, y0 + domain_y, Ny_fine + 1)
+    x_nodes = jnp.linspace(x0, x0 + domain_x, Nx_fine + 1)
+    y_nodes = jnp.linspace(y0, y0 + domain_y, Ny_fine + 1)
 
-    Xg, Yg = np.meshgrid(x_nodes, y_nodes, indexing="ij")
-    points = np.stack([Xg.ravel(), Yg.ravel()], axis=1)
+    Xg, Yg = jnp.meshgrid(x_nodes, y_nodes, indexing="ij")
+    points = jnp.stack([Xg.ravel(), Yg.ravel()], axis=1)
 
     n_cells = len(leaves)
-    cells = np.zeros((n_cells, 4), dtype=np.int32)
+    cells = jnp.zeros((n_cells, 4), dtype=jnp.int32)
 
     n_y_nodes = Ny_fine + 1
 
@@ -332,7 +319,7 @@ def adaptive_rectangle_mesh_new(
         n2 = ix1 * n_y_nodes + iy1
         n3 = ix0 * n_y_nodes + iy1
 
-        cells = cells.at[e, :].set(np.array([n0, n1, n2, n3], dtype=np.int32))
+        cells = cells.at[e, :].set(jnp.array([n0, n1, n2, n3], dtype=jnp.int32))
 
     # -------------------------------------------------------------
     # 6. Return mesh
@@ -341,8 +328,8 @@ def adaptive_rectangle_mesh_new(
 
 def adaptive_rectangle_mesh(
     initial_size: float,
-    coords: np.ndarray,
-    values: np.ndarray,
+    coords: jnp.ndarray,
+    values: jnp.ndarray,
     domain_x: float = 1.0,
     domain_y: float = 1.0,
     origin: Tuple[float, float] = (0.0, 0.0),
@@ -398,8 +385,8 @@ def adaptive_rectangle_mesh(
 
     x0, y0 = origin
 
-    coords = np.asarray(coords, dtype=float)
-    rho = np.asarray(values, dtype=float)
+    coords = jnp.asarray(coords, dtype=float)
+    rho = jnp.asarray(values, dtype=float)
 
     if coords.shape[1] != 2:
         raise ValueError("coords must be of shape (N, 2)")
@@ -410,15 +397,15 @@ def adaptive_rectangle_mesh(
     # 1. Build initial coarse grid from initial_size
     # ------------------------------------------------------------------
     # number of coarse cells in each direction
-    Nx = max(1, int(np.ceil(domain_x / initial_size)))
-    Ny = max(1, int(np.ceil(domain_y / initial_size)))
+    Nx = max(1, int(jnp.ceil(domain_x / initial_size)))
+    Ny = max(1, int(jnp.ceil(domain_y / initial_size)))
 
     # actual coarse cell sizes so that the grid fits the domain exactly
     hx = domain_x / Nx
     hy = domain_y / Ny
 
-    Npts = coords.shape[0]
-    all_indices = np.arange(Npts, dtype=int)
+    jnpts = coords.shape[0]
+    all_indices = jnp.arange(jnpts, dtype=int)
 
     leaf_cells = []  # list of (xmin, xmax, ymin, ymax)
 
@@ -435,9 +422,9 @@ def adaptive_rectangle_mesh(
             return
 
         cell_rho = rho[point_indices]
-        cell_mean = np.mean(cell_rho)
-        # maximum = np.max(cell_rho)
-        # minimum = np.min(cell_rho)
+        cell_mean = jnp.mean(cell_rho)
+        # maximum = jnp.max(cell_rho)
+        # minimum = jnp.min(cell_rho)
 
         # Homogeneous: mostly 0 or mostly 1 -> do not refine further
         if (cell_mean < threshold_low) or (cell_mean > threshold_high):
@@ -518,7 +505,7 @@ def adaptive_rectangle_mesh(
         n3 = get_node_id(xmin, ymax)
         cells_list.append([n0, n1, n2, n3])
 
-    points = np.array(points_list, dtype=float)
-    cells = np.array(cells_list, dtype=np.int32)
+    points = jnp.array(points_list, dtype=float)
+    cells = jnp.array(cells_list, dtype=jnp.int32)
 
     return Mesh(points, cells, ele_type="QUAD4")

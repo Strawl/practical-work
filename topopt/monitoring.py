@@ -1,155 +1,268 @@
-from typing import Tuple, Sequence
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-import matplotlib.pyplot as plt
+import time
+import math
+
+import jax
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
 
 
-def forward_fill_nan_2d(arr: jnp.ndarray) -> jnp.ndarray:
-    """
-    Forward-fill NaNs along axis=1 (time axis) for each row (model).
+@dataclass
+class MetricTracker:
+    output_dir: Path = Path("./output")
+    fill_invalid: bool = True
 
-    Parameters
-    ----------
-    arr : jnp.ndarray
-        Shape (num_models, num_steps)
+    # name -> list of per-step JAX arrays, each shape (M,)
+    data: Dict[str, List[jnp.ndarray]] = field(default_factory=dict)
 
-    Returns
-    -------
-    jnp.ndarray
-        Same shape, with NaNs replaced by previous valid value.
-        Leading NaNs are replaced by the first finite value in the row.
-        Rows that are all NaN remain all NaN.
-    """
-    arr = jnp.asarray(arr, dtype=float)
-    num_models, num_steps = arr.shape
+    # name -> expected per-step shape, e.g. (M,)
+    shape: Dict[str, Tuple[int, ...]] = field(default_factory=dict)
 
-    # We'll build updates functionally using .at
-    out = arr
+    # name -> last logged value (for forward fill)
+    last: Dict[str, jnp.ndarray] = field(default_factory=dict)
 
-    for i in range(int(num_models)):
-        row = out[i]
-        finite_mask = jnp.isfinite(row)
+    # ------------------------ core ------------------------
 
-        if not bool(finite_mask.any()):
-            continue  # all NaN/Inf -> leave as is
+    @staticmethod
+    def _to_1d(values: Any) -> jnp.ndarray:
+        v = jnp.asarray(values, dtype=float)
+        return v.reshape((1,)) if v.ndim == 0 else v
 
-        # index of first finite value
-        first_idx = int(jnp.argmax(finite_mask))
-        first_val = row[first_idx]
+    def log(self, name: str, values: Any) -> None:
+        v = self._to_1d(values)
+        if v.ndim != 1:
+            raise ValueError(f"Metric '{name}' must be 1D (shape (M,)). Got {tuple(v.shape)}.")
 
-        # Fill leading invalids with first finite value
-        if first_idx > 0:
-            row = row.at[:first_idx].set(first_val)
+        shp = tuple(v.shape)
+        prev_shp = self.shape.get(name)
+        if prev_shp is None:
+            self.shape[name] = shp
+        elif prev_shp != shp:
+            raise ValueError(f"Metric '{name}' changed shape: was {prev_shp}, now {shp}.")
 
-        # Forward-fill remaining invalids
-        for t in range(first_idx + 1, int(num_steps)):
-            if not bool(jnp.isfinite(row[t])):
-                row = row.at[t].set(row[t - 1])
+        if self.fill_invalid:
+            prev = self.last.get(name)
+            if prev is not None:
+                v = jnp.where(jnp.isfinite(v), v, prev)
 
-        out = out.at[i].set(row)
+        self.data.setdefault(name, []).append(v)
+        self.last[name] = v
 
-    return out
+    def steps(self, name: str) -> int:
+        return len(self.data.get(name, []))
 
+    def stack(self, name: str) -> jnp.ndarray:
+        xs = self.data.get(name)
+        if not xs:
+            raise KeyError(f"No data logged for metric '{name}'.")
+        return jnp.stack(xs, axis=0)  # (T, M)
 
-def preprocess_history(
-    history: Sequence[jnp.ndarray],
-) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray]:
-    """
-    history = (loss_history, lr_scale_history, lam_history, Cs_history)
-    """
-    loss_history, lr_scale_history, lam_history, Cs_history = history
+    def all_stacked(self) -> Dict[str, jnp.ndarray]:
+        return {k: self.stack(k) for k in self.data}
 
-    # Convert epochs-first -> models-first
-    loss_history = loss_history.T
-    lr_scale_history = lr_scale_history.T
-    lam_history = lam_history.T
-    Cs_history = Cs_history.T
+    def save(self, basename: str = "metrics_log") -> Path:
+        npz_path = self.output_dir / Path(f"{basename}.npz")
 
-    loss_history = forward_fill_nan_2d(loss_history)
-    lr_scale_history = forward_fill_nan_2d(lr_scale_history)
-    lam_history = forward_fill_nan_2d(lam_history)
-    Cs_history = forward_fill_nan_2d(Cs_history)
+        stacked = {k: np.asarray(self.stack(k)) for k in sorted(self.data)}
+        np.savez_compressed(npz_path, **stacked)
 
-    return loss_history, lr_scale_history, lam_history, Cs_history
+        return npz_path
 
+    @staticmethod
+    def load(npz_path: str | Path) -> Dict[str, jnp.ndarray]:
+        npz_path = Path(npz_path)
+        with np.load(npz_path, allow_pickle=False) as z:
+            return {k: jnp.asarray(z[k]) for k in z.files}
 
-def plot_single_model_history(
-    i: int,
-    loss_h: jnp.ndarray,
-    lr_h: jnp.ndarray,
-    lam_h: jnp.ndarray,
-    C_h: jnp.ndarray,
-    out_dir: Path,
-    prefix: str = "model",
-):
-    """
-    Save one PNG per model with 4 subplots:
-    loss, lr scale, lambda, C.
+    # ------------------------ plotting ------------------------
 
-    Arrays expected shape (num_models, num_epochs).
-    """
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    @staticmethod
+    def _iter_pages(n: int, per_page: int):
+        per_page = max(1, int(per_page))
+        for s in range(0, n, per_page):
+            yield s, min(n, s + per_page)
 
-    epochs = jnp.arange(loss_h.shape[1])
+    @staticmethod
+    def _grid_dims(n: int, ncols: int) -> Tuple[int, int]:
+        ncols = max(1, int(ncols))
+        nrows = max(1, math.ceil(n / ncols))
+        return nrows, ncols
 
-    fig, axs = plt.subplots(4, 1, figsize=(10, 12), sharex=True)
+    def _plot_pages(
+        self,
+        n_items: int,
+        per_page: int,
+        ncols: int,
+        plot_one,
+        page_title,
+        file_name,
+        show: bool,
+        save: bool,
+    ) -> List[Path]:
+        out_paths: List[Path] = []
 
-    axs[0].plot(epochs, loss_h[i])
-    axs[0].set_title(f"{prefix} {i} - Loss")
-    axs[0].set_ylabel("Loss")
-    axs[1].set_xlabel("Epochs")
-    axs[0].grid(True)
+        for page_idx, (s, e) in enumerate(self._iter_pages(n_items, per_page), start=1):
+            n = e - s
+            nrows, ncols_eff = self._grid_dims(n, ncols)
 
-    axs[1].plot(epochs, lr_h[i])
-    axs[1].set_title(f"{prefix} {i} - LR scale")
-    axs[1].set_ylabel("LR scale")
-    axs[1].set_xlabel("Epochs")
-    axs[1].grid(True)
+            fig, axes = plt.subplots(
+                nrows=nrows,
+                ncols=ncols_eff,
+                figsize=(4.5 * ncols_eff, 3.2 * nrows),
+            )
+            axes = np.atleast_1d(axes).ravel()
 
-    axs[2].plot(epochs, lam_h[i])
-    axs[2].set_title(f"{prefix} {i} - Lambda")
-    axs[2].set_ylabel("Lambda")
-    axs[1].set_xlabel("Epochs")
-    axs[2].grid(True)
+            for i, item_idx in enumerate(range(s, e)):
+                plot_one(axes[i], item_idx)
 
-    axs[3].plot(epochs, C_h[i])
-    axs[3].set_title(f"{prefix} {i} - C")
-    axs[3].set_ylabel("C")
-    axs[1].set_xlabel("Epochs")
-    axs[3].grid(True)
+            for ax in axes[n:]:
+                ax.axis("off")
 
-    fig.tight_layout()
+            fig.suptitle(page_title(s, e, page_idx), y=0.95)
+            fig.tight_layout()
 
-    out_path = out_dir / f"{prefix}_{i}_history.png"
-    fig.savefig(out_path, dpi=150)
-    plt.close(fig)
+            if save and self.output_dir is not None:
+                p = self.output_dir / file_name(page_idx)
+                fig.savefig(p, dpi=150, bbox_inches="tight")
+                out_paths.append(p)
 
-    return out_path
+            if show:
+                plt.show()
+            else:
+                plt.close(fig)
 
+        return out_paths
 
-def save_ensemble_history_plots(
-    history: Sequence[jnp.ndarray],
-    run_dir: Path,
-    prefix: str = "model",
-):
-    """
-    Preprocess history (forward-fill NaNs) and write one history image per model.
-    Returns list of saved paths.
-    """
-    loss_h, lr_h, lam_h, C_h = preprocess_history(history)
-    num_models = int(loss_h.shape[0])
+    def plot_metric_across_models(
+        self,
+        name: str,
+        model_names: Optional[List[str]] = None,
+        show: bool = False,
+        save: bool = True
+    ) -> List[Path]:
+        hist = self.stack(name)
+        T, M = map(int, hist.shape)
+        if T == 0 or M == 0:
+            return []
 
-    plots_dir = Path(run_dir) / "history_plots"
-    plots_dir.mkdir(parents=True, exist_ok=True)
+        hist_np = np.asarray(hist)
+        x = np.arange(T)
 
-    paths = []
-    for i in range(num_models):
-        p = plot_single_model_history(
-            i, loss_h, lr_h, lam_h, C_h,
-            out_dir=plots_dir, prefix=prefix
-        )
-        paths.append(p)
+        if M == 1:
+            fig, ax = plt.subplots(figsize=(7.5, 4.2))
+            ax.plot(x, hist_np[:, 0])
+            ax.set_title(name)
+            ax.set_xlabel("step")
+            ax.set_ylabel(name)
+            fig.tight_layout()
 
-    return paths
+            out_paths: List[Path] = []
+            if save and self.output_dir is not None:
+                self.output_dir.mkdir(parents=True, exist_ok=True)
+                p = self.output_dir / f"{name}.png"
+                fig.savefig(p, dpi=150, bbox_inches="tight")
+                out_paths.append(p)
+
+            if show:
+                plt.show()
+            else:
+                plt.close(fig)
+
+            return out_paths
+
+        model_names = model_names or [f"model_{m}" for m in range(M)]
+        if len(model_names) != M:
+            raise ValueError(f"model_names length {len(model_names)} != M={M}")
+
+        hist_np = np.asarray(hist)
+        x = np.arange(T)
+
+        fig, ax = plt.subplots(figsize=(7.5, 4.2))
+        for m in range(M):
+            ax.plot(x, hist_np[:, m], label=model_names[m])
+
+        ax.set_title(name)
+        ax.set_xlabel("step")
+        ax.set_ylabel(name)
+
+        if M <= 15:
+            ax.legend(fontsize=8)
+
+        fig.tight_layout()
+
+        out_paths: List[Path] = []
+        if save and self.output_dir is not None:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            p = self.output_dir / f"{name}.png"
+            fig.savefig(p, dpi=150, bbox_inches="tight")
+            out_paths.append(p)
+
+        if show:
+            plt.show()
+        else:
+            plt.close(fig)
+
+        return out_paths
+
+    def plot_all_metrics_across_models(
+        self,
+        model_names: Optional[List[str]] = None,
+        show: bool = False,
+        save: bool = True,
+    ) -> List[Path]:
+        """
+        Convenience: plot *every* logged metric, one figure per metric,
+        with all models shown on each figure.
+        """
+        out_paths: List[Path] = []
+        for name in sorted(self.data.keys()):
+            out_paths += self.plot_metric_across_models(
+                name=name,
+                model_names=model_names,
+                show=show,
+                save=save,
+            )
+        return out_paths
+
+class StepTimer:
+    """Minimal wall-clock timer for JAX steps using perf_counter."""
+
+    def __init__(self):
+        self._t0 = None
+        self.elapsed_s = None
+
+    def start(self) -> None:
+        self._t0 = time.perf_counter()
+        self.elapsed_s = None
+
+    @staticmethod
+    def block_until_ready(x):
+        """
+        Block on a JAX array/scalar or a pytree of arrays.
+        Returns x unchanged.
+        """
+        def _block(v):
+            return v.block_until_ready() if hasattr(v, "block_until_ready") else v
+
+        jax.tree_util.tree_map(_block, x)
+        return x
+
+    def stop(self, block_on=None) -> float:
+        """
+        Stop timer. If block_on is provided, we block on it before reading time.
+        """
+        if self._t0 is None:
+            raise RuntimeError("StepTimer.stop() called before start().")
+
+        if block_on is not None:
+            self.block_until_ready(block_on)
+
+        self.elapsed_s = time.perf_counter() - self._t0
+        self._t0 = None
+        return self.elapsed_s

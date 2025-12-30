@@ -2,7 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 
-import jax.numpy as np
+import jax.numpy as jnp
 from jax_fem.generate_mesh import Mesh, get_meshio_cell_type, rectangle_mesh
 from jax_fem.problem import Problem
 from jax_fem.solver import ad_wrapper
@@ -20,7 +20,7 @@ class Elasticity(Problem):
     def custom_init(self):
         self.fe = self.fes[0]
         # all elements are "flexible" (design variables)
-        self.fe.flex_inds = np.arange(len(self.fe.cells))
+        self.fe.flex_inds = jnp.arange(len(self.fe.cells))
 
     def get_tensor_map(self):
         def stress(u_grad, theta):
@@ -37,15 +37,15 @@ class Elasticity(Problem):
             sig11 = E / (1 + nu) / (1 - nu) * (eps11 + nu * eps22)
             sig22 = E / (1 + nu) / (1 - nu) * (nu * eps11 + eps22)
             sig12 = E / (1 + nu) * eps12
-            return np.array([[sig11, sig12], [sig12, sig22]])
+            return jnp.array([[sig11, sig12], [sig12, sig22]])
 
         return stress
 
     def set_params(self, params):
         # params: (num_flex, n_param_per_elem)
-        full_params = np.ones((self.fe.num_cells, params.shape[1]))
+        full_params = jnp.ones((self.fe.num_cells, params.shape[1]))
         full_params = full_params.at[self.fe.flex_inds].set(params)
-        thetas = np.repeat(full_params[:, None, :], self.fe.num_quads, axis=1)
+        thetas = jnp.repeat(full_params[:, None, :], self.fe.num_quads, axis=1)
         self.full_params = full_params
         self.internal_vars = [thetas]
 
@@ -57,17 +57,17 @@ class Elasticity(Problem):
             sol[self.fe.cells][boundary_inds[:, 0]][:, None, :, :]
             * self.fe.face_shape_vals[boundary_inds[:, 1]][:, :, :, None]
         )
-        u_face = np.sum(u_face, axis=2)
+        u_face = jnp.sum(u_face, axis=2)
 
         subset_quad_points = self.physical_surface_quad_points[0]
         neumann_fn = self.get_surface_maps()[0]
         traction = -jax.vmap(jax.vmap(neumann_fn))(u_face, subset_quad_points)
-        return np.sum(traction * u_face * nanson_scale[:, :, None])
+        return jnp.sum(traction * u_face * nanson_scale[:, :, None])
 
     def get_surface_maps(self):
         def surface_map(u, x):
             # Constant vertical load on the right edge
-            return np.array([0.0, 100.0])
+            return jnp.array([0.0, 100.0])
 
         return [surface_map]
 
@@ -76,19 +76,19 @@ class Elasticity(Problem):
 # Helper: element centroids
 # -----------------------------
 def get_element_centroids(mesh):
-    pts = np.array(mesh.points)
-    cells = np.array(mesh.cells)
-    centroids = np.mean(pts[cells], axis=1)  # (num_cells, 2)
+    pts = jnp.array(mesh.points)
+    cells = jnp.array(mesh.cells)
+    centroids = jnp.mean(pts[cells], axis=1)  # (num_cells, 2)
 
     # normalize to [-1, 1] for SIREN stability
-    xmin, ymin = np.min(centroids, axis=0)
-    xmax, ymax = np.max(centroids, axis=0)
-    centroids = (centroids - np.array([xmin, ymin])) / (
-        np.array([xmax - xmin, ymax - ymin])
+    xmin, ymin = jnp.min(centroids, axis=0)
+    xmax, ymax = jnp.max(centroids, axis=0)
+    centroids = (centroids - jnp.array([xmin, ymin])) / (
+        jnp.array([xmax - xmin, ymax - ymin])
     )
     centroids = 2.0 * centroids - 1.0
 
-    return centroids.astype(np.float32)
+    return centroids.astype(jnp.float32)
 
 
 # -----------------------------
@@ -115,13 +115,13 @@ Lx, Ly = 60.0, 30.0
 
 
 def fixed_location(point):
-    return np.isclose(point[0], 0.0, atol=1e-5)
+    return jnp.isclose(point[0], 0.0, atol=1e-5)
 
 
 def load_location(point):
-    return np.logical_and(
-        np.isclose(point[0], Lx, atol=1e-5),
-        np.isclose(point[1], 0.0, atol=0.1 * Ly + 1e-5),
+    return jnp.logical_and(
+        jnp.isclose(point[0], Lx, atol=1e-5),
+        jnp.isclose(point[1], 0.0, atol=0.1 * Ly + 1e-5),
     )
 
 

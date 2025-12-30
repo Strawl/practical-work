@@ -1,168 +1,24 @@
-from typing import Callable
-import jax
-import jax.numpy as jnp
-import optax
+# baseline.py
 import os
-from feax.experimental.topopt_toolkit import mdmm
-from feax.mesh import rectangle_mesh, Mesh
-from sklearn.model_selection import ParameterGrid
-import pandas as pd
-
-from bc import make_bc_preset
-from fem_utils import create_J_total
+import csv
+import nlopt
 import matplotlib.pyplot as plt
 
-from visualize import show_rho_pages
+import jax
+import jax.numpy as jnp
+
+from bc import make_bc_preset
+from fem_utils import create_objective_functions
+from feax.mesh import rectangle_mesh
+from monitoring import MetricTracker
+from visualize import save_rho_png
+import config
 
 
-
-
-def run_topopt_mdmm(
-    J_total: Callable[[jnp.ndarray], jnp.ndarray],
-    rho_shape,
-    vol_frac: float = 0.4,
-    num_steps: int = 1000,
-    learning_rate: float = 5e-2,
-    constraint_damping: float = 1.0,
-    constraint_weight: float = 1.0,
-    print_every: int = 10,
-    vol_tol: float = 1e-3,
-    J_tol: float = 1e-6
-):
-    """
-    Minimize compliance subject to a volume-fraction constraint using MDMM.
-
-    Args
-    ----
-    J_total:
-        Callable taking rho (density field) and returning scalar compliance.
-    rho_shape:
-        Shape tuple for rho, e.g. (n_el,) or (ny, nx).
-    vol_frac:
-        Target volume fraction V / V0.
-    num_steps:
-        Number of MDMM optimization iterations.
-    learning_rate:
-        Base learning rate for the primary variables.
-    constraint_damping:
-        MDMM damping parameter.
-    constraint_weight:
-        Weight of the constraint loss relative to primary loss.
-    print_every:
-        Logging interval.
-
-    Returns
-    -------
-    rho_opt:
-        Optimized density field.
-    history:
-        Dict with lists of 'J', 'vol', 'infeas'.
-    """
-
-    volume_constraint = mdmm.ineq(
-        lambda rho: vol_frac - jnp.mean(rho),
-        damping=constraint_damping,
-        weight=constraint_weight,
-        reduction=lambda x: x,
-    )
-
-    initial_rho = jnp.full(rho_shape, vol_frac)
-    alpha0 = jnp.log(initial_rho / (1.0 - initial_rho))
-
-    mdmm_params0 = volume_constraint.init(initial_rho)
-
-    params = {
-        "alpha": alpha0,
-        "mdmm": mdmm_params0,
-    }
-
-    def loss_fn(params):
-        alpha = params["alpha"]
-        mdmm_params = params["mdmm"]
-
-        rho = jax.nn.sigmoid(alpha)
-        J = J_total(rho)
-
-        c_loss, infeas = volume_constraint.loss(mdmm_params, rho)
-        c_loss = jnp.maximum(c_loss, 0)
-        total_loss = J + c_loss
-
-        aux = {
-            "J": J,
-            "vol": jnp.mean(rho),
-            "infeas": infeas,
-            "rho": rho,
-        }
-        return total_loss, aux
-
-    inner_optim = optax.chain(
-        optax.adabelief(learning_rate),
-        mdmm.optax_prepare_update(),
-    )
-    optimizer = optax.apply_if_finite(
-        inner_optim,
-        max_consecutive_errors=30,
-    )
-    opt_state = optimizer.init(params)
-
-    @jax.jit
-    def step(params, opt_state):
-        (loss_val, aux), grads = jax.value_and_grad(loss_fn, has_aux=True)(params)
-        updates, opt_state = optimizer.update(grads, opt_state, params)
-        params = optax.apply_updates(params, updates)
-        return params, opt_state, loss_val, aux
-
-    J_window = 30
-    J_window_tol = 1e-2
-    history = {"J": [], "vol": [], "infeas": [], "rho": []}
-    final_iter = num_steps
-
-    for it in range(num_steps):
-        params, opt_state, loss_val, aux = step(params, opt_state)
-
-        J_val = float(aux["J"])
-        vol_val = float(aux["vol"])
-        infeas_val = float(aux["infeas"])
-
-        history["J"].append(J_val)
-        history["vol"].append(vol_val)
-        history["infeas"].append(infeas_val)
-        history["rho"].append(aux["rho"])
-
-        if (it % print_every) == 0 or it == num_steps - 1:
-            print(
-                f"[{it:05d}] "
-                f"J = {J_val:.6e}, "
-                f"vol = {vol_val:.4f}, "
-                f"infeas = {infeas_val:.4e}"
-            )
-
-        # ---- Windowed stagnation criterion ----
-        if it >= J_window:
-            J_start = history["J"][it - J_window]
-            J_end = history["J"][it]
-            J_delta = abs(J_end - J_start)
-
-            vol_close = abs(vol_val - vol_frac) <= vol_tol
-            J_delta_rel = abs(J_end - J_start) / (abs(J_start) + 1e-12)
-
-            if vol_close and J_delta_rel <= J_window_tol:
-                print(
-                    f"Early stopping at iter {it}: "
-                    f"|ΔJ| over last {J_window} iters = {J_delta:.3e}"
-                )
-                final_iter = it + 1
-                break
-
-
-    # Final density field
-    rho_opt = jax.nn.sigmoid(params["alpha"])
-    return rho_opt, history, final_iter
-
-def run_feax_topopt(
-    mesh,
-    Lx: float,
-    Ly: float,
+def run_feax_topopt_mma(
+    Lx: int,
+    Ly: int,
+    scale: float = 1.0,
     bc_preset_name: str = "cantilever_corner",
     vol_frac: float = 0.5,
     ele_type: str = "QUAD4",
@@ -173,23 +29,22 @@ def run_feax_topopt(
     T: float = 1e2,
     gauss_order: int = 2,
     iter_num: int = 1,
-    num_steps: int = 1000,
-    learning_rate: float = 5e-2,
-    constraint_weight: int = 15
+    max_iter: int = 500,
+    radius: float = 1.0,
+    print_every: int = 5,
+    save_every: int = 5,
 ):
-    """
-    High-level helper: set up feax problem, build J_total(rho), and run MDMM
-    topology optimization with a volume fraction constraint.
-    """
+    Nx = int(Lx * scale)
+    Ny = int(Ly * scale)
+    mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
 
-    # 1) BC preset -> fixed & load locations
     fixed_location, load_location = make_bc_preset(bc_preset_name, Lx, Ly)
 
-    # 2) Compliance functional J_total(rho) from your helper
-    J_total = create_J_total(
+    solve_forward, evaluate_volume, rho_init, num_nodes = create_objective_functions(
         mesh=mesh,
         fixed_location=fixed_location,
         load_location=load_location,
+        target_fraction=vol_frac,
         ele_type=ele_type,
         E0=E0,
         E_eps=E_eps,
@@ -198,106 +53,98 @@ def run_feax_topopt(
         T=T,
         gauss_order=gauss_order,
         iter_num=iter_num,
-    )
-    rho_shape = mesh.cells.shape[0]
-
-    # 4) Call the generic MDMM driver
-    rho_opt, history, final_iter = run_topopt_mdmm(
-        J_total=J_total,
-        rho_shape=rho_shape,
-        vol_frac=vol_frac,
-        num_steps=num_steps,
-        constraint_weight=constraint_weight,
-        learning_rate=learning_rate,
+        check_convergence=True,
+        verbose=False,
+        radius=radius,
     )
 
-    return rho_opt, history, final_iter
+    forward_jit = jax.jit(solve_forward)
+    volume_jit = jax.jit(evaluate_volume)
+    grad_complience_jit = jax.jit(jax.grad(forward_jit))
+    grad_volume_jit = jax.jit(jax.grad(volume_jit))
+
+    tracker = MetricTracker(output_dir=config.SAVE_DIR, fill_invalid=True)
+    iteration_count = [0]
+
+    def objective(x, grad):
+        rho = jnp.array(x)
+
+        f = float(forward_jit(rho))
+        grad[:] = jnp.array(grad_complience_jit(rho))
+        v = float(volume_jit(rho))
 
 
-# ----------------------------
-# Grid search parameters
-# ----------------------------
-param_grid = {
-    # "scale": [1, 2, 3, 4],
-    # "vol_frac": [0.3, 0.4, 0.5, 0.6],
-    # "learning_rate": [0.02, 0.05, 0.1, 0.2],
-    # "constraint_weight": [3, 5, 8, 15],
-    "scale": [1],
-    "vol_frac": [0.6],
-    "learning_rate": [0.05],
-}
+        iteration_count[0] += 1
+        tracker.log("compliance", f)
+        tracker.log("volume", v)
 
-num_steps = 4000
-ele_type = "QUAD4"
-Lx, Ly = 60.0, 30.0
+        if iteration_count[0] % print_every == 0:
+            print(f"Iter {iteration_count[0]:4d}: Complience={f:.6f}, Volume={v:.4f}")
 
-output_dir = "grid_search_results"
-os.makedirs(output_dir, exist_ok=True)
+        if iteration_count[0] % save_every == 0:
+            save_rho_png(
+                jnp.array(rho),
+                f"{iteration_count[0]}",
+                Nx=Nx+1,
+                Ny=Ny+1,
+                path=os.path.join(config.SAVE_DIR, f"rho_{iteration_count[0]}.png"),
+            )
+            tracker.save()
 
-results = []
-run_id = 0
+        return f
 
-for cfg in ParameterGrid(param_grid):
-    run_id += 1
+    def volume_constraint(x, grad):
+        v = float(volume_jit(x))
+        grad[:] = jnp.array(grad_volume_jit(x))
+        return v - vol_frac
 
-    scale = cfg["scale"]
-    vol_frac = cfg["vol_frac"]
-    lr = cfg["learning_rate"]
+    opt = nlopt.opt(nlopt.LD_MMA, num_nodes)
+    opt.set_lower_bounds(0.001)
+    opt.set_upper_bounds(1.0)
+    opt.set_min_objective(objective)
+    opt.add_inequality_constraint(volume_constraint, 1e-8)
+    opt.set_maxeval(max_iter)
 
-    Nx = int(Lx * scale)
-    Ny = int(Ly * scale)
+    print("Starting topology optimization with NLopt MMA...")
+    print(f"Number of design variables: {num_nodes}")
+    print(f"Target volume fraction: {vol_frac}")
+    print(f"Running with the boundary conditions: {bc_preset_name}")
+    print(f"Shape: Nx={Nx}, Ny={Ny}")
+    print("-" * 60)
+    x0 = jnp.array(rho_init)
+    try:
+        x_opt = opt.optimize(x0)
+        opt_val = opt.last_optimum_value()
+    except nlopt.RoundoffLimited:
+        print("Optimization stopped due to roundoff errors (converged)")
+        x_opt = x0
+        opt_val = float(forward_jit(x_opt))
 
-    mesh = rectangle_mesh(
-        Nx, Ny,
-        domain_x=Lx,
-        domain_y=Ly,
+    print("-" * 60)
+    print("Optimization finished!")
+    print(f"Final compliance: {opt_val:.4e}")
+    print(f"Final volume fraction: {float(volume_jit(x_opt)):.4f}")
+
+    save_rho_png(
+        x_opt,
+        "Final",
+        Nx=Nx+1,
+        Ny=Ny+1,
+        path=config.SAVE_DIR / "rho_final.png",
     )
+    tracker.save()
+    tracker.plot_all_metrics_across_models(model_names=["Baseline"], save=True, show=False)
 
-    print(
-        f"\nRun {run_id} | "
-        f"scale={scale}, "
-        f"vol_frac={vol_frac}, "
-        f"lr={lr}"
-    )
 
-    rho_opt, history, final_iter = run_feax_topopt(
-        mesh=mesh,
-        Lx=Lx,
-        Ly=Ly,
+if __name__ == "__main__":
+    run_feax_topopt_mma(
+        Lx=60,
+        Ly=30,
+        scale=1,
         bc_preset_name="cantilever_corner",
-        vol_frac=vol_frac,
-        num_steps=num_steps,
-        learning_rate=lr,
+        vol_frac=0.5,
+        radius=0.8,
+        max_iter=10,
+        save_every=5,
+        print_every=1
     )
-
-    rho_fname = f"rho_scale{scale}_vf{vol_frac}_lr{lr}.npy"
-    rho_path = os.path.join(output_dir, rho_fname)
-    jnp.save(rho_path, jnp.array(rho_opt))
-
-    results.append(
-        {
-            **cfg,
-            "Nx": Nx,
-            "Ny": Ny,
-            "Complience": history["J"][-1],
-            "Volume": history["vol"][-1],
-            # "Infe": history["infeas"][-1],
-            "Iteration": final_iter
-        }
-    )
-
-df = pd.DataFrame(results)
-
-df = df.sort_values(
-    by=["final_J", "final_infeas"],
-    ascending=[True, True],
-).reset_index(drop=True)
-
-print(
-    df.to_latex(
-        index=False,
-        float_format="%.4e",
-        caption="Baseline Grid search results for topology optimization",
-        label="tab:topopt_grid",
-    )
-)

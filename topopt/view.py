@@ -13,7 +13,7 @@ Keyboard:
 import argparse
 from pathlib import Path
 
-import jax.numpy as np
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
 from feax.mesh import rectangle_mesh
 from fem_utils import get_element_geometry
@@ -26,7 +26,7 @@ def predict_density(model, Lx, Ly, Nx, Ny):
     mesh = rectangle_mesh(Nx=Nx, Ny=Ny, domain_x=Lx, domain_y=Ly)
     coords = get_element_geometry(mesh)["centroids_scaled"]
     rho_pred = sigmoid(model(coords))
-    rho_pred = np.reshape(rho_pred, (Ny, Nx), order="F")
+    rho_pred = jnp.reshape(rho_pred, (Ny, Nx), order="F")
     return rho_pred
 
 
@@ -82,9 +82,9 @@ def main():
         print(f"Loading from {cfg_path.name} ...")
         model, target_density, penalty, cfg = load_model_from_config(cfg_path, base_dir)
         rho_pred = predict_density(model, Lx, Ly, Nx, Ny)
-        images.append(np.array(rho_pred))
+        images.append(jnp.array(rho_pred))
 
-        actual_density = float(np.mean(rho_pred))
+        actual_density = float(jnp.mean(rho_pred))
 
         base_name = cfg_path.stem.replace("_config", "")
         title = base_name
