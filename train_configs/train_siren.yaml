@@ -1,10 +1,10 @@
 training:
   Lx: 60.0
-  Ly: 60.0
+  Ly: 30.0
   scale: 1
   problem_type: "cantilever_corner"
 
-  num_iterations: 10
+  num_iterations: 100
   lr: 0.001
   jitted_coords: false
   grad_clip_norm: 1.0

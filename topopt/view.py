@@ -10,19 +10,24 @@ Keyboard:
     left/right arrow keys to switch pages if there are many models.
 """
 
+from __future__ import annotations
+
 import argparse
+import json
 from pathlib import Path
+from typing import Any, Dict, Tuple
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+from jax.nn import sigmoid
+
 from feax.mesh import rectangle_mesh
 from fem_utils import get_element_geometry
-from jax.nn import sigmoid
-from serialization import load_model_from_config
+from serialization import load_model_from_config  # NEW loader reads YAML per-model configs
 from visualize import show_rho_pages
 
 
-def predict_density(model, Lx, Ly, Nx, Ny):
+def predict_density(model, Lx: float, Ly: float, Nx: int, Ny: int):
     mesh = rectangle_mesh(Nx=Nx, Ny=Ny, domain_x=Lx, domain_y=Ly)
     coords = get_element_geometry(mesh)["centroids_scaled"]
     rho_pred = sigmoid(model(coords))
@@ -30,12 +35,24 @@ def predict_density(model, Lx, Ly, Nx, Ny):
     return rho_pred
 
 
+def _infer_base_name(cfg_path: Path, cfg: Dict[str, Any]) -> str:
+    weights_file = cfg.get("weights_file")
+    if isinstance(weights_file, str) and weights_file:
+        return Path(weights_file).stem
+
+def _extract_training_fields(cfg: Dict[str, Any]) -> Tuple[float | None, float | None]:
+    training = cfg.get("training")
+    td = training.get("target_density")
+    pen = training.get("penalty")
+    return (float(td) if td is not None else None, float(pen) if pen is not None else None)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Visualize model outputs saved by serialize_ensemble."
     )
     parser.add_argument(
-        "--dir", type=str, help="Directory containing model files + *_config.json."
+        "--dir", type=str, help="Directory containing model files *_config.(yaml)."
     )
     parser.add_argument(
         "--scale",
@@ -70,9 +87,9 @@ def main():
     scale = args.scale
     Nx, Ny = int(Lx * scale), int(Ly * scale)
 
-    config_files = sorted(base_dir.glob("*_config.json"))
+    config_files = sorted(base_dir.glob("*_config.yaml"))
     if not config_files:
-        print(f"No per-model config files (*_config.json) found in {base_dir}")
+        print(f"No per-model config files (*_config.yaml) found in {base_dir}")
         return
 
     print(f"Found {len(config_files)} model configs in {base_dir}")
@@ -80,21 +97,29 @@ def main():
 
     for cfg_path in config_files:
         print(f"Loading from {cfg_path.name} ...")
+
         model, target_density, penalty, cfg = load_model_from_config(cfg_path, base_dir)
+
         rho_pred = predict_density(model, Lx, Ly, Nx, Ny)
         images.append(jnp.array(rho_pred))
 
         actual_density = float(jnp.mean(rho_pred))
 
-        base_name = cfg_path.stem.replace("_config", "")
+        base_name = _infer_base_name(cfg_path, cfg)
+
+        # Build a helpful title using new config structure
         title = base_name
-        if target_density is not None:
-            title += f"\nρ*={target_density:.2f}"
+        td, pen = _extract_training_fields(cfg)
+
+        if td is not None:
+            title += f"\nρ*={td:.2f}"
         title += f"\nρ_actual={actual_density:.3f}"
-        if penalty is not None:
-            title += f"\npenalty={penalty}"
-        if cfg["model_kwargs"].get("omega") is not None:
-            title += f"\nomega={cfg['model_kwargs']['omega']}"
+        if pen is not None:
+            title += f"\npenalty={pen:g}"
+
+        model_kwargs = cfg.get("model_kwargs", {})
+        if isinstance(model_kwargs, dict) and model_kwargs.get("omega") is not None:
+            title += f"\nomega={model_kwargs['omega']}"
 
         titles.append(title)
 

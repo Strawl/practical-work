@@ -128,8 +128,8 @@ def train_multiple_models(
 
     tracker = MetricTracker(output_dir=config.SAVE_DIR)
     step_timer = StepTimer()
-    main_timer = StepTimer()
-    main_timer.start()
+    wal_timer = StepTimer()
+    wal_timer.start()
 
     geom = get_element_geometry(mesh)
     coords = centroids_scaled = geom["centroids_scaled"]
@@ -158,6 +158,7 @@ def train_multiple_models(
 
     rng = jax.random.PRNGKey(hyperparameters.model_rng_seed)
     lams = jnp.zeros_like(target_densities)
+    compile_time = 0
 
     for iteration in tqdm(range(hyperparameters.num_iterations), desc="Iterations"):
 
@@ -188,7 +189,10 @@ def train_multiple_models(
             volume_fraction_fn=volume_fraction_fn,
         )
         step_time_s = step_timer.stop(block_on=jnp.mean(losses))
-        tracker.log("optimisation_step_wall_time_s", step_time_s)
+        if iteration > 3: 
+            tracker.log("optimisation_step_wall_time_s", step_time_s)
+        else:
+            compile_time += step_time_s
 
         (violations, compliances, vol_frac_errors, al_linears, al_quadratics, al_terms) = aux
 
@@ -207,7 +211,6 @@ def train_multiple_models(
         tracker.log("al_quadratic", al_quadratics)
         tracker.log("al_penalty", al_terms)
         tracker.log("lambda", lams)
-        tracker.log("penalty_mu", penalties)
         tracker.log("lambda_update", lam_updates)
         tracker.log("learning_rate_scale", lr_scales)
         tracker.log("effective_lr", effective_lrs)
@@ -219,12 +222,12 @@ def train_multiple_models(
         print(f"Iteration {iteration:03d} | mean loss = {mean_loss:.6f} | individual = [{loss_str}]")
 
 
-    main_time = main_timer.stop()
+    wal_time = wal_timer.stop()
 
     opt_hist = tracker.stack("optimisation_step_wall_time_s")
-    opt_total = float(jnp.sum(opt_hist))
+    hot_time = float(jnp.sum(opt_hist))
 
-    return models, opt_states, tracker, opt_total, main_time 
+    return models, opt_states, tracker, hot_time, wal_time, compile_time
 
 
 def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
@@ -254,22 +257,28 @@ def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
         rng,
     )
 
-    trained_models, opt_states, tracker, total_time, optimization_time = train_multiple_models(
+    trained_models, opt_states, tracker, hot_time, wal_time, compile_time = train_multiple_models(
         models=model_batch,
         mesh=mesh,
         target_densities=target_densities,
         penalties=penalties,
         compliance_fn=solve_forward,
         volume_fraction_fn=evaluate_volume,
-        num_iterations=train_config.training.num_iterations,
-        jitted_coords=train_config.training.jitted_coords,
+        hyperparameters = train_config.training,
     )
 
-    ratio = total_time / optimization_time if optimization_time > 0 else float("nan")
+
+    other_time = wal_time - hot_time - compile_time
+    share_hot = hot_time / wal_time if wal_time > 0 else float("nan")
+    share_compile = compile_time / wal_time if wal_time > 0 else float("nan")
+    share_other = other_time / wal_time if wal_time > 0 else float("nan")
+
     print(
-        f"Total optimisation_step time: {total_time:.3f}s | "
-        f"Total program time: {optimization_time:.3f}s | "
-        f"Share: {100.0 * ratio:.2f}%"
+        "Timing summary\n"
+        f"  wall total    : {wal_time:8.3f}s (100.00%)\n"
+        f"  hot optimise  : {hot_time:8.3f}s ({100.0 * share_hot:6.2f}%)\n"
+        f"  compile/first : {compile_time:8.3f}s ({100.0 * share_compile:6.2f}%)\n"
+        f"  other         : {other_time:8.3f}s ({100.0 * share_other:6.2f}%)"
     )
 
     tracker.save()
