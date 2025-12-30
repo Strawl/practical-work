@@ -1,18 +1,16 @@
 # baseline.py
 import os
-import csv
-import nlopt
-import matplotlib.pyplot as plt
 
-import jax
+import config
 import jax.numpy as jnp
-
+import nlopt
 from bc import make_bc_preset
-from fem_utils import create_objective_functions
 from feax.mesh import rectangle_mesh
+from fem_utils import create_objective_functions
 from monitoring import MetricTracker
 from visualize import save_rho_png
-import config
+
+import jax
 
 
 def run_feax_topopt_mma(
@@ -73,7 +71,6 @@ def run_feax_topopt_mma(
         grad[:] = jnp.array(grad_complience_jit(rho))
         v = float(volume_jit(rho))
 
-
         iteration_count[0] += 1
         tracker.log("compliance", f)
         tracker.log("volume", v)
@@ -85,8 +82,8 @@ def run_feax_topopt_mma(
             save_rho_png(
                 jnp.array(rho),
                 f"{iteration_count[0]}",
-                Nx=Nx+1,
-                Ny=Ny+1,
+                Nx=Nx + 1,
+                Ny=Ny + 1,
                 path=os.path.join(config.SAVE_DIR, f"rho_{iteration_count[0]}.png"),
             )
             tracker.save()
@@ -128,12 +125,14 @@ def run_feax_topopt_mma(
     save_rho_png(
         x_opt,
         "Final",
-        Nx=Nx+1,
-        Ny=Ny+1,
+        Nx=Nx + 1,
+        Ny=Ny + 1,
         path=config.SAVE_DIR / "rho_final.png",
     )
     tracker.save()
-    tracker.plot_all_metrics_across_models(model_names=["Baseline"], save=True, show=False)
+    tracker.plot_all_metrics_across_models(
+        model_names=["Baseline"], save=True, show=False
+    )
 
 
 if __name__ == "__main__":
@@ -146,5 +145,5 @@ if __name__ == "__main__":
         radius=0.8,
         max_iter=10,
         save_every=5,
-        print_every=1
+        print_every=1,
     )

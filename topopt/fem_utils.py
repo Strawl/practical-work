@@ -1,9 +1,9 @@
 import math
 from typing import Tuple
 
+import feax.flat as flat
 import jax.numpy as jnp
 from feax.experimental.topopt_toolkit import create_compliance_fn, create_volume_fn
-import feax.flat as flat
 from problems import DensityElasticityProblem
 
 from feax import (
@@ -66,7 +66,6 @@ def get_element_geometry(mesh):
     }
 
 
-
 def create_objective_functions(
     mesh,
     fixed_location,
@@ -123,7 +122,9 @@ def create_objective_functions(
     compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
 
     if radius <= 0:
-        filter_fn = lambda rho: rho
+
+        def filter_fn(rho):
+            return rho
     else:
         filter_fn = flat.filters.create_helmholtz_filter(mesh, radius)
 
@@ -137,8 +138,8 @@ def create_objective_functions(
         sol = solver(internal_vars, initial_guess)
         return compute_compliance(sol)
 
-
     volume_fn = create_volume_fn(problem)
+
     def evaluate_volume(rho):
         """Compute volume fraction for given node-based density field."""
         rho_filtered = filter_fn(rho)
@@ -149,6 +150,7 @@ def create_objective_functions(
         rho_init = InternalVars.create_node_var(problem, target_fraction)
 
     return solve_forward, evaluate_volume, rho_init, mesh.points.shape[0]
+
 
 def adaptive_rectangle_mesh_new(
     initial_size: float,
@@ -161,7 +163,6 @@ def adaptive_rectangle_mesh_new(
     threshold_low: float = 0.1,
     threshold_high: float = 0.9,
 ):
-
     x0, y0 = origin
 
     # Convert to JAX arrays
@@ -325,6 +326,7 @@ def adaptive_rectangle_mesh_new(
     # 6. Return mesh
     # -------------------------------------------------------------
     return Mesh(points, cells, ele_type="QUAD4")
+
 
 def adaptive_rectangle_mesh(
     initial_size: float,

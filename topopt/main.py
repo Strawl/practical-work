@@ -1,15 +1,15 @@
 import sys
 from typing import Callable
+
 import config
 import equinox as eqx
 import jax.numpy as jnp
 import optax
 from bc import make_bc_preset
-from feax.mesh import rectangle_mesh, Mesh
+from feax.mesh import Mesh, rectangle_mesh
 from fem_utils import create_objective_functions, get_element_geometry
 from monitoring import MetricTracker, StepTimer
 from serialization import (
-    PlateauConfig,
     TrainingConfig,
     TrainingHyperparams,
     create_models,
@@ -18,7 +18,6 @@ from serialization import (
 from tqdm import tqdm
 
 import jax
-
 
 
 def loss(
@@ -45,7 +44,11 @@ def loss(
 
     jax.debug.print(
         "vol_frac={vf:.4f} | violation={v:.4f} | comp={c:.4f} | al={al:.4f} | loss={L:.4f}",
-        vf=vol_frac, v=violation, c=compliance, al=al_term, L=total_loss,
+        vf=vol_frac,
+        v=violation,
+        c=compliance,
+        al=al_term,
+        L=total_loss,
     )
     aux = (violation, compliance, vol_frac_error, al_linear, al_quadratic, al_term)
     return total_loss, aux
@@ -108,7 +111,9 @@ def optimisation_step(
         volume_fraction_fn,
     )
 
-    updates, new_opt_states = jax.vmap(optimizer.update)(grads, opt_states, value=losses)
+    updates, new_opt_states = jax.vmap(optimizer.update)(
+        grads, opt_states, value=losses
+    )
     new_models = jax.vmap(eqx.apply_updates)(models, updates)
 
     return new_models, new_opt_states, losses, aux
@@ -121,7 +126,7 @@ def train_multiple_models(
     penalties: jnp.ndarray,
     compliance_fn: Callable[[jnp.ndarray], float],
     volume_fraction_fn: Callable[[jnp.ndarray], float],
-    hyperparameters : TrainingHyperparams,
+    hyperparameters: TrainingHyperparams,
 ):
     platue_config = hyperparameters.plateau
     lr = hyperparameters.lr
@@ -136,7 +141,6 @@ def train_multiple_models(
     num_elements = geom["num_elements"]
     dx = geom["dx_scaled"]
     dy = geom["dy_scaled"]
-
 
     inner_optim = optax.chain(
         optax.clip_by_global_norm(hyperparameters.grad_clip_norm),
@@ -161,7 +165,6 @@ def train_multiple_models(
     compile_time = 0
 
     for iteration in tqdm(range(hyperparameters.num_iterations), desc="Iterations"):
-
         if hyperparameters.jitted_coords:
             # uniform jitter in [-0.5, 0.5] * element size
             rng, kx, ky = jax.random.split(rng, 3)
@@ -189,12 +192,19 @@ def train_multiple_models(
             volume_fraction_fn=volume_fraction_fn,
         )
         step_time_s = step_timer.stop(block_on=jnp.mean(losses))
-        if iteration > 3: 
+        if iteration > 3:
             tracker.log("optimisation_step_wall_time_s", step_time_s)
         else:
             compile_time += step_time_s
 
-        (violations, compliances, vol_frac_errors, al_linears, al_quadratics, al_terms) = aux
+        (
+            violations,
+            compliances,
+            vol_frac_errors,
+            al_linears,
+            al_quadratics,
+            al_terms,
+        ) = aux
 
         good = jnp.isfinite(violations)
         lams = jnp.where(good, lams + 2.0 * penalties * violations, lams)
@@ -214,13 +224,15 @@ def train_multiple_models(
         tracker.log("lambda_update", lam_updates)
         tracker.log("learning_rate_scale", lr_scales)
         tracker.log("effective_lr", effective_lrs)
- 
 
         loss_values = jnp.array(losses)
-        loss_str = " | ".join([f"{loss_values[i]:.6f}" for i in range(len(loss_values))])
+        loss_str = " | ".join(
+            [f"{loss_values[i]:.6f}" for i in range(len(loss_values))]
+        )
         mean_loss = float(jnp.mean(loss_values))
-        print(f"Iteration {iteration:03d} | mean loss = {mean_loss:.6f} | individual = [{loss_str}]")
-
+        print(
+            f"Iteration {iteration:03d} | mean loss = {mean_loss:.6f} | individual = [{loss_str}]"
+        )
 
     wal_time = wal_timer.stop()
 
@@ -233,11 +245,9 @@ def train_multiple_models(
 def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
     # ---------------- FE Problem Setup ----------------
 
-    train_config: TrainingConfig = TrainingConfig.from_yaml(
-        train_config_path
-    )
+    train_config: TrainingConfig = TrainingConfig.from_yaml(train_config_path)
     ele_type = "QUAD4"
-    
+
     Lx = train_config.training.Lx
     Ly = train_config.training.Ly
     scale = train_config.training.scale
@@ -247,7 +257,14 @@ def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
 
     fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
 
-    solve_forward, evaluate_volume, _, _ = create_objective_functions(mesh, fixed_location, load_location, ele_type=ele_type, check_convergence=True, verbose=True)
+    solve_forward, evaluate_volume, _, _ = create_objective_functions(
+        mesh,
+        fixed_location,
+        load_location,
+        ele_type=ele_type,
+        check_convergence=True,
+        verbose=True,
+    )
 
     # ---------------- MODEL Definition ----------------
 
@@ -257,16 +274,17 @@ def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
         rng,
     )
 
-    trained_models, opt_states, tracker, hot_time, wal_time, compile_time = train_multiple_models(
-        models=model_batch,
-        mesh=mesh,
-        target_densities=target_densities,
-        penalties=penalties,
-        compliance_fn=solve_forward,
-        volume_fraction_fn=evaluate_volume,
-        hyperparameters = train_config.training,
+    trained_models, opt_states, tracker, hot_time, wal_time, compile_time = (
+        train_multiple_models(
+            models=model_batch,
+            mesh=mesh,
+            target_densities=target_densities,
+            penalties=penalties,
+            compliance_fn=solve_forward,
+            volume_fraction_fn=evaluate_volume,
+            hyperparameters=train_config.training,
+        )
     )
-
 
     other_time = wal_time - hot_time - compile_time
     share_hot = hot_time / wal_time if wal_time > 0 else float("nan")
@@ -282,8 +300,10 @@ def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
     )
 
     tracker.save()
-    model_names = [f"siren_{i}" for i in range(1, len(train_config.models)+1)]
-    tracker.plot_all_metrics_across_models(model_names=model_names, save=True, show=False)
+    model_names = [f"siren_{i}" for i in range(1, len(train_config.models) + 1)]
+    tracker.plot_all_metrics_across_models(
+        model_names=model_names, save=True, show=False
+    )
 
     serialize_ensemble(trained_models, opt_states, train_config)
 

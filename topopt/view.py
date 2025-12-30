@@ -13,17 +13,17 @@ Keyboard:
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
-from jax.nn import sigmoid
-
 from feax.mesh import rectangle_mesh
 from fem_utils import get_element_geometry
-from serialization import load_model_from_config  # NEW loader reads YAML per-model configs
+from jax.nn import sigmoid
+from serialization import (
+    load_model_from_config,
+)
 from visualize import show_rho_pages
 
 
@@ -39,12 +39,6 @@ def _infer_base_name(cfg_path: Path, cfg: Dict[str, Any]) -> str:
     weights_file = cfg.get("weights_file")
     if isinstance(weights_file, str) and weights_file:
         return Path(weights_file).stem
-
-def _extract_training_fields(cfg: Dict[str, Any]) -> Tuple[float | None, float | None]:
-    training = cfg.get("training")
-    td = training.get("target_density")
-    pen = training.get("penalty")
-    return (float(td) if td is not None else None, float(pen) if pen is not None else None)
 
 
 def main():
@@ -109,7 +103,9 @@ def main():
 
         # Build a helpful title using new config structure
         title = base_name
-        td, pen = _extract_training_fields(cfg)
+        training = cfg.get("training")
+        td = training.get("target_density")
+        pen = training.get("penalty")
 
         if td is not None:
             title += f"\nρ*={td:.2f}"

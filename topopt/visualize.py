@@ -1,8 +1,7 @@
-
+import jax.numpy as jnp
+from feax.mesh import Mesh
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
-from feax.mesh import Mesh
-import jax.numpy as jnp
 
 
 def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
@@ -25,7 +24,7 @@ def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
     xy = mesh.points[:, :2]
 
     element_edges = {
-        'QUAD4': [(0, 1), (1, 2), (2, 3), (3, 0)],
+        "QUAD4": [(0, 1), (1, 2), (2, 3), (3, 0)],
     }
 
     ele_type = mesh.ele_type.upper()
@@ -62,14 +61,7 @@ def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
     return fig, ax
 
 
-def show_rho_pages(
-    rho_list,
-    titles,
-    Nx,
-    Ny,
-    per_page=6,
-    cmap="gray_r"
-):
+def show_rho_pages(rho_list, titles, Nx, Ny, per_page=6, cmap="gray_r"):
     """
     Paginated viewer for topology optimization density fields.
 
@@ -79,10 +71,7 @@ def show_rho_pages(
     """
 
     # Pre-reshape all rho fields once
-    images = [
-        jnp.reshape(jnp.asarray(rho), (Ny, Nx), order="F")
-        for rho in rho_list
-    ]
+    images = [jnp.reshape(jnp.asarray(rho), (Ny, Nx), order="F") for rho in rho_list]
 
     total = len(images)
     pages = (total + per_page - 1) // per_page
@@ -106,10 +95,7 @@ def show_rho_pages(
             ax.set_title(titles[start + i], fontsize=10)
             ax.axis("off")
 
-        plt.suptitle(
-            f"Page {page_idx + 1}/{pages}  (← / →)",
-            fontsize=14
-        )
+        plt.suptitle(f"Page {page_idx + 1}/{pages}  (← / →)", fontsize=14)
         plt.tight_layout(rect=[0, 0, 1, 0.95])
         plt.draw()
 
@@ -126,15 +112,8 @@ def show_rho_pages(
     draw_page(0)
     plt.show()
 
-def save_rho_png(
-    rho,
-    title,
-    Nx,
-    Ny,
-    path,
-    cmap="gray_r",
-    dpi=300
-):
+
+def save_rho_png(rho, title, Nx, Ny, path, cmap="gray_r", dpi=300):
     """
     Save a single topology optimization density field as a PNG.
 

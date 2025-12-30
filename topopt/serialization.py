@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
-
-import equinox as eqx
-import jax
-import jax.numpy as jnp
-import numpy as np
-from jaxtyping import PyTree
-import yaml
+from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 
 import config
+import equinox as eqx
+import jax.numpy as jnp
+import yaml
+from jaxtyping import PyTree
 from siren import SIREN
+
+import jax
 
 
 class ModelType(str, Enum):
@@ -29,6 +28,7 @@ T = TypeVar("T", bound="ConfigSerializable")
 
 def _safe_mkdir(p: Path) -> None:
     p.mkdir(parents=True, exist_ok=True)
+
 
 def _as_path(p: Union[str, Path]) -> Path:
     return p if isinstance(p, Path) else Path(p)
@@ -51,7 +51,7 @@ class ConfigSerializable:
     - The default to_dict uses dataclasses.asdict().
     - For nested custom types (enums, nested dataclasses, list of configs),
       override to_dict/from_dict in that dataclass.
-    - Supports YAML 
+    - Supports YAML
     """
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,12 +76,16 @@ class ConfigSerializable:
         path = _as_path(path)
         data = yaml.safe_load(_read_text(path))
         if not isinstance(data, dict):
-            raise ValueError(f"YAML config must be a mapping at top-level. Got: {type(data)}")
+            raise ValueError(
+                f"YAML config must be a mapping at top-level. Got: {type(data)}"
+            )
         return cls.from_dict(data)
+
 
 @dataclass
 class ModelTrainingParams(ConfigSerializable):
     """Per-model (per-ensemble-member) training settings."""
+
     target_density: float
     penalty: float
 
@@ -114,11 +118,13 @@ class ModelInstanceConfig(ConfigSerializable):
             training=ModelTrainingParams.from_dict(data["training"]),
         )
 
+
 def _require(d: Dict[str, Any], key: str, ctx: str = "") -> Any:
     if key not in d:
         prefix = f"{ctx}: " if ctx else ""
         raise KeyError(f"{prefix}Missing required config key '{key}'")
     return d[key]
+
 
 @dataclass
 class PlateauConfig(ConfigSerializable):
@@ -143,6 +149,7 @@ class PlateauConfig(ConfigSerializable):
 @dataclass
 class TrainingHyperparams(ConfigSerializable):
     """Run-level training hyperparameters (shared across all models)."""
+
     num_iterations: int
     lr: float
     jitted_coords: bool
@@ -171,7 +178,9 @@ class TrainingHyperparams(ConfigSerializable):
 
         plateau_raw = _require(d, "plateau", ctx)
         if not isinstance(plateau_raw, dict):
-            raise TypeError(f"{ctx}: 'plateau' must be a mapping/dict, got {type(plateau_raw)}")
+            raise TypeError(
+                f"{ctx}: 'plateau' must be a mapping/dict, got {type(plateau_raw)}"
+            )
 
         return cls(
             num_iterations=int(_require(d, "num_iterations", ctx)),
@@ -181,13 +190,10 @@ class TrainingHyperparams(ConfigSerializable):
             Ly=float(_require(d, "Ly", ctx)),
             scale=int(_require(d, "scale", ctx)),
             problem_type=str(_require(d, "problem_type", ctx)),
-
             grad_clip_norm=float(_require(d, "grad_clip_norm", ctx)),
             max_consecutive_errors=int(_require(d, "max_consecutive_errors", ctx)),
-
             train_rng_seed=int(_require(d, "train_rng_seed", ctx)),
             model_rng_seed=int(_require(d, "model_rng_seed", ctx)),
-
             plateau=PlateauConfig.from_dict(plateau_raw),
         )
 
@@ -198,6 +204,7 @@ class TrainingConfig(ConfigSerializable):
     Top-level config: models + run-level training hyperparams.
     Explicit: no defaults.
     """
+
     models: List[ModelInstanceConfig]
     training: TrainingHyperparams
 
@@ -217,12 +224,15 @@ class TrainingConfig(ConfigSerializable):
 
         training_raw = _require(data, "training", ctx)
         if not isinstance(training_raw, dict):
-            raise TypeError(f"{ctx}: 'training' must be a mapping/dict, got {type(training_raw)}")
+            raise TypeError(
+                f"{ctx}: 'training' must be a mapping/dict, got {type(training_raw)}"
+            )
 
         return cls(
             models=[ModelInstanceConfig.from_dict(m) for m in models_raw],
             training=TrainingHyperparams.from_dict(training_raw),
         )
+
 
 def serialize_ensemble(
     trained_models: PyTree,
@@ -246,7 +256,7 @@ def serialize_ensemble(
     run_dir = Path(config.SAVE_DIR)
     _safe_mkdir(run_dir)
 
-    snapshot_path = run_dir / f"training_config_snapshot.yaml"
+    snapshot_path = run_dir / "training_config_snapshot.yaml"
     train_cfg.to_yaml(snapshot_path)
 
     model_arrays, model_static = eqx.partition(trained_models, eqx.is_array)
@@ -289,6 +299,7 @@ def serialize_ensemble(
 
     return run_dir, models_list, opt_states_list
 
+
 def create_models(
     train_cfg: TrainingConfig,
     rng_key: jax.random.PRNGKey,
@@ -320,17 +331,22 @@ def create_models(
     # Keep semantics: stack leaf-wise across models to create a batched PyTree.
     model_batch = jax.tree_util.tree_map(lambda *xs: jnp.stack(xs, axis=0), *models)
 
-    target_densities = jnp.asarray([cfg.training.target_density for cfg in configs], dtype=float)
+    target_densities = jnp.asarray(
+        [cfg.training.target_density for cfg in configs], dtype=float
+    )
     penalties = jnp.asarray([cfg.training.penalty for cfg in configs], dtype=float)
 
     return model_batch, target_densities, penalties
+
 
 def _load_cfg_dict(cfg_path: Path) -> Dict[str, Any]:
     ext = cfg_path.suffix.lower()
     if ext in (".yaml", ".yml"):
         data = yaml.safe_load(_read_text(cfg_path))
         if not isinstance(data, dict):
-            raise ValueError(f"YAML per-model config must be a mapping. Got: {type(data)}")
+            raise ValueError(
+                f"YAML per-model config must be a mapping. Got: {type(data)}"
+            )
         return data
     raise ValueError(f"Unsupported per-model config extension '{cfg_path.suffix}'.")
 

@@ -1,16 +1,16 @@
 from __future__ import annotations
 
+import math
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import time
-import math
-
-import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+
+import jax
 
 
 @dataclass
@@ -37,14 +37,18 @@ class MetricTracker:
     def log(self, name: str, values: Any) -> None:
         v = self._to_1d(values)
         if v.ndim != 1:
-            raise ValueError(f"Metric '{name}' must be 1D (shape (M,)). Got {tuple(v.shape)}.")
+            raise ValueError(
+                f"Metric '{name}' must be 1D (shape (M,)). Got {tuple(v.shape)}."
+            )
 
         shp = tuple(v.shape)
         prev_shp = self.shape.get(name)
         if prev_shp is None:
             self.shape[name] = shp
         elif prev_shp != shp:
-            raise ValueError(f"Metric '{name}' changed shape: was {prev_shp}, now {shp}.")
+            raise ValueError(
+                f"Metric '{name}' changed shape: was {prev_shp}, now {shp}."
+            )
 
         if self.fill_invalid:
             prev = self.last.get(name)
@@ -144,7 +148,7 @@ class MetricTracker:
         name: str,
         model_names: Optional[List[str]] = None,
         show: bool = False,
-        save: bool = True
+        save: bool = True,
     ) -> List[Path]:
         hist = self.stack(name)
         T, M = map(int, hist.shape)
@@ -230,6 +234,7 @@ class MetricTracker:
             )
         return out_paths
 
+
 class StepTimer:
     """Minimal wall-clock timer for JAX steps using perf_counter."""
 
@@ -247,6 +252,7 @@ class StepTimer:
         Block on a JAX array/scalar or a pytree of arrays.
         Returns x unchanged.
         """
+
         def _block(v):
             return v.block_until_ready() if hasattr(v, "block_until_ready") else v
 

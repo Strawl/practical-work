@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 import jax
 
 TRAIN_CONFIG_PATH = os.getenv("TRAIN_CONFIG_PATH", "./train_configs/train_siren.yaml")
