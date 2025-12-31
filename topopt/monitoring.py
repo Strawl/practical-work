@@ -15,7 +15,7 @@ import jax
 
 @dataclass
 class MetricTracker:
-    output_dir: Path = Path("./output")
+    save_dir: Path = Path("./output")
     fill_invalid: bool = True
 
     # name -> list of per-step JAX arrays, each shape (M,)
@@ -71,7 +71,7 @@ class MetricTracker:
         return {k: self.stack(k) for k in self.data}
 
     def save(self, basename: str = "metrics_log") -> Path:
-        npz_path = self.output_dir / Path(f"{basename}.npz")
+        npz_path = self.save_dir / Path(f"{basename}.npz")
 
         stacked = {k: np.asarray(self.stack(k)) for k in sorted(self.data)}
         np.savez_compressed(npz_path, **stacked)
@@ -131,8 +131,8 @@ class MetricTracker:
             fig.suptitle(page_title(s, e, page_idx), y=0.95)
             fig.tight_layout()
 
-            if save and self.output_dir is not None:
-                p = self.output_dir / file_name(page_idx)
+            if save and self.save_dir is not None:
+                p = self.save_dir / file_name(page_idx)
                 fig.savefig(p, dpi=150, bbox_inches="tight")
                 out_paths.append(p)
 
@@ -167,9 +167,9 @@ class MetricTracker:
             fig.tight_layout()
 
             out_paths: List[Path] = []
-            if save and self.output_dir is not None:
-                self.output_dir.mkdir(parents=True, exist_ok=True)
-                p = self.output_dir / f"{name}.png"
+            if save and self.save_dir is not None:
+                self.save_dir.mkdir(parents=True, exist_ok=True)
+                p = self.save_dir / f"{name}.png"
                 fig.savefig(p, dpi=150, bbox_inches="tight")
                 out_paths.append(p)
 
@@ -201,9 +201,9 @@ class MetricTracker:
         fig.tight_layout()
 
         out_paths: List[Path] = []
-        if save and self.output_dir is not None:
-            self.output_dir.mkdir(parents=True, exist_ok=True)
-            p = self.output_dir / f"{name}.png"
+        if save and self.save_dir is not None:
+            self.save_dir.mkdir(parents=True, exist_ok=True)
+            p = self.save_dir / f"{name}.png"
             fig.savefig(p, dpi=150, bbox_inches="tight")
             out_paths.append(p)
 

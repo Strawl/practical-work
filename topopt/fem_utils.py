@@ -4,7 +4,6 @@ from typing import Tuple
 import feax.flat as flat
 import jax.numpy as jnp
 from feax.experimental.topopt_toolkit import create_compliance_fn, create_volume_fn
-from problems import DensityElasticityProblem
 
 from feax import (
     DirichletBCConfig,
@@ -15,6 +14,7 @@ from feax import (
     create_solver,
     zero_like_initial_guess,
 )
+from topopt.problems import DensityElasticityProblem
 
 
 def get_element_geometry(mesh):

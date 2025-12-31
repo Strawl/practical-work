@@ -1,21 +1,24 @@
 # baseline.py
 import os
+from pathlib import Path
 
-import config
 import jax.numpy as jnp
 import nlopt
-from bc import make_bc_preset
 from feax.mesh import rectangle_mesh
-from fem_utils import create_objective_functions
-from monitoring import MetricTracker
-from visualize import save_rho_png
 
 import jax
+
+
+from topopt.bc import make_bc_preset
+from topopt.fem_utils import create_objective_functions
+from topopt.monitoring import MetricTracker
+from topopt.visualize import save_rho_png
 
 
 def run_feax_topopt_mma(
     Lx: int,
     Ly: int,
+    save_dir: Path,
     scale: float = 1.0,
     bc_preset_name: str = "cantilever_corner",
     vol_frac: float = 0.5,
@@ -61,7 +64,7 @@ def run_feax_topopt_mma(
     grad_complience_jit = jax.jit(jax.grad(forward_jit))
     grad_volume_jit = jax.jit(jax.grad(volume_jit))
 
-    tracker = MetricTracker(output_dir=config.SAVE_DIR, fill_invalid=True)
+    tracker = MetricTracker(output_dir=save_dir, fill_invalid=True)
     iteration_count = [0]
 
     def objective(x, grad):
@@ -84,7 +87,7 @@ def run_feax_topopt_mma(
                 f"{iteration_count[0]}",
                 Nx=Nx + 1,
                 Ny=Ny + 1,
-                path=os.path.join(config.SAVE_DIR, f"rho_{iteration_count[0]}.png"),
+                path=os.path.join(save_dir, f"rho_{iteration_count[0]}.png"),
             )
             tracker.save()
 
@@ -127,23 +130,9 @@ def run_feax_topopt_mma(
         "Final",
         Nx=Nx + 1,
         Ny=Ny + 1,
-        path=config.SAVE_DIR / "rho_final.png",
+        path=save_dir / "rho_final.png",
     )
     tracker.save()
     tracker.plot_all_metrics_across_models(
         model_names=["Baseline"], save=True, show=False
-    )
-
-
-if __name__ == "__main__":
-    run_feax_topopt_mma(
-        Lx=60,
-        Ly=30,
-        scale=1,
-        bc_preset_name="cantilever_corner",
-        vol_frac=0.5,
-        radius=0.8,
-        max_iter=10,
-        save_every=5,
-        print_every=1,
     )

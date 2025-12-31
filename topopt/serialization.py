@@ -5,12 +5,11 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 
-import config
 import equinox as eqx
 import jax.numpy as jnp
 import yaml
 from jaxtyping import PyTree
-from siren import SIREN
+from topopt.siren import SIREN
 
 import jax
 
@@ -238,8 +237,8 @@ def serialize_ensemble(
     trained_models: PyTree,
     opt_states: PyTree,
     train_cfg: TrainingConfig,
+    save_dir: Path,
     prefix: str = "model",
-    per_model_cfg_format: str = "yaml",
 ):
     """
     Serialize a batched collection of models, optimizer states, and their configs.
@@ -251,12 +250,9 @@ def serialize_ensemble(
       - training_config_snapshot.(yaml)  (full TrainingConfig snapshot)
 
     Returns:
-      run_dir, models_list, opt_states_list
+      models_list, opt_states_list
     """
-    run_dir = Path(config.SAVE_DIR)
-    _safe_mkdir(run_dir)
-
-    snapshot_path = run_dir / "training_config_snapshot.yaml"
+    snapshot_path = save_dir / "training_config_snapshot.yaml"
     train_cfg.to_yaml(snapshot_path)
 
     model_arrays, model_static = eqx.partition(trained_models, eqx.is_array)
@@ -283,9 +279,9 @@ def serialize_ensemble(
         models_list.append(model_i)
         opt_states_list.append(state_i)
 
-        model_path = run_dir / f"{prefix}_{i}.eqx"
-        state_path = run_dir / f"opt_state_{i}.eqx"
-        cfg_path = run_dir / f"{prefix}_{i}_config.yaml"
+        model_path = save_dir / f"{prefix}_{i}.eqx"
+        state_path = save_dir / f"opt_state_{i}.eqx"
+        cfg_path = save_dir / f"{prefix}_{i}_config.yaml"
 
         eqx.tree_serialise_leaves(model_path, model_i)
         eqx.tree_serialise_leaves(state_path, state_i)
@@ -297,7 +293,7 @@ def serialize_ensemble(
 
         _write_text(cfg_path, yaml.safe_dump(cfg_dict, sort_keys=False))
 
-    return run_dir, models_list, opt_states_list
+    return models_list, opt_states_list
 
 
 def create_models(

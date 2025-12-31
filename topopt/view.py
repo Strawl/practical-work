@@ -1,31 +1,18 @@
-#!/usr/bin/env python3
-"""
-view_models.py — visualize density predictions from multiple models
-saved via `serialize_ensemble`.
-
-Usage:
-    python view_models.py --dir outputs/2025-11-02_13-51-04 --scale 5 --domain 60,30
-
-Keyboard:
-    left/right arrow keys to switch pages if there are many models.
-"""
-
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
+from typing import Optional
 
-import config
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
 from feax.mesh import rectangle_mesh
-from fem_utils import get_element_geometry
+from topopt.fem_utils import get_element_geometry
 from jax.nn import sigmoid
-from serialization import (
+
+from topopt.serialization import (
     TrainingConfig,
     load_model_from_config,
 )
-from visualize import show_rho_pages
+from topopt.visualize import save_rho_png, show_rho_pages
 
 
 def predict_density(model, Lx: float, Ly: float, Nx: int, Ny: int):
@@ -36,49 +23,42 @@ def predict_density(model, Lx: float, Ly: float, Nx: int, Ny: int):
     return rho_pred
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Visualize model outputs saved by serialize_ensemble."
-    )
-    parser.add_argument(
-        "--scale",
-        type=int,
-        default=None,
-        help="Override resolution scaling factor (defaults to training_config_snapshot.yaml).",
-    )
-    args = parser.parse_args()
+def view_outputs(*, save_dir: Path, scale: Optional[int] = None) -> None:
+    """
+    Visualize model outputs saved by serialize_ensemble.
 
-    base_dir = Path(config.SAVE_DIR).resolve()
-    if not base_dir.exists():
-        print(f"SAVE_DIR not found: {base_dir}")
+    Args:
+        scale: optional override for resolution scaling factor
+        save_dir: optional override directory (normally comes from config.SAVE_DIR)
+    """
+    if not save_dir.exists():
+        print(f"SAVE_DIR not found: {save_dir}")
         return
 
-    print(f"Using directory (SAVE_DIR): {base_dir}")
+    print(f"Using directory (SAVE_DIR): {save_dir}")
 
-    train_config_path = base_dir / "training_config_snapshot.yaml"
+    train_config_path = save_dir / "training_config_snapshot.yaml"
     train_config: TrainingConfig = TrainingConfig.from_yaml(train_config_path)
 
     Lx = float(train_config.training.Lx)
     Ly = float(train_config.training.Ly)
-    scale = (
-        int(args.scale) if args.scale is not None else int(train_config.training.scale)
-    )
+    used_scale = int(scale) if scale is not None else int(train_config.training.scale)
 
-    Nx, Ny = int(Lx * scale), int(Ly * scale)
-    print(f"Domain: Lx={Lx}, Ly={Ly} | scale={scale} -> Nx={Nx}, Ny={Ny}")
+    Nx, Ny = int(Lx * used_scale), int(Ly * used_scale)
+    print(f"Domain: Lx={Lx}, Ly={Ly} | scale={used_scale} -> Nx={Nx}, Ny={Ny}")
 
-    config_files = sorted(base_dir.glob("*_config.yaml"))
+    config_files = sorted(save_dir.glob("*_config.yaml"))
     if not config_files:
-        print(f"No per-model config files (*_config.yaml) found in {base_dir}")
+        print(f"No per-model config files (*_config.yaml) found in {save_dir}")
         return
 
-    print(f"Found {len(config_files)} model configs in {base_dir}")
+    print(f"Found {len(config_files)} model configs in {save_dir}")
     images, titles = [], []
 
     for cfg_path in config_files:
         print(f"Loading from {cfg_path.name} ...")
 
-        model, _, _, cfg = load_model_from_config(cfg_path, base_dir)
+        model, _, _, cfg = load_model_from_config(cfg_path, save_dir)
 
         rho_pred = predict_density(model, Lx, Ly, Nx, Ny)
         rho_pred = jnp.array(rho_pred)
@@ -86,7 +66,7 @@ def main() -> None:
 
         actual_density = float(jnp.mean(rho_pred))
         weights_file = cfg.get("weights_file")
-        base_name = Path(weights_file).stem
+        base_name = Path(weights_file).stem if weights_file else cfg_path.stem
 
         title = base_name
         training = cfg.get("training", {}) if isinstance(cfg, dict) else {}
@@ -110,11 +90,7 @@ def main() -> None:
             f"mean ρ = {actual_density:.3f}"
         )
 
-        out_path = base_dir / f"{base_name}_rho.png"
-        plt.imsave(out_path, rho_pred, cmap="gray_r", origin="lower")
+        out_path = save_dir / f"{base_name}_rho.png"
+        save_rho_png(rho_pred, title, Nx, Ny, out_path)
 
     show_rho_pages(images, titles, Nx=Nx, Ny=Ny, per_page=6)
-
-
-if __name__ == "__main__":
-    main()

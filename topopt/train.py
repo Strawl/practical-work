@@ -1,23 +1,22 @@
-import sys
+from pathlib import Path
 from typing import Callable
 
-import config
 import equinox as eqx
 import jax.numpy as jnp
 import optax
-from bc import make_bc_preset
+from topopt.bc import make_bc_preset
 from feax.mesh import Mesh, rectangle_mesh
-from fem_utils import create_objective_functions, get_element_geometry
-from monitoring import MetricTracker, StepTimer
-from serialization import (
+from tqdm import tqdm
+
+import jax
+from topopt.fem_utils import create_objective_functions, get_element_geometry
+from topopt.monitoring import MetricTracker, StepTimer
+from topopt.serialization import (
     TrainingConfig,
     TrainingHyperparams,
     create_models,
     serialize_ensemble,
 )
-from tqdm import tqdm
-
-import jax
 
 
 def loss(
@@ -119,7 +118,7 @@ def optimisation_step(
     return new_models, new_opt_states, losses, aux
 
 
-def train_multiple_models(
+def train_model_batch(
     models,
     mesh: Mesh,
     target_densities: jnp.ndarray,
@@ -127,11 +126,11 @@ def train_multiple_models(
     compliance_fn: Callable[[jnp.ndarray], float],
     volume_fraction_fn: Callable[[jnp.ndarray], float],
     hyperparameters: TrainingHyperparams,
+    tracker=MetricTracker,
 ):
     platue_config = hyperparameters.plateau
     lr = hyperparameters.lr
 
-    tracker = MetricTracker(output_dir=config.SAVE_DIR)
     step_timer = StepTimer()
     wal_timer = StepTimer()
     wal_timer.start()
@@ -239,13 +238,13 @@ def train_multiple_models(
     opt_hist = tracker.stack("optimisation_step_wall_time_s")
     hot_time = float(jnp.sum(opt_hist))
 
-    return models, opt_states, tracker, hot_time, wal_time, compile_time
+    return models, opt_states, hot_time, wal_time, compile_time
 
 
-def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
-    # ---------------- FE Problem Setup ----------------
-
+def train_from_config(train_config_path: Path, save_dir: Path):
     train_config: TrainingConfig = TrainingConfig.from_yaml(train_config_path)
+
+    tracker = MetricTracker(output_dir=save_dir)
     ele_type = "QUAD4"
 
     Lx = train_config.training.Lx
@@ -266,24 +265,21 @@ def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
         verbose=True,
     )
 
-    # ---------------- MODEL Definition ----------------
-
     rng = jax.random.PRNGKey(train_config.training.model_rng_seed)
     model_batch, target_densities, penalties = create_models(
         train_config,
         rng,
     )
 
-    trained_models, opt_states, tracker, hot_time, wal_time, compile_time = (
-        train_multiple_models(
-            models=model_batch,
-            mesh=mesh,
-            target_densities=target_densities,
-            penalties=penalties,
-            compliance_fn=solve_forward,
-            volume_fraction_fn=evaluate_volume,
-            hyperparameters=train_config.training,
-        )
+    trained_models, opt_states, hot_time, wal_time, compile_time = train_model_batch(
+        models=model_batch,
+        mesh=mesh,
+        target_densities=target_densities,
+        penalties=penalties,
+        compliance_fn=solve_forward,
+        volume_fraction_fn=evaluate_volume,
+        hyperparameters=train_config.training,
+        tracker=tracker,
     )
 
     other_time = wal_time - hot_time - compile_time
@@ -305,11 +301,4 @@ def main(train_config_path: str = config.TRAIN_CONFIG_PATH):
         model_names=model_names, save=True, show=False
     )
 
-    serialize_ensemble(trained_models, opt_states, train_config)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        main(sys.argv[1])
-    else:
-        main()
+    serialize_ensemble(trained_models, opt_states, train_config, save_dir=save_dir)
