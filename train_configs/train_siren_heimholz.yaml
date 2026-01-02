@@ -11,7 +11,7 @@ training:
   max_consecutive_errors: 30
   train_rng_seed: 42
   model_rng_seed: 11
-  helmholtz_radius: 0.0
+  helmholtz_radius: 0.5
   plateau:
     patience: 20
     cooldown: 0

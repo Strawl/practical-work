@@ -156,6 +156,7 @@ class TrainingHyperparams(ConfigSerializable):
     Ly: float
     scale: int
     problem_type: str
+    helmholtz_radius: float
 
     grad_clip_norm: float
     max_consecutive_errors: int
@@ -189,6 +190,7 @@ class TrainingHyperparams(ConfigSerializable):
             Ly=float(_require(d, "Ly", ctx)),
             scale=int(_require(d, "scale", ctx)),
             problem_type=str(_require(d, "problem_type", ctx)),
+            helmholtz_radius=float(_require(d, "helmholtz_radius", ctx)),
             grad_clip_norm=float(_require(d, "grad_clip_norm", ctx)),
             max_consecutive_errors=int(_require(d, "max_consecutive_errors", ctx)),
             train_rng_seed=int(_require(d, "train_rng_seed", ctx)),

@@ -27,8 +27,6 @@ class MetricTracker:
     # name -> last logged value (for forward fill)
     last: Dict[str, jnp.ndarray] = field(default_factory=dict)
 
-    # ------------------------ core ------------------------
-
     @staticmethod
     def _to_1d(values: Any) -> jnp.ndarray:
         v = jnp.asarray(values, dtype=float)
@@ -83,8 +81,6 @@ class MetricTracker:
         npz_path = Path(npz_path)
         with np.load(npz_path, allow_pickle=False) as z:
             return {k: jnp.asarray(z[k]) for k in z.files}
-
-    # ------------------------ plotting ------------------------
 
     @staticmethod
     def _iter_pages(n: int, per_page: int):

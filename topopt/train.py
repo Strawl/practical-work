@@ -191,7 +191,7 @@ def train_model_batch(
             volume_fraction_fn=volume_fraction_fn,
         )
         step_time_s = step_timer.stop(block_on=jnp.mean(losses))
-        if iteration > 3:
+        if iteration > 1:
             tracker.log("optimisation_step_wall_time_s", step_time_s)
         else:
             compile_time += step_time_s
@@ -244,7 +244,7 @@ def train_model_batch(
 def train_from_config(train_config_path: Path, save_dir: Path):
     train_config: TrainingConfig = TrainingConfig.from_yaml(train_config_path)
 
-    tracker = MetricTracker(output_dir=save_dir)
+    tracker = MetricTracker(save_dir=save_dir)
     ele_type = "QUAD4"
 
     Lx = train_config.training.Lx
@@ -263,6 +263,7 @@ def train_from_config(train_config_path: Path, save_dir: Path):
         ele_type=ele_type,
         check_convergence=True,
         verbose=True,
+        radius=train_config.training.helmholtz_radius
     )
 
     rng = jax.random.PRNGKey(train_config.training.model_rng_seed)
@@ -283,9 +284,9 @@ def train_from_config(train_config_path: Path, save_dir: Path):
     )
 
     other_time = wal_time - hot_time - compile_time
-    share_hot = hot_time / wal_time if wal_time > 0 else float("nan")
-    share_compile = compile_time / wal_time if wal_time > 0 else float("nan")
-    share_other = other_time / wal_time if wal_time > 0 else float("nan")
+    share_hot = hot_time / wal_time
+    share_compile = compile_time / wal_time
+    share_other = other_time / wal_time
 
     print(
         "Timing summary\n"

@@ -122,7 +122,6 @@ def create_objective_functions(
     compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
 
     if radius <= 0:
-
         def filter_fn(rho):
             return rho
     else:
