@@ -141,7 +141,8 @@ def train_model_batch(
     dx = geom["dx_scaled"]
     dy = geom["dy_scaled"]
 
-    inner_optim = optax.chain(
+    optimizer = optax.chain(
+        optax.zero_nans(),
         optax.clip_by_global_norm(hyperparameters.grad_clip_norm),
         optax.adabelief(lr),
         optax.contrib.reduce_on_plateau(
@@ -153,10 +154,10 @@ def train_model_batch(
         ),
     )
 
-    optimizer = optax.apply_if_finite(
-        inner_optim,
-        max_consecutive_errors=30,
-    )
+    # optimizer = optax.apply_if_finite(
+        # inner_optim,
+        # max_consecutive_errors=30,
+    # )
     opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
 
     rng = jax.random.PRNGKey(hyperparameters.model_rng_seed)
