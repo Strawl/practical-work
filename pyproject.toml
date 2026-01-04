@@ -14,21 +14,17 @@ dependencies = [
     "nlopt>=2.10.0",
     "pyyaml>=6.0.3",
     "click>=8.3.1",
+    "pandas>=2.3.3",
 ]
 
 [tool.uv.sources]
-feax = { path = "./feax", editable = false }
+feax = { path = "./feax", editable = false}
 jax = { path = "./jax", editable = false }
 
 [dependency-groups]
 dev = [
     "ipykernel>=7.1.0",
     "ruff>=0.14.3",
-    "pandas>=2.3.3",
-]
-jax-fem = [
-    "jax-fem>=0.0.11",
-    "pyfiglet>=1.0.4",
 ]
 cuda = [
     "jax[cuda13] ; sys_platform == 'linux'",

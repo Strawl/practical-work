@@ -9,9 +9,9 @@ import equinox as eqx
 import jax.numpy as jnp
 import yaml
 from jaxtyping import PyTree
-from topopt.siren import SIREN
 
 import jax
+from topopt.siren import SIREN
 
 
 class ModelType(str, Enum):

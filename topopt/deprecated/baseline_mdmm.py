@@ -14,9 +14,7 @@ from bc import make_bc_preset
 from fem_utils import create_J_total
 import matplotlib.pyplot as plt
 
-from visualize import save_rho_png
-
-
+from topopt.evaluation import save_rho_png
 
 
 def run_topopt_mdmm(

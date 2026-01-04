@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 import click
+
 from topopt.jax_setup import init_jax
 
 init_jax()
@@ -55,12 +56,31 @@ def train(train_config_path: Path, save_dir: Optional[Path]) -> None:
 @click.option(
     "--save-dir", type=click.Path(file_okay=False, path_type=Path), default=None
 )
-def view(scale: Optional[int], save_dir: Optional[Path]) -> None:
+@click.option(
+    "--visualize/--no-visualize",
+    default=False,
+    help="Show density field visualizations",
+)
+def evaluate(
+    scale: Optional[int],
+    save_dir: Optional[Path],
+    visualize: bool,
+) -> None:
+    """
+    Evaluate trained models and optionally visualize results.
+    """
     base_dir = save_dir.expanduser().resolve() if save_dir else _latest_dir()
     click.echo(f"Using directory (SAVE_DIR): {base_dir}")
-    from topopt.view import view_outputs
 
-    view_outputs(scale=scale, save_dir=base_dir)
+    from topopt.evaluation import evaluate_models
+
+    df = evaluate_models(
+        save_dir=base_dir,
+        scale=scale,
+        visualize=visualize,
+    )
+
+    click.echo(f"\nEvaluated {len(df)} models.")
 
 
 @main.command(help="Run FEAX TopOpt MMA baseline and save outputs.")

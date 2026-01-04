@@ -4,11 +4,11 @@ from typing import Callable
 import equinox as eqx
 import jax.numpy as jnp
 import optax
-from topopt.bc import make_bc_preset
 from feax.mesh import Mesh, rectangle_mesh
 from tqdm import tqdm
 
 import jax
+from topopt.bc import make_bc_preset
 from topopt.fem_utils import create_objective_functions, get_element_geometry
 from topopt.monitoring import MetricTracker, StepTimer
 from topopt.serialization import (
@@ -154,10 +154,6 @@ def train_model_batch(
         ),
     )
 
-    # optimizer = optax.apply_if_finite(
-        # inner_optim,
-        # max_consecutive_errors=30,
-    # )
     opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
 
     rng = jax.random.PRNGKey(hyperparameters.model_rng_seed)
@@ -264,7 +260,7 @@ def train_from_config(train_config_path: Path, save_dir: Path):
         ele_type=ele_type,
         check_convergence=True,
         verbose=True,
-        radius=train_config.training.helmholtz_radius
+        radius=train_config.training.helmholtz_radius,
     )
 
     rng = jax.random.PRNGKey(train_config.training.model_rng_seed)

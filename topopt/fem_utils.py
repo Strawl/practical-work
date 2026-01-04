@@ -82,6 +82,7 @@ def create_objective_functions(
     check_convergence=False,
     verbose=False,
     radius: float = 0,
+    linear_solver: str = "bicgstab",  # "gmres" or "spsolve"
 ):
     bc_config = DirichletBCConfig(
         [DirichletBCSpec(location=fixed_location, component="all", value=0.0)]
@@ -101,7 +102,9 @@ def create_objective_functions(
 
     solver_opts = SolverOptions(
         tol=1e-8,
-        linear_solver="bicgstab",
+        linear_solver_tol=1e-10,
+        linear_solver_atol=1e-10,
+        linear_solver=linear_solver,
         use_jacobi_preconditioner=True,
         check_convergence=check_convergence,
         verbose=verbose,
@@ -122,6 +125,7 @@ def create_objective_functions(
     compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
 
     if radius <= 0:
+
         def filter_fn(rho):
             return rho
     else:

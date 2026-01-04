@@ -487,15 +487,6 @@ with-cuda = [
 ]
 
 [[package]]
-name = "jax-fem"
-version = "0.0.11"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fa/72/8f780d68aa90f617278f098797fdd70f478eb68a51f80e439f531a680296/jax_fem-0.0.11.tar.gz", hash = "sha256:3195f6405edfecd029f73f430102929625f96268595bab98d1b56efe8ce25dbe", size = 85000298, upload-time = "2025-08-31T05:43:32.252Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/4d/53f171e218e7d1ddfa29bfbb14d040e4fd358b586c460ce0ed991eae266a/jax_fem-0.0.11-py3-none-any.whl", hash = "sha256:58b921c5232626c8c2a4351cd88ae40cc5f6be8b4443c57eccaade10a4cca8ba", size = 70870, upload-time = "2025-08-31T05:43:25.389Z" },
-]
-
-[[package]]
 name = "jaxlib"
 version = "0.8.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1289,15 +1280,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pyfiglet"
-version = "1.0.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c8/e3/0a86276ad2c383ce08d76110a8eec2fe22e7051c4b8ba3fa163a0b08c428/pyfiglet-1.0.4.tar.gz", hash = "sha256:db9c9940ed1bf3048deff534ed52ff2dafbbc2cd7610b17bb5eca1df6d4278ef", size = 1560615, upload-time = "2025-08-15T18:32:47.302Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/5c/fe9f95abd5eaedfa69f31e450f7e2768bef121dbdf25bcddee2cd3087a16/pyfiglet-1.0.4-py3-none-any.whl", hash = "sha256:65b57b7a8e1dff8a67dc8e940a117238661d5e14c3e49121032bd404d9b2b39f", size = 1806118, upload-time = "2025-08-15T18:32:45.556Z" },
-]
-
-[[package]]
 name = "pygments"
 version = "2.19.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1613,6 +1595,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "nlopt" },
     { name = "optax" },
+    { name = "pandas" },
     { name = "pyyaml" },
     { name = "scikit-learn" },
     { name = "tqdm" },
@@ -1624,12 +1607,7 @@ cuda = [
 ]
 dev = [
     { name = "ipykernel" },
-    { name = "pandas" },
     { name = "ruff" },
-]
-jax-fem = [
-    { name = "jax-fem" },
-    { name = "pyfiglet" },
 ]
 
 [package.metadata]
@@ -1642,6 +1620,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.6,<4" },
     { name = "nlopt", specifier = ">=2.10.0" },
     { name = "optax", specifier = ">=0.2.6,<0.3" },
+    { name = "pandas", specifier = ">=2.3.3" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "tqdm", specifier = ">=4.67.1,<5" },
@@ -1651,12 +1630,7 @@ requires-dist = [
 cuda = [{ name = "jax", extras = ["cuda13"], marker = "sys_platform == 'linux'", directory = "jax" }]
 dev = [
     { name = "ipykernel", specifier = ">=7.1.0" },
-    { name = "pandas", specifier = ">=2.3.3" },
     { name = "ruff", specifier = ">=0.14.3" },
-]
-jax-fem = [
-    { name = "jax-fem", specifier = ">=0.0.11" },
-    { name = "pyfiglet", specifier = ">=1.0.4" },
 ]
 
 [[package]]

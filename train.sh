@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+unset LD_LIBRARY_PATH
+uv sync --group cuda
 set -euo pipefail
 
 INPUT_DIR="./train_configs"

@@ -7,12 +7,10 @@ import nlopt
 from feax.mesh import rectangle_mesh
 
 import jax
-
-
 from topopt.bc import make_bc_preset
+from topopt.evaluation import save_rho_png
 from topopt.fem_utils import create_objective_functions
 from topopt.monitoring import MetricTracker, StepTimer
-from topopt.visualize import save_rho_png
 
 
 def run_feax_topopt_mma(
@@ -59,6 +57,7 @@ def run_feax_topopt_mma(
         check_convergence=True,
         verbose=False,
         radius=radius,
+        linear_solver="bicgstab",
     )
 
     forward_jit = jax.jit(solve_forward)
@@ -172,7 +171,6 @@ def run_feax_topopt_mma(
         f"  compile/first : {compile_time[0]:8.3f}s ({100.0 * share_compile:6.2f}%)\n"
         f"  other         : {other_time:8.3f}s ({100.0 * share_other:6.2f}%)"
     )
-
 
     save_rho_png(
         x_opt,
