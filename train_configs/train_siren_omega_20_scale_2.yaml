@@ -10,7 +10,7 @@ training:
   grad_clip_norm: 1.0
   max_consecutive_errors: 30
   train_rng_seed: 42
-  model_rng_seed: 11
+  model_rng_seed: 61
   helmholtz_radius: 0.0
   plateau:
     patience: 20
@@ -26,18 +26,7 @@ models:
       num_channels_out: 1
       num_layers: 4
       num_latent_channels: 64
-      omega: 10.0
-    training:
-      target_density: 0.5
-      penalty: 10
-
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 4
-      num_latent_channels: 64
-      omega: 15.0
+      omega: 20.0
     training:
       target_density: 0.5
       penalty: 10
@@ -59,7 +48,7 @@ models:
       num_channels_out: 1
       num_layers: 4
       num_latent_channels: 64
-      omega: 10.0
+      omega: 20.0
     training:
       target_density: 0.5
       penalty: 10
@@ -70,7 +59,40 @@ models:
       num_channels_out: 1
       num_layers: 4
       num_latent_channels: 64
-      omega: 15.0
+      omega: 20.0
+    training:
+      target_density: 0.5
+      penalty: 10
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 4
+      num_latent_channels: 64
+      omega: 20.0
+    training:
+      target_density: 0.5
+      penalty: 10
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 4
+      num_latent_channels: 64
+      omega: 20.0
+    training:
+      target_density: 0.5
+      penalty: 10
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 4
+      num_latent_channels: 64
+      omega: 20.0
     training:
       target_density: 0.5
       penalty: 10

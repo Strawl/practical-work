@@ -42,7 +42,7 @@ def main() -> None:
 )
 def train(train_config_path: Path, save_dir: Optional[Path]) -> None:
     save_dir = (
-        (save_dir or _fresh_train_dir(suffix="neural_field")).expanduser().resolve()
+        (save_dir or _fresh_train_dir(suffix=f"neural_field_{train_config_path.stem}")).expanduser().resolve()
     )
     save_dir.mkdir(parents=True, exist_ok=True)
     click.echo(f"Saving data to: {save_dir}")

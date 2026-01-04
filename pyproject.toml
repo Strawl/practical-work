@@ -25,9 +25,10 @@ jax = { path = "./jax", editable = false }
 dev = [
     "ipykernel>=7.1.0",
     "ruff>=0.14.3",
+    "seaborn>=0.13.2",
 ]
 cuda = [
-    "jax[cuda13] ; sys_platform == 'linux'",
+    "jax[cuda12] ; sys_platform == 'linux'",
 ]
 
 [tool.uv]

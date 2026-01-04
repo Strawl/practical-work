@@ -184,7 +184,9 @@ def evaluate_models(
 
     Lx = float(train_config.training.Lx)
     Ly = float(train_config.training.Ly)
-    used_scale = int(scale) if scale is not None else int(train_config.training.scale)
+
+    scale_original = int(train_config.training.scale)
+    used_scale = int(scale) if scale is not None else scale_original
 
     Nx, Ny = int(Lx * used_scale), int(Ly * used_scale)
     ele_type = "QUAD4"
@@ -219,9 +221,6 @@ def evaluate_models(
     records = []
 
     def make_title_from_record(record: dict) -> str:
-        """
-        Build a compact, readable title from a metrics record.
-        """
         lines = [record["model"]]
 
         compliance = record["compliance"]
@@ -251,9 +250,10 @@ def evaluate_models(
         compliance = float(solve_forward(rho_raw))
         solve_time = complience_timer.stop()
         print(f"Solve took {solve_time:3f}s")
+
         rho_actual = float(evaluate_volume(rho_raw))
 
-        training = cfg.get("training")
+        training = cfg.get("training", {})
         rho_target = training.get("target_density")
         penalty = training.get("penalty")
 
@@ -273,6 +273,7 @@ def evaluate_models(
             ),
             penalty=penalty,
             omega=omega,
+            scale=scale_original,
         )
         records.append(record)
 
@@ -297,7 +298,11 @@ def evaluate_models(
     print("\nModel evaluation summary:\n")
     print(df_out.to_string())
 
+    csv_path = save_dir / "model_evaluation.csv"
+    df_out.to_csv(csv_path)
+    print(f"\nSaved evaluation table to: {csv_path}")
+
     if visualize:
         show_rho_pages(images, titles, Nx=Nx, Ny=Ny, per_page=6)
 
-    return df
+    return df_out
