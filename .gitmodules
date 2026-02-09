@@ -2,9 +2,3 @@
 	path = feax
 	url = git@github.com:Strawl/feax.git
 
-[submodule "jax"]
-	path = jax
-	url = git@github.com:Strawl/jax.git
-[submodule "spineax"]
-	path = spineax
-	url = https://github.com/robtaylor/spineax.git

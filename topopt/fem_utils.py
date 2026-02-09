@@ -103,8 +103,8 @@ def create_objective_functions(
 
     solver_options = SolverOptions(
         tol=1e-8,
-        linear_solver_tol=1e-10,
-        linear_solver_atol=1e-10,
+        linear_solver_tol=1e-6,
+        linear_solver_atol=1e-6,
         linear_solver=fwd_linear_solver,
         use_jacobi_preconditioner=True,
         check_convergence=check_convergence,

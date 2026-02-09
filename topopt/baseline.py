@@ -58,8 +58,8 @@ def run_feax_topopt_mma(
         check_convergence=True,
         verbose=False,
         radius=radius,
-        fwd_linear_solver="bicgstab",
-        bwd_linear_solver="bicgstab",
+        fwd_linear_solver="spsolve",
+        bwd_linear_solver="spsolve",
     )
 
     forward_jit = jax.jit(solve_forward)
@@ -73,7 +73,8 @@ def run_feax_topopt_mma(
     compile_time = [0]
 
     def objective(x, grad):
-        rho = filter_fn(x)
+        rho_unfiltered = jnp.asarray(x)
+        rho = filter_fn(rho_unfiltered)
         step_timer.start()
         f = float(forward_jit(rho))
         grad[:] = jnp.array(grad_complience_jit(rho))
@@ -93,11 +94,18 @@ def run_feax_topopt_mma(
 
         if o_iter_count[0] % save_every == 0:
             save_rho_png(
-                jnp.array(rho),
-                f"{o_iter_count[0]}",
+                jnp.array(rho_unfiltered),
+                f"{o_iter_count[0]} (unfiltered)",
                 Nx=Nx + 1,
                 Ny=Ny + 1,
-                path=os.path.join(save_dir, f"rho_{o_iter_count[0]}.png"),
+                path=os.path.join(save_dir, f"rho_unfiltered_{o_iter_count[0]}.png"),
+            )
+            save_rho_png(
+                jnp.array(rho),
+                f"{o_iter_count[0]} (filtered)",
+                Nx=Nx + 1,
+                Ny=Ny + 1,
+                path=os.path.join(save_dir, f"rho_filtered_{o_iter_count[0]}.png"),
             )
             tracker.save()
 
