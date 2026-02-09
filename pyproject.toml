@@ -1,7 +1,7 @@
 [project]
 name = "topopt"
 version = "0.0.1"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "feax",
     "jax",
@@ -19,7 +19,6 @@ dependencies = [
 
 [tool.uv.sources]
 feax = { path = "./feax", editable = false}
-jax = { path = "./jax", editable = false }
 
 [dependency-groups]
 dev = [
@@ -27,8 +26,13 @@ dev = [
     "ruff>=0.14.3",
     "seaborn>=0.13.2",
 ]
-cuda = [
-    "jax[cuda12] ; sys_platform == 'linux'",
+cuda12 = [
+    "scikit-build-core>=0.5 ; sys_platform == 'linux'",
+    "nanobind ; sys_platform == 'linux'",
+    "jax[cuda12]>=0.5.0 ; sys_platform == 'linux'",
+    "nvidia-cudss-cu12 ; sys_platform == 'linux'",
+    "feax[cuda12] ; sys_platform == 'linux'",
+    "pip"
 ]
 
 [tool.uv]

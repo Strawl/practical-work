@@ -19,41 +19,6 @@ from topopt.serialization import (
 )
 
 
-def loss(
-    model,
-    target_vol_frac,
-    lambda_,
-    mu,
-    coords,
-    compliance_fn,
-    volume_fraction_fn,
-):
-    rho = jax.nn.sigmoid(model(coords))
-    compliance = compliance_fn(rho)
-
-    vol_frac = volume_fraction_fn(rho)
-    vol_frac_error = vol_frac - target_vol_frac
-    violation = jnp.maximum(vol_frac_error, 0.0)
-
-    al_linear = lambda_ * violation
-    al_quadratic = mu * violation**2
-    al_term = al_linear + al_quadratic
-
-    total_loss = compliance + al_term
-
-    jax.debug.print(
-        "vol_frac={vf:.4f} | violation={v:.4f} | comp={c:.4f} | al={al:.4f} | loss={L:.4f}",
-        vf=vol_frac,
-        v=violation,
-        c=compliance,
-        al=al_term,
-        L=total_loss,
-    )
-    aux = (violation, compliance, vol_frac_error, al_linear, al_quadratic, al_term)
-    return total_loss, aux
-
-
-loss_and_grad = eqx.filter_value_and_grad(loss, has_aux=True)
 
 
 def batched_loss_and_grad(
@@ -65,10 +30,32 @@ def batched_loss_and_grad(
     compliance_fn,
     volume_fraction_fn,
 ):
-    (losses, aux), grads = jax.vmap(
-        loss_and_grad,
-        in_axes=(0, 0, 0, 0, None, None, None),
-    )(
+    def batched_loss(
+        models,
+        target_densities,
+        lams,
+        penalties,
+        coords,
+        compliance_fn,
+        volume_fraction_fn,
+    ):
+        rhos = jax.vmap(lambda m: jax.nn.sigmoid(m(coords)))(models)
+        compliances = compliance_fn(rhos)
+
+        vol_frac = volume_fraction_fn(rhos)
+        vol_frac_error = vol_frac - target_densities
+        violation = jnp.maximum(vol_frac_error, 0.0)
+
+        al_linear = lams * violation
+        al_quadratic = penalties * violation**2
+        al_term = al_linear + al_quadratic
+
+        losses = compliances + al_term
+        aux = (violation, compliances, vol_frac_error, al_linear, al_quadratic, al_term)
+        return jnp.sum(losses), (losses, aux)
+
+    batched_loss_and_grad_fn = eqx.filter_value_and_grad(batched_loss, has_aux=True)
+    (total_loss, (losses, aux)), grads = batched_loss_and_grad_fn(
         models,
         target_densities,
         lams,
@@ -140,6 +127,9 @@ def train_model_batch(
     num_elements = geom["num_elements"]
     dx = geom["dx_scaled"]
     dy = geom["dy_scaled"]
+
+    compliance_fn = jax.vmap(compliance_fn)
+    volume_fraction_fn = jax.vmap(volume_fraction_fn)
 
     optimizer = optax.chain(
         optax.zero_nans(),
@@ -253,7 +243,7 @@ def train_from_config(train_config_path: Path, save_dir: Path):
 
     fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
 
-    solve_forward, evaluate_volume, _, _ = create_objective_functions(
+    solve_forward, evaluate_volume, filter_fn, _, _ = create_objective_functions(
         mesh,
         fixed_location,
         load_location,
@@ -261,6 +251,8 @@ def train_from_config(train_config_path: Path, save_dir: Path):
         check_convergence=True,
         verbose=True,
         radius=train_config.training.helmholtz_radius,
+        fwd_linear_solver="cudss",
+        bwd_linear_solver="cudss"
     )
 
     rng = jax.random.PRNGKey(train_config.training.model_rng_seed)

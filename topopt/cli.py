@@ -99,7 +99,7 @@ def evaluate(
 )
 @click.option("--vol-frac", type=float, default=0.5, show_default=True)
 @click.option("--radius", type=float, default=1.0, show_default=True)
-@click.option("--max-iter", type=int, default=100, show_default=True)
+@click.option("--max-iter", type=int, default=200, show_default=True)
 @click.option("--save-every", type=int, default=10, show_default=True)
 @click.option("--print-every", type=int, default=10, show_default=True)
 def mma(

@@ -203,7 +203,7 @@ def evaluate_models(
 
     fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
 
-    solve_forward, evaluate_volume, _, num_nodes = create_objective_functions(
+    solve_forward, evaluate_volume, filter_fn, _, num_nodes = create_objective_functions(
         mesh,
         fixed_location,
         load_location,
@@ -211,8 +211,12 @@ def evaluate_models(
         check_convergence=True,
         verbose=False,
         radius=train_config.training.helmholtz_radius,
-        linear_solver="spsolve",
+        fwd_linear_solver="spsolve",
+        bwd_linear_solver="spsolve",
     )
+    if train_config.training.helmholtz_radius:
+        Ny += 1
+        Nx += 1
 
     print(f"Evaluating with {num_nodes} design variables")
     complience_timer = StepTimer()
@@ -244,14 +248,16 @@ def evaluate_models(
         model, _, _, cfg = load_model_from_config(cfg_path, save_dir)
 
         rho_raw = sigmoid(model(coords))
-        rho_pred = jnp.reshape(rho_raw, (Ny, Nx), order="F")
+        rho_filtered = filter_fn(rho_raw)
+        rho_pred = jnp.reshape(rho_filtered, (Ny, Nx), order="F")
+        
 
         complience_timer.start()
-        compliance = float(solve_forward(rho_raw))
+        compliance = float(solve_forward(rho_filtered))
         solve_time = complience_timer.stop()
         print(f"Solve took {solve_time:3f}s")
 
-        rho_actual = float(evaluate_volume(rho_raw))
+        rho_actual = float(evaluate_volume(rho_filtered))
 
         training = cfg.get("training", {})
         rho_target = training.get("target_density")

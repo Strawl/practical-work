@@ -4,6 +4,7 @@ from pathlib import Path
 
 import jax.numpy as jnp
 import nlopt
+import numpy as np
 from feax.mesh import rectangle_mesh
 
 import jax
@@ -28,8 +29,8 @@ def run_feax_topopt_mma(
     T: float = 1e2,
     gauss_order: int = 2,
     iter_num: int = 1,
-    max_iter: int = 500,
-    radius: float = 1.0,
+    max_iter: int = 100,
+    radius: float = 0.1,
     print_every: int = 5,
     save_every: int = 5,
 ):
@@ -41,7 +42,7 @@ def run_feax_topopt_mma(
 
     fixed_location, load_location = make_bc_preset(bc_preset_name, Lx, Ly)
 
-    solve_forward, evaluate_volume, rho_init, num_nodes = create_objective_functions(
+    solve_forward, evaluate_volume, filter_fn, rho_init, num_nodes = create_objective_functions(
         mesh=mesh,
         fixed_location=fixed_location,
         load_location=load_location,
@@ -57,7 +58,8 @@ def run_feax_topopt_mma(
         check_convergence=True,
         verbose=False,
         radius=radius,
-        linear_solver="bicgstab",
+        fwd_linear_solver="bicgstab",
+        bwd_linear_solver="bicgstab",
     )
 
     forward_jit = jax.jit(solve_forward)
@@ -71,8 +73,7 @@ def run_feax_topopt_mma(
     compile_time = [0]
 
     def objective(x, grad):
-        rho = jnp.array(x)
-
+        rho = filter_fn(x)
         step_timer.start()
         f = float(forward_jit(rho))
         grad[:] = jnp.array(grad_complience_jit(rho))
@@ -104,7 +105,7 @@ def run_feax_topopt_mma(
         return f
 
     def volume_constraint(x, grad):
-        rho = jnp.array(x)
+        rho = filter_fn(x)
 
         step_timer.start()
         v = float(volume_jit(rho))
@@ -144,13 +145,18 @@ def run_feax_topopt_mma(
     try:
         wal_timer.start()
         x_opt = opt.optimize(x0)
-        opt_val = opt.last_optimum_value()
     except nlopt.RoundoffLimited:
         print("Optimization stopped due to roundoff errors (converged)")
         x_opt = x0
-        opt_val = float(forward_jit(x_opt))
 
     wal_time = wal_timer.stop()
+    x_opt_unfiltered = jnp.asarray(x_opt)
+    x_opt_filtered = jnp.asarray(filter_fn(x_opt_unfiltered))
+
+    compliance_unfiltered = float(forward_jit(x_opt_unfiltered))
+    compliance_filtered = float(forward_jit(x_opt_filtered))
+    volume_unfiltered = float(volume_jit(x_opt_unfiltered))
+    volume_filtered = float(volume_jit(x_opt_filtered))
 
     # Objective + volume wall times (steady-state only)
     obj_hist = tracker.stack("objective_wall_time_s")
@@ -162,8 +168,17 @@ def run_feax_topopt_mma(
     share_other = other_time / wal_time
     print("-" * 60)
     print("Optimization finished!")
-    print(f"Final compliance: {opt_val:.4f}")
-    print(f"Final volume fraction: {float(volume_jit(x_opt)):.4f}")
+    print(
+        "Final compliance\n"
+        f"  unfiltered: {compliance_unfiltered:.6f}\n"
+        f"  filtered  : {compliance_filtered:.6f}"
+    )
+    print(
+        "Final volume fraction\n"
+        f"  unfiltered: {volume_unfiltered:.6f}\n"
+        f"  filtered  : {volume_filtered:.6f}\n"
+        f"  target    : {vol_frac:.6f}"
+    )
     print(
         "Timing summary\n"
         f"  wall total    : {wal_time:8.3f}s (100.00%)\n"
@@ -173,11 +188,38 @@ def run_feax_topopt_mma(
     )
 
     save_rho_png(
-        x_opt,
+        x_opt_unfiltered,
+        "Final (unfiltered)",
+        Nx=Nx + 1,
+        Ny=Ny + 1,
+        path=save_dir / "rho_final_unfiltered.png",
+    )
+    save_rho_png(
+        x_opt_filtered,
+        "Final (filtered)",
+        Nx=Nx + 1,
+        Ny=Ny + 1,
+        path=save_dir / "rho_final_filtered.png",
+    )
+    # Backwards-compatible alias (previously saved the unfiltered rho as rho_final.png).
+    save_rho_png(
+        x_opt_unfiltered,
         "Final",
         Nx=Nx + 1,
         Ny=Ny + 1,
         path=save_dir / "rho_final.png",
+    )
+
+    save_dir.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        save_dir / "baseline_final_with_without_filter.npz",
+        rho_unfiltered=np.asarray(x_opt_unfiltered),
+        rho_filtered=np.asarray(x_opt_filtered),
+        compliance_unfiltered=compliance_unfiltered,
+        compliance_filtered=compliance_filtered,
+        volume_fraction_unfiltered=volume_unfiltered,
+        volume_fraction_filtered=volume_filtered,
+        target_volume_fraction=float(vol_frac),
     )
     tracker.save()
     tracker.plot_all_metrics_across_models(

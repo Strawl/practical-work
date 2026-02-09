@@ -7,10 +7,12 @@ Follow the instructions below to set up your environment and run the training an
 
 ### Ubuntu / Debian
 
-Install system dependencies:
+Install topopt:
 
 ```bash
 sudo apt-get install libatlas-base-dev libblas-dev liblapack-dev libhdf5-dev libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev libxinerama1
+uv sync --group cuda12
+uv run pip install --no-build-isolation --config-settings=cmake.args="-DBUILD_PBATCH_SOLVE=OFF" "spineax[cuda12] @ git+https://github.com/johnviljoen/spineax.git"
 unset LD_LIBRARY_PATH
 ```
 

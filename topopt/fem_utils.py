@@ -3,7 +3,7 @@ from typing import Tuple
 
 import feax.flat as flat
 import jax.numpy as jnp
-from feax.experimental.topopt_toolkit import create_compliance_fn, create_volume_fn
+from feax.gene import create_compliance_fn, create_volume_fn
 
 from feax import (
     DirichletBCConfig,
@@ -82,7 +82,8 @@ def create_objective_functions(
     check_convergence=False,
     verbose=False,
     radius: float = 0,
-    linear_solver: str = "bicgstab",  # "gmres" or "spsolve"
+    fwd_linear_solver: str = "bicgstab",  # "gmres" or "spsolve"
+    bwd_linear_solver: str = "bicgstab",  # "gmres" or "spsolve"
 ):
     bc_config = DirichletBCConfig(
         [DirichletBCSpec(location=fixed_location, component="all", value=0.0)]
@@ -100,11 +101,22 @@ def create_objective_functions(
 
     bc = bc_config.create_bc(problem)
 
-    solver_opts = SolverOptions(
+    solver_options = SolverOptions(
         tol=1e-8,
         linear_solver_tol=1e-10,
         linear_solver_atol=1e-10,
-        linear_solver=linear_solver,
+        linear_solver=fwd_linear_solver,
+        use_jacobi_preconditioner=True,
+        check_convergence=check_convergence,
+        verbose=verbose,
+        linear_solver_maxiter=10000,
+    )
+
+    adjoint_solver_options = SolverOptions(
+        tol=1e-8,
+        linear_solver_tol=1e-10,
+        linear_solver_atol=1e-10,
+        linear_solver=bwd_linear_solver,
         use_jacobi_preconditioner=True,
         check_convergence=check_convergence,
         verbose=verbose,
@@ -114,8 +126,8 @@ def create_objective_functions(
     solver = create_solver(
         problem,
         bc=bc,
-        solver_options=solver_opts,
-        adjoint_solver_options=solver_opts,
+        solver_options=solver_options,
+        adjoint_solver_options=adjoint_solver_options,
         iter_num=iter_num,
     )
 
@@ -125,7 +137,6 @@ def create_objective_functions(
     compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
 
     if radius <= 0:
-
         def filter_fn(rho):
             return rho
     else:
@@ -133,9 +144,8 @@ def create_objective_functions(
 
     def solve_forward(rho):
         """Compute compliance for given node-based density field."""
-        rho_f = filter_fn(rho)
         internal_vars = InternalVars(
-            volume_vars=(rho_f,),
+            volume_vars=(rho,),
             surface_vars=[(traction_array,)],
         )
         sol = solver(internal_vars, initial_guess)
@@ -145,14 +155,13 @@ def create_objective_functions(
 
     def evaluate_volume(rho):
         """Compute volume fraction for given node-based density field."""
-        rho_filtered = filter_fn(rho)
-        return volume_fn(rho_filtered)
+        return volume_fn(rho)
 
     rho_init = None
     if target_fraction:
         rho_init = InternalVars.create_node_var(problem, target_fraction)
 
-    return solve_forward, evaluate_volume, rho_init, mesh.points.shape[0]
+    return solve_forward, evaluate_volume, filter_fn, rho_init, mesh.points.shape[0]
 
 
 def adaptive_rectangle_mesh_new(
