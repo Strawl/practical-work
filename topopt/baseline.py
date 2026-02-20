@@ -58,9 +58,13 @@ def run_feax_topopt_mma(
         check_convergence=True,
         verbose=False,
         radius=radius,
-        fwd_linear_solver="spsolve",
-        bwd_linear_solver="spsolve",
+        fwd_linear_solver="lineax",
+        bwd_linear_solver="lineax",
     )
+    #forward_jit = solve_forward
+    #volume_jit = evaluate_volume
+    #grad_complience_jit = jax.grad(forward_jit)
+    #grad_volume_jit = jax.grad(volume_jit)
 
     forward_jit = jax.jit(solve_forward)
     volume_jit = jax.jit(evaluate_volume)

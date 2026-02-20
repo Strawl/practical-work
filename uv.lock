@@ -120,6 +120,28 @@ wheels = [
 ]
 
 [[package]]
+name = "cmake"
+version = "4.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/00/f5/e4f5a35864293a8605bf6e9366d406ee11565b91a22f38f8b8665096c718/cmake-4.2.1.tar.gz", hash = "sha256:a07a790ca65946667c0fb286549e8e0b5a850e2f8170ae60d3418573011ca218", size = 37060, upload-time = "2025-12-21T11:23:47.499Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/4f/8278a25e101ec1ce2a1a2ca78db61fa683495a14e66a1174fc3d97879802/cmake-4.2.1-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:c8bdf88f8d50b64c88ffc75fb671f3ab017d803f36589f21c3f1e9f3a1b236a7", size = 29050095, upload-time = "2025-12-21T11:22:45.955Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/6c/efeb22bfdcebb29baf2c8853edf7ef59ff0bce0c2adaeefde4916c2b0eea/cmake-4.2.1-py3-none-manylinux2014_i686.manylinux_2_17_i686.whl", hash = "sha256:6ca394cdea61534f12e30f0188b19ace8ba844088105b77b9fd70e6df18ef241", size = 30088543, upload-time = "2025-12-21T11:22:49.623Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/83/7b6ff5b0f64f764db5e87ac4c320dfc34a783f38601b2f0c1dfe0ffcbab1/cmake-4.2.1-py3-none-manylinux2014_ppc64le.manylinux_2_17_ppc64le.whl", hash = "sha256:c5742041f8e641d977928207e2697e9cc3242d0d01f7cb8671f63ad45dcc447b", size = 29838727, upload-time = "2025-12-21T11:22:53.799Z" },
+    { url = "https://files.pythonhosted.org/packages/64/48/81fa5fa5bf19b7be74ba83ea3eddc20210995b066e3acb2329e8f821bd4e/cmake-4.2.1-py3-none-manylinux2014_s390x.manylinux_2_17_s390x.whl", hash = "sha256:ae0f51d2b8dd00a7ac1578c19364140358596e449d2ac1b978af3f0b35737d01", size = 27768477, upload-time = "2025-12-21T11:22:57.608Z" },
+    { url = "https://files.pythonhosted.org/packages/28/19/b54ff2e03946beeef785e6407d965a9493d26c50dd1aa09ffc7b53fbf9a5/cmake-4.2.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:6333a2b16e1d55373419b9c1572a155b315bfb9d834fbdbba0f7d3428437c785", size = 28919242, upload-time = "2025-12-21T11:23:01.177Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/82/b001aac0162af8524067a94005e61e23426103b9283c2525df62f0b403ea/cmake-4.2.1-py3-none-manylinux_2_31_armv7l.whl", hash = "sha256:4d7a62c462cc81a6f7a5e4db7b298b4e66d851010418c8cdc5a9de0a8701f60f", size = 26109769, upload-time = "2025-12-21T11:23:04.627Z" },
+    { url = "https://files.pythonhosted.org/packages/28/62/c4e8810012175ca76bb4be565955b73354a8693a4a9e983206be7cd9144e/cmake-4.2.1-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:3455391ffce8a860bbbd22b83c2188f13806100a21f28b8ab2c6a785def25616", size = 26217175, upload-time = "2025-12-21T11:23:07.952Z" },
+    { url = "https://files.pythonhosted.org/packages/40/2e/4f657c370fdf741dfa7c1189863a15e50ea44e35fad314ba3448ad017ef8/cmake-4.2.1-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:4d0dfe33c993e3d58cfebe2ab1205668411aae1e6cb78430f3b9d070a97e1274", size = 37922579, upload-time = "2025-12-21T11:23:11.477Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/c2/c37989f2366d700f934b6c557dfd74e078352f7535b63d35920f1b0e49fd/cmake-4.2.1-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:52db8740e81d10c8d103899c87e0100e6aab969295ab99ce51eb11de4c36c9ce", size = 34564791, upload-time = "2025-12-21T11:23:15.177Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/f4/4a3fe5399be1f4f3876762d2b583c8b2ce6e1b419692f170a8b710ca1742/cmake-4.2.1-py3-none-musllinux_1_2_i686.whl", hash = "sha256:493abf42c003034c2bb1ad58a221542174a5c0fd2a76e9fdd91709ae6e53263c", size = 40440667, upload-time = "2025-12-21T11:23:19.14Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/a7/91b4504199f587c11b612f7bedcb8943d6f2da679d6e627e2de962a95011/cmake-4.2.1-py3-none-musllinux_1_2_ppc64le.whl", hash = "sha256:3d8d7632bb27cf1d0ac78098f2f7dfb7019927f35fb5a8c1508b17524af70000", size = 39610499, upload-time = "2025-12-21T11:23:23Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/4e/6aabf0172544c6b021ef0192f3f9bd8bb0f2877ad9ae223e653982aebd62/cmake-4.2.1-py3-none-musllinux_1_2_riscv64.whl", hash = "sha256:3e89d391096fdbdaab82e28b7e1fa964a873c0ba8d77c3542260c7d115aaac1f", size = 34796816, upload-time = "2025-12-21T11:23:26.88Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/f1/a2ae37cc5ff4338165a322e2dc70ddd0713a2989dee1ccf1af4ddf4917da/cmake-4.2.1-py3-none-musllinux_1_2_s390x.whl", hash = "sha256:e758ae635c75aaf0258e2c46fe95a3821f01011d5dbe29b7f045976b88ce3ca8", size = 36826277, upload-time = "2025-12-21T11:23:30.702Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/5b/ffa3551f85fd26dddc0e5d2e5dff0cda50fce57aaf2b237f2d5210d74203/cmake-4.2.1-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:fecc03edef6257b2bc8784f7880e84fe8a0b0fb54c952528c61ce14a4d693e16", size = 37806089, upload-time = "2025-12-21T11:23:34.464Z" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -287,6 +309,7 @@ dependencies = [
     { name = "equinox" },
     { name = "fenics-basix" },
     { name = "gmsh" },
+    { name = "lineax" },
     { name = "matplotlib" },
     { name = "meshio" },
     { name = "numpy" },
@@ -296,6 +319,7 @@ dependencies = [
 
 [package.optional-dependencies]
 cuda12 = [
+    { name = "cmake" },
     { name = "jax", extra = ["cuda12"] },
     { name = "nanobind" },
     { name = "ninja" },
@@ -310,31 +334,43 @@ cuda12 = [
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'" },
+    { name = "cmake", marker = "extra == 'cuda12'" },
+    { name = "cmake", marker = "extra == 'cuda13'" },
     { name = "equinox" },
     { name = "fenics-basix" },
     { name = "gmsh" },
     { name = "jax", extras = ["cuda12"], marker = "extra == 'cuda12'" },
+    { name = "jax", extras = ["cuda13"], marker = "extra == 'cuda13'" },
+    { name = "lineax" },
     { name = "matplotlib" },
     { name = "meshio" },
     { name = "mypy", marker = "extra == 'dev'" },
     { name = "nanobind", marker = "extra == 'cuda12'" },
+    { name = "nanobind", marker = "extra == 'cuda13'" },
     { name = "ninja", marker = "extra == 'cuda12'" },
+    { name = "ninja", marker = "extra == 'cuda13'" },
     { name = "numpy" },
+    { name = "nvidia-cublas", marker = "extra == 'cuda13'" },
     { name = "nvidia-cublas-cu12", marker = "extra == 'cuda12'" },
+    { name = "nvidia-cuda-nvcc", marker = "extra == 'cuda13'" },
     { name = "nvidia-cuda-nvcc-cu12", marker = "extra == 'cuda12'" },
+    { name = "nvidia-cuda-runtime", marker = "extra == 'cuda13'" },
     { name = "nvidia-cuda-runtime-cu12", marker = "extra == 'cuda12'" },
     { name = "nvidia-cudnn-cu12", marker = "extra == 'cuda12'" },
+    { name = "nvidia-cudnn-cu13", marker = "extra == 'cuda13'" },
     { name = "nvidia-cudss-cu12", marker = "extra == 'cuda12'" },
+    { name = "nvidia-cudss-cu13", marker = "extra == 'cuda13'" },
     { name = "pandas" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "ruff", marker = "extra == 'dev'" },
     { name = "scikit-build-core", marker = "extra == 'cuda12'", specifier = ">=0.5" },
+    { name = "scikit-build-core", marker = "extra == 'cuda13'", specifier = ">=0.5" },
     { name = "scipy" },
     { name = "sphinx", marker = "extra == 'docs'" },
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'" },
 ]
-provides-extras = ["dev", "docs", "cuda12"]
+provides-extras = ["dev", "docs", "cuda12", "cuda13"]
 
 [[package]]
 name = "fenics-basix"
@@ -702,6 +738,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/99/dd/841e9a66c4715477ea0abc78da039832fbb09dac5c35c58dc4c41a407b8a/kiwisolver-1.4.9-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:aedff62918805fb62d43a4aa2ecd4482c380dc76cd31bd7c8878588a61bd0369", size = 2391835, upload-time = "2025-08-10T21:27:34.23Z" },
     { url = "https://files.pythonhosted.org/packages/0c/28/4b2e5c47a0da96896fdfdb006340ade064afa1e63675d01ea5ac222b6d52/kiwisolver-1.4.9-cp314-cp314t-win_amd64.whl", hash = "sha256:1fa333e8b2ce4d9660f2cda9c0e1b6bafcfb2457a9d259faa82289e73ec24891", size = 79988, upload-time = "2025-08-10T21:27:35.587Z" },
     { url = "https://files.pythonhosted.org/packages/80/be/3578e8afd18c88cdf9cb4cffde75a96d2be38c5a903f1ed0ceec061bd09e/kiwisolver-1.4.9-cp314-cp314t-win_arm64.whl", hash = "sha256:4a48a2ce79d65d363597ef7b567ce3d14d68783d2b2263d98db3d9477805ba32", size = 70260, upload-time = "2025-08-10T21:27:36.606Z" },
+]
+
+[[package]]
+name = "lineax"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "equinox" },
+    { name = "jax" },
+    { name = "jaxtyping" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/35/d6/4e28416a6fe58dd6bc7565b1ffa330f4d0ba7d74212642b1b734c511299e/lineax-0.1.0.tar.gz", hash = "sha256:5f1a8f060142af2cdbf7d66b99e8d3071c3aa734b677df6339df4b4c4c0554d2", size = 50209, upload-time = "2026-01-27T21:17:26.652Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/80/0c/2ed47112fc1958a0a81c9b015d4e1861953a1ec3a17b081c0180a25ce82c/lineax-0.1.0-py3-none-any.whl", hash = "sha256:f00911c6b07d427c4835db46856970c8348bc82a035b51f4386ad09382af957a", size = 74600, upload-time = "2026-01-27T21:17:25.33Z" },
 ]
 
 [[package]]
@@ -1784,6 +1835,7 @@ dependencies = [
     { name = "feax" },
     { name = "jax" },
     { name = "jinja2" },
+    { name = "lineax" },
     { name = "matplotlib" },
     { name = "nlopt" },
     { name = "optax" },
@@ -1815,6 +1867,7 @@ requires-dist = [
     { name = "feax", directory = "feax" },
     { name = "jax" },
     { name = "jinja2", specifier = ">=3.1.6" },
+    { name = "lineax", specifier = ">=0.1.0" },
     { name = "matplotlib", specifier = ">=3.10.6,<4" },
     { name = "nlopt", specifier = ">=2.10.0" },
     { name = "optax", specifier = ">=0.2.6,<0.3" },

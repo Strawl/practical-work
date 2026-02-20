@@ -149,7 +149,6 @@ def train_model_batch(
     rng = jax.random.PRNGKey(hyperparameters.model_rng_seed)
     lams = jnp.zeros_like(target_densities)
     compile_time = 0
-
     for iteration in tqdm(range(hyperparameters.num_iterations), desc="Iterations"):
         if hyperparameters.jitted_coords:
             # uniform jitter in [-0.5, 0.5] * element size
@@ -219,6 +218,20 @@ def train_model_batch(
         print(
             f"Iteration {iteration:03d} | mean loss = {mean_loss:.6f} | individual = [{loss_str}]"
         )
+        aux_items = (
+            ("violation", violations),
+            ("compliance", compliances),
+            ("volume_fraction_error", vol_frac_errors),
+            ("al_linear", al_linears),
+            ("al_quadratic", al_quadratics),
+            ("al_term", al_terms),
+        )
+        for name, values in aux_items:
+            values_flat = jnp.ravel(jnp.asarray(values))
+            values_str = " | ".join(
+                [f"{float(values_flat[i]):.6f}" for i in range(len(values_flat))]
+            )
+            print(f"  {name}: [{values_str}]")
 
     wal_time = wal_timer.stop()
 
@@ -251,8 +264,8 @@ def train_from_config(train_config_path: Path, save_dir: Path):
         check_convergence=True,
         verbose=True,
         radius=train_config.training.helmholtz_radius,
-        fwd_linear_solver="cudss",
-        bwd_linear_solver="cudss"
+        fwd_linear_solver="lineax",
+        bwd_linear_solver="lineax"
     )
 
     rng = jax.random.PRNGKey(train_config.training.model_rng_seed)

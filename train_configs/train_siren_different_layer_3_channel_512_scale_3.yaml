@@ -1,10 +1,10 @@
 training:
   Lx: 60.0
   Ly: 30.0
-  scale: 5
+  scale: 3
   problem_type: "cantilever_corner"
 
-  num_iterations: 200
+  num_iterations: 125
   lr: 0.001
   jitted_coords: false
   grad_clip_norm: 1.0
@@ -20,50 +20,6 @@ training:
     accumulation_size: 1
 
 models:
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 3
-      num_latent_channels: 512
-      omega: 23.0
-    training:
-      target_density: 0.5
-      penalty: 10
-
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 3
-      num_latent_channels: 512
-      omega: 23.0
-    training:
-      target_density: 0.5
-      penalty: 10
-
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 3
-      num_latent_channels: 512
-      omega: 23.0
-    training:
-      target_density: 0.5
-      penalty: 10
-
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 3
-      num_latent_channels: 512
-      omega: 23.0
-    training:
-      target_density: 0.5
-      penalty: 10
-
   - model_type: SIREN
     model_kwargs:
       num_channels_in: 2

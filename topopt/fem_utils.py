@@ -13,7 +13,11 @@ from feax import (
     SolverOptions,
     create_solver,
     zero_like_initial_guess,
+    CUDSSOptions,
+    CUDSSMatrixType, 
+    CUDSSMatrixView
 )
+from feax.problem import MatrixView
 from topopt.problems import DensityElasticityProblem
 
 
@@ -82,11 +86,11 @@ def create_objective_functions(
     check_convergence=False,
     verbose=False,
     radius: float = 0,
-    fwd_linear_solver: str = "bicgstab",  # "gmres" or "spsolve"
-    bwd_linear_solver: str = "bicgstab",  # "gmres" or "spsolve"
+    fwd_linear_solver: str = "cg",
+    bwd_linear_solver: str = "cg",
 ):
     bc_config = DirichletBCConfig(
-        [DirichletBCSpec(location=fixed_location, component="all", value=0.0)]
+        [DirichletBCSpec(location=fixed_location, component="all", value=0.0)],
     )
 
     problem = DensityElasticityProblem(
@@ -97,31 +101,35 @@ def create_objective_functions(
         gauss_order=gauss_order,
         location_fns=[load_location],
         additional_info=(E0, E_eps, nu, p, T),
+        matrix_view=MatrixView.UPPER
     )
 
     bc = bc_config.create_bc(problem)
 
     solver_options = SolverOptions(
         tol=1e-8,
-        linear_solver_tol=1e-6,
-        linear_solver_atol=1e-6,
+        linear_solver_tol=1e-8,
+        linear_solver_atol=1e-8,
         linear_solver=fwd_linear_solver,
         use_jacobi_preconditioner=True,
         check_convergence=check_convergence,
         verbose=verbose,
         linear_solver_maxiter=10000,
+        cudss_options=CUDSSOptions(matrix_type=CUDSSMatrixType.SPD, matrix_view=CUDSSMatrixView.UPPER)
     )
 
     adjoint_solver_options = SolverOptions(
         tol=1e-8,
-        linear_solver_tol=1e-10,
-        linear_solver_atol=1e-10,
+        linear_solver_tol=1e-8,
+        linear_solver_atol=1e-8,
         linear_solver=bwd_linear_solver,
         use_jacobi_preconditioner=True,
         check_convergence=check_convergence,
         verbose=verbose,
         linear_solver_maxiter=10000,
+        cudss_options=CUDSSOptions(matrix_type=CUDSSMatrixType.SPD, matrix_view=CUDSSMatrixView.UPPER)
     )
+    
 
     solver = create_solver(
         problem,
