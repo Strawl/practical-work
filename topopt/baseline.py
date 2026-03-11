@@ -58,8 +58,8 @@ def run_feax_topopt_mma(
         check_convergence=True,
         verbose=False,
         radius=radius,
-        fwd_linear_solver="lineax",
-        bwd_linear_solver="lineax",
+        fwd_linear_solver="cudss",
+        bwd_linear_solver="cudss",
     )
     #forward_jit = solve_forward
     #volume_jit = evaluate_volume

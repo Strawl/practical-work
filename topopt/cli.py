@@ -7,6 +7,7 @@ from typing import Optional
 import click
 
 from topopt.jax_setup import init_jax
+from topopt.solver_config import AVAILABLE_SOLVERS
 
 init_jax()
 
@@ -40,7 +41,17 @@ def main() -> None:
 @click.option(
     "--save-dir", type=click.Path(file_okay=False, path_type=Path), default=None
 )
-def train(train_config_path: Path, save_dir: Optional[Path]) -> None:
+@click.option(
+    "--solver",
+    type=click.Choice(
+        list(AVAILABLE_SOLVERS),
+        case_sensitive=False,
+    ),
+    default="spsolve",
+    show_default=True,
+    help="Solver preset used for both forward and adjoint solves.",
+)
+def train(train_config_path: Path, save_dir: Optional[Path], solver: str) -> None:
     save_dir = (
         (save_dir or _fresh_train_dir(suffix=f"neural_field_{train_config_path.stem}")).expanduser().resolve()
     )
@@ -48,7 +59,12 @@ def train(train_config_path: Path, save_dir: Optional[Path]) -> None:
     click.echo(f"Saving data to: {save_dir}")
     from topopt.train import train_from_config
 
-    train_from_config(train_config_path=str(train_config_path), save_dir=save_dir)
+    train_from_config(
+        train_config_path=str(train_config_path),
+        save_dir=save_dir,
+        fwd_linear_solver=solver,
+        bwd_linear_solver=solver,
+    )
 
 
 @main.command()

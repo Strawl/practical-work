@@ -1,7 +1,7 @@
 # Topology Optimization with FEAX
 
 This project performs topology optimization using **FEAX**, a finite element analysis library written in JAX.  
-Follow the instructions below to set up your environment and run the training and visualization scripts.
+Follow the instructions below to set up your environment and run training, evaluation, and baseline optimization.
 
 ## Installation
 
@@ -16,33 +16,51 @@ uv run pip install --no-build-isolation --config-settings=cmake.args="-DBUILD_PB
 unset LD_LIBRARY_PATH
 ```
 
-## Train the model
+## CLI usage
+
+All commands are exposed via the `topopt` CLI entrypoint.
+
+### Train models
 
 ```bash
-uv run ./topopt/main.py
+uv run topopt train --config ./train_configs/<config>.yaml [--save-dir ./outputs/<run_name>]
 ```
 
-## Visualize the results
+Required arguments:
+- `--config`: Path to a training config YAML file.
+
+Optional arguments:
+- `--save-dir`: Output directory. If omitted, a timestamped directory in `./outputs` is created.
+
+### Evaluate trained models
+
 ```bash
-uv run ./topopt/view.py --scale 3 --domain 60,30
+uv run topopt evaluate [--scale N] [--save-dir ./outputs/<run_name>] [--visualize]
 ```
 
-### Arguments
-- 	--domain: The domain used during training (e.g., 60,30).
-- 	--scale: The visualization resolution (default: 1 -> equal to the domain).
-- 	--dir: Directory where the outputs are stored.
-If not specified, the script will automatically use the latest results from ./outputs
+Optional arguments:
+- `--scale`: Evaluation mesh scaling factor.
+- `--save-dir`: Run directory to evaluate. If omitted, the latest directory in `./outputs` is used.
+- `--visualize / --no-visualize`: Enable or disable density-field visualizations.
+
+### Run MMA baseline
+
+```bash
+uv run topopt mma [OPTIONS]
+```
+
+Common options:
+- `--lx`, `--ly`: Domain size (defaults: `60.0`, `30.0`).
+- `--scale`: Mesh scaling factor (default: `1.0`).
+- `--bc-preset`: Boundary-condition preset name (default: `cantilever_corner`).
+- `--vol-frac`: Target volume fraction (default: `0.5`).
+- `--radius`: Helmholtz filter radius (default: `1.0`).
+- `--max-iter`: Maximum MMA iterations (default: `200`).
+- `--save-every`: Save frequency (default: `10`).
+- `--print-every`: Log frequency (default: `10`).
+- `--save-dir`: Output directory. If omitted, a timestamped baseline directory is created in `./outputs`.
 
 ## Acknowledgements
 - [FEAX](https://github.com/Naruki-Ichihara/feax)
 - [jax-fem](https://github.com/deepmodeling/jax-fem)
-
-## Deprecated
-###  Install petsc4py (needed by jax_fem)
-```bash
-export MPICC=/opt/homebrew/bin/mpicc
-export PETSC_DIR=$(brew --prefix petsc)
-export PETSC_ARCH=real
-export PEP517_BUILD_BACKEND=setuptools.build_meta
-uv pip install --no-binary=petsc4py petsc4py
-```
+- [spineax](https://github.com/johnviljoen/spineax)

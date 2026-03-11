@@ -10,15 +10,11 @@ from feax import (
     DirichletBCSpec,
     InternalVars,
     Mesh,
-    SolverOptions,
     create_solver,
     zero_like_initial_guess,
-    CUDSSOptions,
-    CUDSSMatrixType, 
-    CUDSSMatrixView
 )
-from feax.problem import MatrixView
 from topopt.problems import DensityElasticityProblem
+from topopt.solver_config import build_solver_setup
 
 
 def get_element_geometry(mesh):
@@ -93,6 +89,13 @@ def create_objective_functions(
         [DirichletBCSpec(location=fixed_location, component="all", value=0.0)],
     )
 
+    solver_options, adjoint_solver_options, matrix_view = build_solver_setup(
+        fwd_linear_solver,
+        bwd_linear_solver,
+        check_convergence=check_convergence,
+        verbose=verbose,
+    )
+
     problem = DensityElasticityProblem(
         mesh=mesh,
         vec=2,
@@ -101,34 +104,10 @@ def create_objective_functions(
         gauss_order=gauss_order,
         location_fns=[load_location],
         additional_info=(E0, E_eps, nu, p, T),
-        matrix_view=MatrixView.UPPER
+        matrix_view=matrix_view,
     )
 
     bc = bc_config.create_bc(problem)
-
-    solver_options = SolverOptions(
-        tol=1e-8,
-        linear_solver_tol=1e-8,
-        linear_solver_atol=1e-8,
-        linear_solver=fwd_linear_solver,
-        use_jacobi_preconditioner=True,
-        check_convergence=check_convergence,
-        verbose=verbose,
-        linear_solver_maxiter=10000,
-        cudss_options=CUDSSOptions(matrix_type=CUDSSMatrixType.SPD, matrix_view=CUDSSMatrixView.UPPER)
-    )
-
-    adjoint_solver_options = SolverOptions(
-        tol=1e-8,
-        linear_solver_tol=1e-8,
-        linear_solver_atol=1e-8,
-        linear_solver=bwd_linear_solver,
-        use_jacobi_preconditioner=True,
-        check_convergence=check_convergence,
-        verbose=verbose,
-        linear_solver_maxiter=10000,
-        cudss_options=CUDSSOptions(matrix_type=CUDSSMatrixType.SPD, matrix_view=CUDSSMatrixView.UPPER)
-    )
     
 
     solver = create_solver(

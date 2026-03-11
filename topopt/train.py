@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import equinox as eqx
 import jax.numpy as jnp
@@ -241,8 +241,16 @@ def train_model_batch(
     return models, opt_states, hot_time, wal_time, compile_time
 
 
-def train_from_config(train_config_path: Path, save_dir: Path):
+def train_from_config(
+    train_config_path: Path,
+    save_dir: Path,
+    *,
+    fwd_linear_solver: str = "spsolve",
+    bwd_linear_solver: Optional[str] = None,
+):
     train_config: TrainingConfig = TrainingConfig.from_yaml(train_config_path)
+    if bwd_linear_solver is None:
+        bwd_linear_solver = fwd_linear_solver
 
     tracker = MetricTracker(save_dir=save_dir)
     ele_type = "QUAD4"
@@ -264,8 +272,8 @@ def train_from_config(train_config_path: Path, save_dir: Path):
         check_convergence=True,
         verbose=True,
         radius=train_config.training.helmholtz_radius,
-        fwd_linear_solver="lineax",
-        bwd_linear_solver="lineax"
+        fwd_linear_solver=fwd_linear_solver,
+        bwd_linear_solver=bwd_linear_solver,
     )
 
     rng = jax.random.PRNGKey(train_config.training.model_rng_seed)
