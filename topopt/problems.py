@@ -1,8 +1,10 @@
+import jax
 import jax.numpy as jnp
 
 from feax import Problem
 
 
+@jax.tree_util.register_pytree_node_class
 class DensityElasticityProblem(Problem):
     def custom_init(
         self, E0: float, E_eps: float, nu: float, p: float, T: float
@@ -65,7 +67,15 @@ class DensityElasticityProblem(Problem):
 
         return [surface_map]
 
+    def tree_flatten(self):
+        return super().tree_flatten()
 
+    @classmethod
+    def tree_unflatten(cls, static, dynamic):
+        return super().tree_unflatten(static, dynamic)
+
+
+@jax.tree_util.register_pytree_node_class
 class PlaneStressElasticityProblem(Problem):
     def custom_init(self, Emax: float, Emin: float, nu: float, penal: float, T: float):
         """
@@ -120,3 +130,10 @@ class PlaneStressElasticityProblem(Problem):
             return jnp.array([0.0, load])
 
         return [surface_map]
+
+    def tree_flatten(self):
+        return super().tree_flatten()
+
+    @classmethod
+    def tree_unflatten(cls, static, dynamic):
+        return super().tree_unflatten(static, dynamic)

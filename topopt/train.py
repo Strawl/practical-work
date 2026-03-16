@@ -47,7 +47,7 @@ def batched_loss_and_grad(
         violation = jnp.maximum(vol_frac_error, 0.0)
 
         al_linear = lams * violation
-        al_quadratic = penalties * violation**2
+        al_quadratic = 0.5 * penalties * violation**2
         al_term = al_linear + al_quadratic
 
         losses = compliances + al_term
@@ -192,7 +192,7 @@ def train_model_batch(
         ) = aux
 
         good = jnp.isfinite(violations)
-        lams = jnp.where(good, lams + 2.0 * penalties * violations, lams)
+        lams = jnp.where(good, lams + penalties * violations, lams)
         lam_updates = lams - old_lams
 
         # Monitoring

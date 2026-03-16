@@ -27,6 +27,7 @@ dev = [
     "ipykernel>=7.1.0",
     "ruff>=0.14.3",
     "seaborn>=0.13.2",
+    "pytest"
 ]
 cuda12 = [
     "scikit-build-core>=0.5 ; sys_platform == 'linux'",

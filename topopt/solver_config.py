@@ -36,8 +36,8 @@ def _build_one_solver_options(
     if solver == "cg":
         return IterativeSolverOptions(
             solver="cg",
-            tol=1e-8,
-            atol=1e-8,
+            tol=1e-5,
+            atol=1e-6,
             maxiter=10000,
             use_jacobi_preconditioner=True,
             check_convergence=check_convergence,
