@@ -2,7 +2,7 @@ training:
   Lx: 60.0
   Ly: 30.0
   scale: 1
-  problem_type: "cantilever_corner"
+  dirichlet_boundary_conditions: "cantilever_left_support"
 
   num_iterations: 50
   lr: 0.001
@@ -30,6 +30,7 @@ models:
     training:
       target_density: 0.5
       penalty: 10
+      neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
     model_kwargs:
@@ -41,6 +42,7 @@ models:
     training:
       target_density: 0.5
       penalty: 10
+      neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
     model_kwargs:
@@ -52,3 +54,4 @@ models:
     training:
       target_density: 0.5
       penalty: 10
+      neumann_boundary_conditions: "cantilever_corner"

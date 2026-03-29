@@ -1,9 +1,9 @@
 import math
-from typing import Tuple
+from typing import Sequence, Tuple
 
 import feax.flat as flat
 import jax.numpy as jnp
-from feax.gene import create_compliance_fn, create_volume_fn
+from feax.gene import create_dynamic_compliance_fn, create_volume_fn
 
 from feax import (
     DirichletBCConfig,
@@ -68,8 +68,8 @@ def get_element_geometry(mesh):
 
 def create_objective_functions(
     mesh,
-    fixed_location,
-    load_location,
+    dirichlet_boundary_conditions,
+    neumann_boundary_location,
     target_fraction=None,
     ele_type="QUAD4",
     E0=70e3,
@@ -85,9 +85,12 @@ def create_objective_functions(
     fwd_linear_solver: str = "cg",
     bwd_linear_solver: str = "cg",
 ):
-    bc_config = DirichletBCConfig(
-        [DirichletBCSpec(location=fixed_location, component="all", value=0.0)],
-    )
+    if isinstance(dirichlet_boundary_conditions, DirichletBCSpec):
+        dirichlet_boundary_conditions = (dirichlet_boundary_conditions,)
+    else:
+        dirichlet_boundary_conditions = tuple(dirichlet_boundary_conditions)
+
+    bc_config = DirichletBCConfig(list(dirichlet_boundary_conditions))
 
     solver_options, adjoint_solver_options, matrix_view = build_solver_setup(
         fwd_linear_solver,
@@ -102,13 +105,19 @@ def create_objective_functions(
         dim=2,
         ele_type=ele_type,
         gauss_order=gauss_order,
-        location_fns=[load_location],
+        location_fns=[neumann_boundary_location],
         additional_info=(E0, E_eps, nu, p, T),
         matrix_view=matrix_view,
     )
 
     bc = bc_config.create_bc(problem)
-    
+
+    zero_surface_vars = ((InternalVars.create_uniform_surface_var(problem, 0.0),),)
+    sample_density = target_fraction if target_fraction is not None else 0.5
+    sample_internal_vars = InternalVars(
+        volume_vars=(InternalVars.create_cell_var(problem, sample_density),),
+        surface_vars=zero_surface_vars,
+    )
 
     solver = create_solver(
         problem,
@@ -116,12 +125,11 @@ def create_objective_functions(
         solver_options=solver_options,
         adjoint_solver_options=adjoint_solver_options,
         iter_num=iter_num,
+        internal_vars=sample_internal_vars,
     )
 
     initial_guess = zero_like_initial_guess(problem, bc)
-
-    traction_array = InternalVars.create_uniform_surface_var(problem, T)
-    compute_compliance = create_compliance_fn(problem, surface_load_params=problem.T)
+    dynamic_compliance_fn = create_dynamic_compliance_fn(problem)
 
     if radius <= 0:
         def filter_fn(rho):
@@ -129,14 +137,16 @@ def create_objective_functions(
     else:
         filter_fn = flat.filters.create_helmholtz_filter(mesh, radius)
 
-    def solve_forward(rho):
-        """Compute compliance for given node-based density field."""
+    def solve_forward(rho, surface_vars=None):
+        """Compute compliance for given node-based density field and surface vars."""
+        if surface_vars is None:
+            surface_vars = zero_surface_vars
         internal_vars = InternalVars(
             volume_vars=(rho,),
-            surface_vars=[(traction_array,)],
+            surface_vars=surface_vars,
         )
         sol = solver(internal_vars, initial_guess)
-        return compute_compliance(sol)
+        return dynamic_compliance_fn(sol, surface_vars)
 
     volume_fn = create_volume_fn(problem)
 
@@ -148,7 +158,32 @@ def create_objective_functions(
     if target_fraction:
         rho_init = InternalVars.create_node_var(problem, target_fraction)
 
-    return solve_forward, evaluate_volume, filter_fn, rho_init, mesh.points.shape[0]
+    return (
+        solve_forward,
+        evaluate_volume,
+        filter_fn,
+        rho_init,
+        mesh.points.shape[0],
+        problem,
+    )
+
+
+def create_surface_vars(
+    problem,
+    surface_var_fns: Sequence,
+):
+    return tuple(
+        (
+            (
+                InternalVars.create_spatially_varying_surface_var(
+                    problem,
+                    surface_var_fn,
+                    surface_index=0,
+                ),
+            ),
+        )
+        for surface_var_fn in surface_var_fns
+    )
 
 
 def adaptive_rectangle_mesh_new(

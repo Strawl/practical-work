@@ -8,9 +8,16 @@ import numpy as np
 from feax.mesh import rectangle_mesh
 
 import jax
-from topopt.bc import make_bc_preset
+from topopt.bc import (
+    make_dirichlet_boundary_conditions,
+    make_neumann_boundary_location,
+    make_neumann_surface_var_fn,
+)
 from topopt.evaluation import save_rho_png
-from topopt.fem_utils import create_objective_functions
+from topopt.fem_utils import (
+    create_surface_vars,
+    create_objective_functions,
+)
 from topopt.monitoring import MetricTracker, StepTimer
 
 
@@ -19,7 +26,8 @@ def run_feax_topopt_mma(
     Ly: int,
     save_dir: Path,
     scale: float = 1.0,
-    bc_preset_name: str = "cantilever_corner",
+    dirichlet_boundary_conditions: str = "cantilever_left_support",
+    neumann_boundary_conditions: str = "cantilever_corner",
     vol_frac: float = 0.5,
     ele_type: str = "QUAD4",
     E0: float = 70e3,
@@ -40,12 +48,30 @@ def run_feax_topopt_mma(
     Ny = int(Ly * scale)
     mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
 
-    fixed_location, load_location = make_bc_preset(bc_preset_name, Lx, Ly)
+    dirichlet_boundary_condition_specs = make_dirichlet_boundary_conditions(
+        dirichlet_boundary_conditions,
+        Lx,
+        Ly,
+    )
+    neumann_boundary_location = make_neumann_boundary_location(Lx, Ly)
+    surface_var_fn = make_neumann_surface_var_fn(
+        neumann_boundary_conditions,
+        Lx,
+        Ly,
+        traction_value=T,
+    )
 
-    solve_forward, evaluate_volume, filter_fn, rho_init, num_nodes = create_objective_functions(
+    (
+        solve_forward,
+        evaluate_volume,
+        filter_fn,
+        rho_init,
+        num_nodes,
+        problem,
+    ) = create_objective_functions(
         mesh=mesh,
-        fixed_location=fixed_location,
-        load_location=load_location,
+        dirichlet_boundary_conditions=dirichlet_boundary_condition_specs,
+        neumann_boundary_location=neumann_boundary_location,
         target_fraction=vol_frac,
         ele_type=ele_type,
         E0=E0,
@@ -61,6 +87,10 @@ def run_feax_topopt_mma(
         fwd_linear_solver="cudss",
         bwd_linear_solver="cudss",
     )
+    surface_vars = create_surface_vars(
+        problem,
+        (surface_var_fn,),
+    )[0]
     #forward_jit = solve_forward
     #volume_jit = evaluate_volume
     #grad_complience_jit = jax.grad(forward_jit)
@@ -80,8 +110,8 @@ def run_feax_topopt_mma(
         rho_unfiltered = jnp.asarray(x)
         rho = filter_fn(rho_unfiltered)
         step_timer.start()
-        f = float(forward_jit(rho))
-        grad[:] = jnp.array(grad_complience_jit(rho))
+        f = float(forward_jit(rho, surface_vars))
+        grad[:] = jnp.array(grad_complience_jit(rho, surface_vars))
         jax.block_until_ready(f)
         jax.block_until_ready(grad[:])
         step_time_s = step_timer.stop()
@@ -150,7 +180,8 @@ def run_feax_topopt_mma(
     print("Starting topology optimization with NLopt MMA...")
     print(f"Number of design variables: {num_nodes}")
     print(f"Target volume fraction: {vol_frac}")
-    print(f"Running with the boundary conditions: {bc_preset_name}")
+    print(f"Dirichlet boundary conditions: {dirichlet_boundary_conditions}")
+    print(f"Neumann boundary conditions: {neumann_boundary_conditions}")
     print(f"Shape: Nx={Nx}, Ny={Ny}")
     print("-" * 60)
     x0 = jnp.array(rho_init)
@@ -165,8 +196,8 @@ def run_feax_topopt_mma(
     x_opt_unfiltered = jnp.asarray(x_opt)
     x_opt_filtered = jnp.asarray(filter_fn(x_opt_unfiltered))
 
-    compliance_unfiltered = float(forward_jit(x_opt_unfiltered))
-    compliance_filtered = float(forward_jit(x_opt_filtered))
+    compliance_unfiltered = float(forward_jit(x_opt_unfiltered, surface_vars))
+    compliance_filtered = float(forward_jit(x_opt_filtered, surface_vars))
     volume_unfiltered = float(volume_jit(x_opt_unfiltered))
     volume_filtered = float(volume_jit(x_opt_filtered))
 

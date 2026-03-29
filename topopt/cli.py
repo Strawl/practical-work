@@ -141,7 +141,7 @@ def mma(
         Ly=ly,
         save_dir=save_dir,
         scale=scale,
-        bc_preset_name=bc_preset_name,
+        neumann_boundary_conditions=bc_preset_name,
         vol_frac=vol_frac,
         radius=radius,
         max_iter=max_iter,

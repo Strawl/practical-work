@@ -11,6 +11,10 @@ import yaml
 from jaxtyping import PyTree
 
 import jax
+from topopt.bc import (
+    canonicalize_dirichlet_boundary_conditions,
+    canonicalize_neumann_boundary_conditions,
+)
 from topopt.siren import SIREN
 
 
@@ -87,12 +91,23 @@ class ModelTrainingParams(ConfigSerializable):
 
     target_density: float
     penalty: float
+    neumann_boundary_conditions: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "target_density": self.target_density,
+            "penalty": self.penalty,
+            "neumann_boundary_conditions": self.neumann_boundary_conditions,
+        }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ModelTrainingParams":
         return cls(
-            target_density=float(data["target_density"]),
-            penalty=float(data["penalty"]),
+            target_density=float(_require(data, "target_density", cls.__name__)),
+            penalty=float(_require(data, "penalty", cls.__name__)),
+            neumann_boundary_conditions=canonicalize_neumann_boundary_conditions(
+                str(_require(data, "neumann_boundary_conditions", cls.__name__))
+            ),
         )
 
 
@@ -155,7 +170,7 @@ class TrainingHyperparams(ConfigSerializable):
     Lx: float
     Ly: float
     scale: int
-    problem_type: str
+    dirichlet_boundary_conditions: str
     helmholtz_radius: float
 
     grad_clip_norm: float
@@ -189,7 +204,9 @@ class TrainingHyperparams(ConfigSerializable):
             Lx=float(_require(d, "Lx", ctx)),
             Ly=float(_require(d, "Ly", ctx)),
             scale=int(_require(d, "scale", ctx)),
-            problem_type=str(_require(d, "problem_type", ctx)),
+            dirichlet_boundary_conditions=canonicalize_dirichlet_boundary_conditions(
+                str(_require(d, "dirichlet_boundary_conditions", ctx))
+            ),
             helmholtz_radius=float(_require(d, "helmholtz_radius", ctx)),
             grad_clip_norm=float(_require(d, "grad_clip_norm", ctx)),
             max_consecutive_errors=int(_require(d, "max_consecutive_errors", ctx)),

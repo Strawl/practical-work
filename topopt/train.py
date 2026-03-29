@@ -8,8 +8,16 @@ from feax.mesh import Mesh, rectangle_mesh
 from tqdm import tqdm
 
 import jax
-from topopt.bc import make_bc_preset
-from topopt.fem_utils import create_objective_functions, get_element_geometry
+from topopt.bc import (
+    make_dirichlet_boundary_conditions,
+    make_neumann_boundary_location,
+    make_neumann_surface_var_fns,
+)
+from topopt.fem_utils import (
+    create_surface_vars,
+    create_objective_functions,
+    get_element_geometry,
+)
 from topopt.monitoring import MetricTracker, StepTimer
 from topopt.serialization import (
     TrainingConfig,
@@ -27,6 +35,7 @@ def batched_loss_and_grad(
     lams,
     penalties,
     coords,
+    surface_vars,
     compliance_fn,
     volume_fraction_fn,
 ):
@@ -36,11 +45,12 @@ def batched_loss_and_grad(
         lams,
         penalties,
         coords,
+        surface_vars,
         compliance_fn,
         volume_fraction_fn,
     ):
         rhos = jax.vmap(lambda m: jax.nn.sigmoid(m(coords)))(models)
-        compliances = compliance_fn(rhos)
+        compliances = compliance_fn(rhos, surface_vars)
 
         vol_frac = volume_fraction_fn(rhos)
         vol_frac_error = vol_frac - target_densities
@@ -61,6 +71,7 @@ def batched_loss_and_grad(
         lams,
         penalties,
         coords,
+        surface_vars,
         compliance_fn,
         volume_fraction_fn,
     )
@@ -84,6 +95,7 @@ def optimisation_step(
     lams,
     penalties,
     coords,
+    surface_vars,
     compliance_fn,
     volume_fraction_fn,
 ):
@@ -93,6 +105,7 @@ def optimisation_step(
         lams,
         penalties,
         coords,
+        surface_vars,
         compliance_fn,
         volume_fraction_fn,
     )
@@ -110,7 +123,8 @@ def train_model_batch(
     mesh: Mesh,
     target_densities: jnp.ndarray,
     penalties: jnp.ndarray,
-    compliance_fn: Callable[[jnp.ndarray], float],
+    surface_vars,
+    compliance_fn: Callable[[jnp.ndarray, object], float],
     volume_fraction_fn: Callable[[jnp.ndarray], float],
     hyperparameters: TrainingHyperparams,
     tracker=MetricTracker,
@@ -128,7 +142,7 @@ def train_model_batch(
     dx = geom["dx_scaled"]
     dy = geom["dy_scaled"]
 
-    compliance_fn = jax.vmap(compliance_fn)
+    compliance_fn = jax.vmap(compliance_fn, in_axes=(0, 0))
     volume_fraction_fn = jax.vmap(volume_fraction_fn)
 
     optimizer = optax.chain(
@@ -173,6 +187,7 @@ def train_model_batch(
             lams,
             penalties,
             coords,
+            surface_vars,
             compliance_fn=compliance_fn,
             volume_fraction_fn=volume_fraction_fn,
         )
@@ -235,8 +250,11 @@ def train_model_batch(
 
     wal_time = wal_timer.stop()
 
-    opt_hist = tracker.stack("optimisation_step_wall_time_s")
-    hot_time = float(jnp.sum(opt_hist))
+    if tracker.steps("optimisation_step_wall_time_s") > 0:
+        opt_hist = tracker.stack("optimisation_step_wall_time_s")
+        hot_time = float(jnp.sum(opt_hist))
+    else:
+        hot_time = 0.0
 
     return models, opt_states, hot_time, wal_time, compile_time
 
@@ -252,6 +270,8 @@ def train_from_config(
     if bwd_linear_solver is None:
         bwd_linear_solver = fwd_linear_solver
 
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
     tracker = MetricTracker(save_dir=save_dir)
     ele_type = "QUAD4"
 
@@ -262,12 +282,29 @@ def train_from_config(
     Ny = int(Ly * scale)
     mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
 
-    fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
+    dirichlet_boundary_conditions = make_dirichlet_boundary_conditions(
+        train_config.training.dirichlet_boundary_conditions,
+        Lx,
+        Ly,
+    )
+    model_neumann_boundary_conditions = [
+        model.training.neumann_boundary_conditions for model in train_config.models
+    ]
+    unique_neumann_boundary_conditions = tuple(
+        dict.fromkeys(model_neumann_boundary_conditions)
+    )
+    neumann_boundary_location = make_neumann_boundary_location(Lx, Ly)
+    named_surface_var_fns = make_neumann_surface_var_fns(
+        unique_neumann_boundary_conditions,
+        Lx,
+        Ly,
+        traction_value=1e2,
+    )
 
-    solve_forward, evaluate_volume, filter_fn, _, _ = create_objective_functions(
+    solve_forward, evaluate_volume, filter_fn, _, _, problem = create_objective_functions(
         mesh,
-        fixed_location,
-        load_location,
+        dirichlet_boundary_conditions,
+        neumann_boundary_location,
         ele_type=ele_type,
         check_convergence=True,
         verbose=True,
@@ -281,12 +318,61 @@ def train_from_config(
         train_config,
         rng,
     )
+    surface_vars_by_neumann_boundary_conditions = dict(
+        zip(
+            unique_neumann_boundary_conditions,
+            create_surface_vars(
+                problem,
+                tuple(surface_var_fn for _, surface_var_fn in named_surface_var_fns),
+            ),
+        )
+    )
+    model_surface_vars = [
+        surface_vars_by_neumann_boundary_conditions[
+            model.training.neumann_boundary_conditions
+        ]
+        for model in train_config.models
+    ]
+    neumann_boundary_condition_counts = {
+        neumann_boundary_condition: model_neumann_boundary_conditions.count(
+            neumann_boundary_condition
+        )
+        for neumann_boundary_condition in unique_neumann_boundary_conditions
+    }
+    print(
+        "Using Neumann boundary conditions: "
+        + ", ".join(
+            f"{neumann_boundary_condition} "
+            f"({neumann_boundary_condition_counts[neumann_boundary_condition]} models)"
+            for neumann_boundary_condition in unique_neumann_boundary_conditions
+        )
+    )
+    surface_vars = jax.tree_util.tree_map(
+        lambda *xs: jnp.stack(xs, axis=0),
+        *model_surface_vars,
+    )
+
+    full_material_rho = jnp.ones(problem.num_cells)
+    no_material_rho = jnp.zeros(problem.num_cells)
+    print("Compliance bounds after solver warm-up")
+    for model_index, (neumann_boundary_condition, model_surface_var) in enumerate(
+        zip(model_neumann_boundary_conditions, model_surface_vars),
+        start=1,
+    ):
+        min_compliance = float(solve_forward(full_material_rho, model_surface_var))
+        max_compliance = float(solve_forward(no_material_rho, model_surface_var))
+        print(
+            f"  model {model_index:02d} [{neumann_boundary_condition}] "
+            f"min/full = {min_compliance:.6f} | "
+            f"max/void = {max_compliance:.6f}"
+        )
 
     trained_models, opt_states, hot_time, wal_time, compile_time = train_model_batch(
         models=model_batch,
         mesh=mesh,
         target_densities=target_densities,
         penalties=penalties,
+        surface_vars=surface_vars,
         compliance_fn=solve_forward,
         volume_fraction_fn=evaluate_volume,
         hyperparameters=train_config.training,

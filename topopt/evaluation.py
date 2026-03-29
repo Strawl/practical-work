@@ -10,8 +10,17 @@ from jax.nn import sigmoid
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 
-from topopt.bc import make_bc_preset
-from topopt.fem_utils import create_objective_functions, get_element_geometry
+from topopt.bc import (
+    canonicalize_neumann_boundary_conditions,
+    make_dirichlet_boundary_conditions,
+    make_neumann_boundary_location,
+    make_neumann_surface_var_fn,
+)
+from topopt.fem_utils import (
+    create_surface_vars,
+    create_objective_functions,
+    get_element_geometry,
+)
 from topopt.monitoring import StepTimer
 from topopt.serialization import (
     TrainingConfig,
@@ -201,19 +210,58 @@ def evaluate_models(
     geom = get_element_geometry(mesh)
     coords = geom["centroids_scaled"]
 
-    fixed_location, load_location = make_bc_preset("cantilever_corner", Lx, Ly)
+    dirichlet_boundary_conditions_name = train_config.training.dirichlet_boundary_conditions
+    neumann_boundary_location = make_neumann_boundary_location(Lx, Ly)
+    solver_bundle_by_neumann_boundary_conditions = {}
 
-    solve_forward, evaluate_volume, filter_fn, _, num_nodes = create_objective_functions(
-        mesh,
-        fixed_location,
-        load_location,
-        ele_type=ele_type,
-        check_convergence=True,
-        verbose=False,
-        radius=train_config.training.helmholtz_radius,
-        fwd_linear_solver="spsolve",
-        bwd_linear_solver="spsolve",
-    )
+    def get_solver_bundle(neumann_boundary_conditions_name: str):
+        canonical_name = canonicalize_neumann_boundary_conditions(
+            neumann_boundary_conditions_name
+        )
+        if canonical_name not in solver_bundle_by_neumann_boundary_conditions:
+            dirichlet_boundary_conditions = make_dirichlet_boundary_conditions(
+                dirichlet_boundary_conditions_name,
+                Lx,
+                Ly,
+            )
+            surface_var_fn = make_neumann_surface_var_fn(
+                canonical_name,
+                Lx,
+                Ly,
+                traction_value=1e2,
+            )
+            (
+                solve_forward,
+                evaluate_volume,
+                filter_fn,
+                _,
+                num_nodes,
+                problem,
+            ) = create_objective_functions(
+                mesh,
+                dirichlet_boundary_conditions,
+                neumann_boundary_location,
+                ele_type=ele_type,
+                check_convergence=True,
+                verbose=False,
+                radius=train_config.training.helmholtz_radius,
+                fwd_linear_solver="spsolve",
+                bwd_linear_solver="spsolve",
+            )
+            surface_vars = create_surface_vars(
+                problem,
+                (surface_var_fn,),
+            )[0]
+            solver_bundle_by_neumann_boundary_conditions[canonical_name] = (
+                solve_forward,
+                evaluate_volume,
+                filter_fn,
+                num_nodes,
+                surface_vars,
+            )
+        return solver_bundle_by_neumann_boundary_conditions[canonical_name]
+
+    _, _, filter_fn, num_nodes, _ = get_solver_bundle("cantilever_corner")
     if train_config.training.helmholtz_radius:
         Ny += 1
         Nx += 1
@@ -247,21 +295,27 @@ def evaluate_models(
     for cfg_path in config_files:
         model, _, _, cfg = load_model_from_config(cfg_path, save_dir)
 
+        training = cfg.get("training", {})
+        rho_target = training.get("target_density")
+        penalty = training.get("penalty")
+        neumann_boundary_conditions = canonicalize_neumann_boundary_conditions(
+            training["neumann_boundary_conditions"]
+        )
+        solve_forward, evaluate_volume, filter_fn, _, surface_vars = get_solver_bundle(
+            neumann_boundary_conditions
+        )
+
         rho_raw = sigmoid(model(coords))
         rho_filtered = filter_fn(rho_raw)
         rho_pred = jnp.reshape(rho_filtered, (Ny, Nx), order="F")
         
 
         complience_timer.start()
-        compliance = float(solve_forward(rho_filtered))
+        compliance = float(solve_forward(rho_filtered, surface_vars))
         solve_time = complience_timer.stop()
         print(f"Solve took {solve_time:3f}s")
 
         rho_actual = float(evaluate_volume(rho_filtered))
-
-        training = cfg.get("training", {})
-        rho_target = training.get("target_density")
-        penalty = training.get("penalty")
 
         model_kwargs = cfg.get("model_kwargs", {}) if isinstance(cfg, dict) else {}
         omega = model_kwargs.get("omega")
@@ -278,6 +332,7 @@ def evaluate_models(
                 abs(rho_actual - rho_target) if rho_target is not None else None
             ),
             penalty=penalty,
+            neumann_boundary_conditions=neumann_boundary_conditions,
             omega=omega,
             scale=scale_original,
         )
