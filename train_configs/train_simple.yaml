@@ -1,10 +1,10 @@
 training:
   Lx: 60.0
   Ly: 30.0
-  scale: 1
+  scale: 3
   dirichlet_boundary_conditions: "cantilever_left_support"
 
-  num_iterations: 50
+  num_iterations: 100
   lr: 0.001
   jitted_coords: false
   grad_clip_norm: 1.0
@@ -13,45 +13,57 @@ training:
   model_rng_seed: 324
   helmholtz_radius: 0.0
   plateau:
-    patience: 20
+    patience: 2
     cooldown: 0
-    factor: 0.5
-    rtol: 0.05
-    accumulation_size: 1
+    factor: 0.75
+    rtol: 0.025
+    accumulation_size: 8
 
 models:
   - model_type: SIREN
     model_kwargs:
       num_channels_in: 2
       num_channels_out: 1
-      num_layers: 4
-      num_latent_channels: 128
+      num_layers: 3
+      num_latent_channels: 512
       omega: 23.0
     training:
       target_density: 0.5
-      penalty: 10
+      penalty: 0.1
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
     model_kwargs:
       num_channels_in: 2
       num_channels_out: 1
-      num_layers: 4
-      num_latent_channels: 128
+      num_layers: 3
+      num_latent_channels: 512
       omega: 23.0
     training:
       target_density: 0.5
-      penalty: 10
+      penalty: 0.1
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
     model_kwargs:
       num_channels_in: 2
       num_channels_out: 1
-      num_layers: 4
-      num_latent_channels: 128
+      num_layers: 3
+      num_latent_channels: 512
       omega: 23.0
     training:
       target_density: 0.5
-      penalty: 10
-      neumann_boundary_conditions: "cantilever_corner"
+      penalty: 0.1
+      neumann_boundary_conditions: "cantilever_mid"
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 3
+      num_latent_channels: 512
+      omega: 23.0
+    training:
+      target_density: 0.5
+      penalty: 0.1
+      neumann_boundary_conditions: "cantilever_mid"

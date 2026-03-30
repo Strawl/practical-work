@@ -1,24 +1,38 @@
-# baseline.py
-import os
+from __future__ import annotations
+
 from pathlib import Path
 
+import feax.gene as gene
 import jax.numpy as jnp
-import nlopt
 import numpy as np
+from feax.gene.optimizer import Pipeline, constraint
 from feax.mesh import rectangle_mesh
 
-import jax
 from topopt.bc import (
     make_dirichlet_boundary_conditions,
     make_neumann_boundary_location,
     make_neumann_surface_var_fn,
 )
 from topopt.evaluation import save_rho_png
-from topopt.fem_utils import (
-    create_surface_vars,
-    create_objective_functions,
-)
-from topopt.monitoring import MetricTracker, StepTimer
+from topopt.fem_utils import create_objective_functions, create_surface_vars
+from topopt.monitoring import MetricTracker
+
+
+def _save_history_metrics(save_dir: Path, history: dict[str, list[float]]) -> None:
+    tracker = MetricTracker(save_dir=save_dir, fill_invalid=True)
+
+    for value in history.get("objective", ()):
+        tracker.log("compliance", value)
+    for value in history.get("volume", ()):
+        tracker.log("volume", value)
+
+    if tracker.data:
+        tracker.save()
+        tracker.plot_all_metrics_across_models(
+            model_names=["Baseline"],
+            save=True,
+            show=False,
+        )
 
 
 def run_feax_topopt_mma(
@@ -38,15 +52,22 @@ def run_feax_topopt_mma(
     gauss_order: int = 2,
     iter_num: int = 1,
     max_iter: int = 100,
-    radius: float = 0.1,
-    print_every: int = 5,
+    radius: float = 0.3,
+    heaviside_beta: float = 10.0,
+    heaviside_threshold: float = 0.5,
+    solver: str = "cholmod",
     save_every: int = 5,
 ):
-    step_timer = StepTimer()
-    wal_timer = StepTimer()
+    if not (0.0 < vol_frac <= 1.0):
+        raise ValueError(f"vol_frac must be in (0, 1], got {vol_frac}")
+
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
     Nx = int(Lx * scale)
     Ny = int(Ly * scale)
     mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
+    rho_init = np.full(mesh.points.shape[0], vol_frac, dtype=float)
 
     dirichlet_boundary_condition_specs = make_dirichlet_boundary_conditions(
         dirichlet_boundary_conditions,
@@ -61,174 +82,128 @@ def run_feax_topopt_mma(
         traction_value=T,
     )
 
-    (
-        solve_forward,
-        evaluate_volume,
-        filter_fn,
-        rho_init,
-        num_nodes,
-        problem,
-    ) = create_objective_functions(
+    class TopOpt2DPipeline(Pipeline):
+        def _apply_filter_only(self, rho):
+            return self._filter_fn(rho)
+
+        def _apply_density_pipeline(self, rho):
+            rho_filtered = self._apply_filter_only(rho)
+            if heaviside_beta > 0.0:
+                return gene.heaviside_projection(
+                    rho_filtered,
+                    beta=heaviside_beta,
+                    threshold=heaviside_threshold,
+                )
+            return rho_filtered
+
+        def build(self, mesh):
+            (
+                self._solve_forward,
+                self._evaluate_volume,
+                self._filter_fn,
+                _,
+                _,
+                self._problem,
+            ) = create_objective_functions(
+                mesh=mesh,
+                dirichlet_boundary_conditions=dirichlet_boundary_condition_specs,
+                neumann_boundary_location=neumann_boundary_location,
+                target_fraction=vol_frac,
+                ele_type=ele_type,
+                E0=E0,
+                E_eps=E_eps,
+                nu=nu,
+                p=p,
+                T=T,
+                gauss_order=gauss_order,
+                iter_num=iter_num,
+                check_convergence=True,
+                verbose=False,
+                radius=radius,
+                fwd_linear_solver=solver,
+                bwd_linear_solver=solver,
+            )
+            self._surface_vars = create_surface_vars(
+                self._problem,
+                (surface_var_fn,),
+            )[0]
+
+        def objective(self, rho, **_params):
+            rho_projected = self._apply_density_pipeline(rho)
+            return self._solve_forward(rho_projected, self._surface_vars)
+
+        @constraint(target=vol_frac)
+        def volume(self, rho, **_params):
+            rho_projected = self._apply_density_pipeline(rho)
+            return self._evaluate_volume(rho_projected)
+
+        def filter(self, rho):
+            return self._apply_density_pipeline(rho)
+
+        def filtered_density(self, rho):
+            return self._apply_filter_only(rho)
+
+        def projected_density(self, rho):
+            return self._apply_density_pipeline(rho)
+
+        def compliance_for_density(self, rho):
+            return self._solve_forward(rho, self._surface_vars)
+
+        def volume_fraction_for_density(self, rho):
+            return self._evaluate_volume(rho)
+
+    pipeline = TopOpt2DPipeline()
+
+    result = gene.optimizer.run(
+        pipeline=pipeline,
         mesh=mesh,
-        dirichlet_boundary_conditions=dirichlet_boundary_condition_specs,
-        neumann_boundary_location=neumann_boundary_location,
-        target_fraction=vol_frac,
-        ele_type=ele_type,
-        E0=E0,
-        E_eps=E_eps,
-        nu=nu,
-        p=p,
-        T=T,
-        gauss_order=gauss_order,
-        iter_num=iter_num,
-        check_convergence=True,
-        verbose=False,
-        radius=radius,
-        fwd_linear_solver="cudss",
-        bwd_linear_solver="cudss",
+        max_iter=max_iter,
+        output_dir=str(save_dir),
+        save_every=save_every,
+        rho_init=rho_init,
+        rho_bounds=(0.001, 1.0),
+        jit=True,
     )
-    surface_vars = create_surface_vars(
-        problem,
-        (surface_var_fn,),
-    )[0]
-    #forward_jit = solve_forward
-    #volume_jit = evaluate_volume
-    #grad_complience_jit = jax.grad(forward_jit)
-    #grad_volume_jit = jax.grad(volume_jit)
 
-    forward_jit = jax.jit(solve_forward)
-    volume_jit = jax.jit(evaluate_volume)
-    grad_complience_jit = jax.jit(jax.grad(forward_jit))
-    grad_volume_jit = jax.jit(jax.grad(volume_jit))
+    x_opt_unfiltered = jnp.asarray(result.rho)
+    x_opt_filtered = jnp.asarray(pipeline.filtered_density(x_opt_unfiltered))
+    x_opt_projected = jnp.asarray(pipeline.projected_density(x_opt_unfiltered))
 
-    tracker = MetricTracker(save_dir=save_dir, fill_invalid=True)
-    o_iter_count = [0]
-    v_iter_count = [0]
-    compile_time = [0]
+    compliance_unfiltered = float(pipeline.compliance_for_density(x_opt_unfiltered))
+    compliance_filtered = float(pipeline.compliance_for_density(x_opt_filtered))
+    compliance_projected = float(pipeline.compliance_for_density(x_opt_projected))
+    volume_unfiltered = float(pipeline.volume_fraction_for_density(x_opt_unfiltered))
+    volume_filtered = float(pipeline.volume_fraction_for_density(x_opt_filtered))
+    volume_projected = float(pipeline.volume_fraction_for_density(x_opt_projected))
 
-    def objective(x, grad):
-        rho_unfiltered = jnp.asarray(x)
-        rho = filter_fn(rho_unfiltered)
-        step_timer.start()
-        f = float(forward_jit(rho, surface_vars))
-        grad[:] = jnp.array(grad_complience_jit(rho, surface_vars))
-        jax.block_until_ready(f)
-        jax.block_until_ready(grad[:])
-        step_time_s = step_timer.stop()
-
-        tracker.log("compliance", f)
-
-        if o_iter_count[0] > 1:
-            tracker.log("objective_wall_time_s", step_time_s)
-        else:
-            compile_time[0] += step_time_s
-
-        if o_iter_count[0] % print_every == 0:
-            print(f"Iter {o_iter_count[0]:4d}: Complience={f:.6f}")
-
-        if o_iter_count[0] % save_every == 0:
-            save_rho_png(
-                jnp.array(rho_unfiltered),
-                f"{o_iter_count[0]} (unfiltered)",
-                Nx=Nx + 1,
-                Ny=Ny + 1,
-                path=os.path.join(save_dir, f"rho_unfiltered_{o_iter_count[0]}.png"),
-            )
-            save_rho_png(
-                jnp.array(rho),
-                f"{o_iter_count[0]} (filtered)",
-                Nx=Nx + 1,
-                Ny=Ny + 1,
-                path=os.path.join(save_dir, f"rho_filtered_{o_iter_count[0]}.png"),
-            )
-            tracker.save()
-
-        o_iter_count[0] += 1
-        return f
-
-    def volume_constraint(x, grad):
-        rho = filter_fn(x)
-
-        step_timer.start()
-        v = float(volume_jit(rho))
-        grad[:] = jnp.array(grad_volume_jit(rho))
-        jax.block_until_ready(v)
-        jax.block_until_ready(grad[:])
-        step_time_s = step_timer.stop()
-
-        tracker.log("volume", v)
-
-        if v_iter_count[0] > 1:
-            tracker.log("volume_constraint_wall_time_s", step_time_s)
-        else:
-            compile_time[0] += step_time_s
-
-        if v_iter_count[0] % print_every == 0:
-            print(f"Volume={v:.4f}")
-
-        v_iter_count[0] += 1
-        return v - vol_frac
-
-    opt = nlopt.opt(nlopt.LD_MMA, num_nodes)
-    opt.set_lower_bounds(0.001)
-    opt.set_upper_bounds(1.0)
-    opt.set_min_objective(objective)
-    opt.add_inequality_constraint(volume_constraint, 1e-4)
-    opt.set_maxeval(max_iter)
-    opt.set_maxtime(3600)
-
-    print("Starting topology optimization with NLopt MMA...")
-    print(f"Number of design variables: {num_nodes}")
-    print(f"Target volume fraction: {vol_frac}")
-    print(f"Dirichlet boundary conditions: {dirichlet_boundary_conditions}")
-    print(f"Neumann boundary conditions: {neumann_boundary_conditions}")
-    print(f"Shape: Nx={Nx}, Ny={Ny}")
     print("-" * 60)
-    x0 = jnp.array(rho_init)
-    try:
-        wal_timer.start()
-        x_opt = opt.optimize(x0)
-    except nlopt.RoundoffLimited:
-        print("Optimization stopped due to roundoff errors (converged)")
-        x_opt = x0
-
-    wal_time = wal_timer.stop()
-    x_opt_unfiltered = jnp.asarray(x_opt)
-    x_opt_filtered = jnp.asarray(filter_fn(x_opt_unfiltered))
-
-    compliance_unfiltered = float(forward_jit(x_opt_unfiltered, surface_vars))
-    compliance_filtered = float(forward_jit(x_opt_filtered, surface_vars))
-    volume_unfiltered = float(volume_jit(x_opt_unfiltered))
-    volume_filtered = float(volume_jit(x_opt_filtered))
-
-    # Objective + volume wall times (steady-state only)
-    obj_hist = tracker.stack("objective_wall_time_s")
-    vol_hist = tracker.stack("volume_constraint_wall_time_s")
-    hot_time = float(jnp.sum(obj_hist) + jnp.sum(vol_hist))
-    other_time = wal_time - hot_time - compile_time[0]
-    share_hot = hot_time / wal_time
-    share_compile = compile_time[0] / wal_time
-    share_other = other_time / wal_time
-    print("-" * 60)
-    print("Optimization finished!")
-    print(
-        "Final compliance\n"
-        f"  unfiltered: {compliance_unfiltered:.6f}\n"
-        f"  filtered  : {compliance_filtered:.6f}"
-    )
-    print(
-        "Final volume fraction\n"
-        f"  unfiltered: {volume_unfiltered:.6f}\n"
-        f"  filtered  : {volume_filtered:.6f}\n"
-        f"  target    : {vol_frac:.6f}"
-    )
-    print(
-        "Timing summary\n"
-        f"  wall total    : {wal_time:8.3f}s (100.00%)\n"
-        f"  hot optimise  : {hot_time:8.3f}s ({100.0 * share_hot:6.2f}%)\n"
-        f"  compile/first : {compile_time[0]:8.3f}s ({100.0 * share_compile:6.2f}%)\n"
-        f"  other         : {other_time:8.3f}s ({100.0 * share_other:6.2f}%)"
-    )
+    print("2D topology optimization finished with feax.gene pipeline")
+    if heaviside_beta > 0.0:
+        print(
+            "Final compliance\n"
+            f"  unfiltered: {compliance_unfiltered:.6f}\n"
+            f"  filtered  : {compliance_filtered:.6f}\n"
+            f"  projected : {compliance_projected:.6f}"
+        )
+        print(
+            "Final volume fraction\n"
+            f"  unfiltered: {volume_unfiltered:.6f}\n"
+            f"  filtered  : {volume_filtered:.6f}\n"
+            f"  projected : {volume_projected:.6f}\n"
+            f"  target    : {vol_frac:.6f}"
+        )
+    else:
+        print(
+            "Final compliance\n"
+            f"  unfiltered: {compliance_unfiltered:.6f}\n"
+            f"  filtered  : {compliance_filtered:.6f}"
+        )
+        print(
+            "Final volume fraction\n"
+            f"  unfiltered: {volume_unfiltered:.6f}\n"
+            f"  filtered  : {volume_filtered:.6f}\n"
+            f"  target    : {vol_frac:.6f}"
+        )
 
     save_rho_png(
         x_opt_unfiltered,
@@ -244,7 +219,13 @@ def run_feax_topopt_mma(
         Ny=Ny + 1,
         path=save_dir / "rho_final_filtered.png",
     )
-    # Backwards-compatible alias (previously saved the unfiltered rho as rho_final.png).
+    save_rho_png(
+        x_opt_projected,
+        "Final (projected)",
+        Nx=Nx + 1,
+        Ny=Ny + 1,
+        path=save_dir / "rho_final_projected.png",
+    )
     save_rho_png(
         x_opt_unfiltered,
         "Final",
@@ -253,18 +234,25 @@ def run_feax_topopt_mma(
         path=save_dir / "rho_final.png",
     )
 
-    save_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         save_dir / "baseline_final_with_without_filter.npz",
         rho_unfiltered=np.asarray(x_opt_unfiltered),
         rho_filtered=np.asarray(x_opt_filtered),
+        rho_projected=np.asarray(x_opt_projected),
         compliance_unfiltered=compliance_unfiltered,
         compliance_filtered=compliance_filtered,
+        compliance_projected=compliance_projected,
         volume_fraction_unfiltered=volume_unfiltered,
         volume_fraction_filtered=volume_filtered,
+        volume_fraction_projected=volume_projected,
         target_volume_fraction=float(vol_frac),
+        heaviside_beta=float(heaviside_beta),
+        heaviside_threshold=float(heaviside_threshold),
+        **{
+            f"history_{name}": np.asarray(values)
+            for name, values in sorted(result.history.items())
+        },
     )
-    tracker.save()
-    tracker.plot_all_metrics_across_models(
-        model_names=["Baseline"], save=True, show=False
-    )
+
+    _save_history_metrics(save_dir, result.history)
+    return result

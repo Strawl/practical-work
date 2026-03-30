@@ -29,9 +29,11 @@ from topopt.serialization import (
 
 
 
+
 def batched_loss_and_grad(
     models,
     target_densities,
+    compliance_normalizers,
     lams,
     penalties,
     coords,
@@ -42,6 +44,7 @@ def batched_loss_and_grad(
     def batched_loss(
         models,
         target_densities,
+        compliance_normalizers,
         lams,
         penalties,
         coords,
@@ -50,24 +53,41 @@ def batched_loss_and_grad(
         volume_fraction_fn,
     ):
         rhos = jax.vmap(lambda m: jax.nn.sigmoid(m(coords)))(models)
-        compliances = compliance_fn(rhos, surface_vars)
+        true_compliances = compliance_fn(rhos, surface_vars)
+        normalized_compliances = (
+            true_compliances / compliance_normalizers
+        )
 
         vol_frac = volume_fraction_fn(rhos)
         vol_frac_error = vol_frac - target_densities
-        violation = jnp.maximum(vol_frac_error, 0.0)
+        normalized_constraint = (
+            vol_frac_error / target_densities
+        )
+        normalized_violation = jnp.maximum(normalized_constraint, 0.0)
 
-        al_linear = lams * violation
-        al_quadratic = 0.5 * penalties * violation**2
+        al_linear = lams * normalized_violation
+        al_quadratic = 0.5 * penalties * normalized_violation**2
         al_term = al_linear + al_quadratic
 
-        losses = compliances + al_term
-        aux = (violation, compliances, vol_frac_error, al_linear, al_quadratic, al_term)
+        losses = normalized_compliances + al_term
+        aux = (
+            normalized_constraint,
+            normalized_violation,
+            true_compliances,
+            normalized_compliances,
+            vol_frac,
+            vol_frac_error,
+            al_linear,
+            al_quadratic,
+            al_term,
+        )
         return jnp.sum(losses), (losses, aux)
 
     batched_loss_and_grad_fn = eqx.filter_value_and_grad(batched_loss, has_aux=True)
     (total_loss, (losses, aux)), grads = batched_loss_and_grad_fn(
         models,
         target_densities,
+        compliance_normalizers,
         lams,
         penalties,
         coords,
@@ -92,6 +112,7 @@ def optimisation_step(
     opt_states,
     optimizer,
     target_densities,
+    compliance_normalizers,
     lams,
     penalties,
     coords,
@@ -102,6 +123,7 @@ def optimisation_step(
     losses, aux, grads = batched_loss_and_grad(
         models,
         target_densities,
+        compliance_normalizers,
         lams,
         penalties,
         coords,
@@ -123,6 +145,7 @@ def train_model_batch(
     mesh: Mesh,
     target_densities: jnp.ndarray,
     penalties: jnp.ndarray,
+    compliance_normalizers: jnp.ndarray,
     surface_vars,
     compliance_fn: Callable[[jnp.ndarray, object], float],
     volume_fraction_fn: Callable[[jnp.ndarray], float],
@@ -184,6 +207,7 @@ def train_model_batch(
             opt_states,
             optimizer,
             target_densities,
+            compliance_normalizers,
             lams,
             penalties,
             coords,
@@ -198,24 +222,33 @@ def train_model_batch(
             compile_time += step_time_s
 
         (
-            violations,
-            compliances,
+            normalized_constraints,
+            normalized_violations,
+            true_compliances,
+            normalized_compliances,
+            volume_fractions,
             vol_frac_errors,
             al_linears,
             al_quadratics,
             al_terms,
         ) = aux
 
-        good = jnp.isfinite(violations)
-        lams = jnp.where(good, lams + penalties * violations, lams)
+        projected_lams = jnp.maximum(
+            0.0, lams + penalties * normalized_constraints
+        )
+        good = jnp.isfinite(normalized_constraints)
+        lams = jnp.where(good, projected_lams, lams)
         lam_updates = lams - old_lams
 
         # Monitoring
         lr_scales = jax.vmap(lambda s: optax.tree.get(s, "scale"))(opt_states)
         effective_lrs = lr * lr_scales
         tracker.log("loss", losses)
-        tracker.log("compliance", compliances)
-        tracker.log("constraint_violation", violations)
+        tracker.log("true_compliance", true_compliances)
+        tracker.log("normalized_compliance", normalized_compliances)
+        tracker.log("volume_fraction", volume_fractions)
+        tracker.log("constraint_value", normalized_constraints)
+        tracker.log("constraint_violation", normalized_violations)
         tracker.log("volume_fraction_error", vol_frac_errors)
         tracker.log("al_linear", al_linears)
         tracker.log("al_quadratic", al_quadratics)
@@ -234,8 +267,11 @@ def train_model_batch(
             f"Iteration {iteration:03d} | mean loss = {mean_loss:.6f} | individual = [{loss_str}]"
         )
         aux_items = (
-            ("violation", violations),
-            ("compliance", compliances),
+            ("normalized_constraint", normalized_constraints),
+            ("normalized_violation", normalized_violations),
+            ("true_compliance", true_compliances),
+            ("normalized_compliance", normalized_compliances),
+            ("volume_fraction", volume_fractions),
             ("volume_fraction_error", vol_frac_errors),
             ("al_linear", al_linears),
             ("al_quadratic", al_quadratics),
@@ -354,24 +390,30 @@ def train_from_config(
 
     full_material_rho = jnp.ones(problem.num_cells)
     no_material_rho = jnp.zeros(problem.num_cells)
+    full_material_compliances = []
     print("Compliance bounds after solver warm-up")
     for model_index, (neumann_boundary_condition, model_surface_var) in enumerate(
         zip(model_neumann_boundary_conditions, model_surface_vars),
         start=1,
     ):
-        min_compliance = float(solve_forward(full_material_rho, model_surface_var))
-        max_compliance = float(solve_forward(no_material_rho, model_surface_var))
+        full_material_compliance = float(
+            solve_forward(full_material_rho, model_surface_var)
+        )
+        void_compliance = float(solve_forward(no_material_rho, model_surface_var))
+        full_material_compliances.append(full_material_compliance)
         print(
             f"  model {model_index:02d} [{neumann_boundary_condition}] "
-            f"min/full = {min_compliance:.6f} | "
-            f"max/void = {max_compliance:.6f}"
+            f"full = {full_material_compliance:.6f} | "
+            f"void = {void_compliance:.6f}"
         )
+    compliance_normalizers = jnp.asarray(full_material_compliances, dtype=float)
 
     trained_models, opt_states, hot_time, wal_time, compile_time = train_model_batch(
         models=model_batch,
         mesh=mesh,
         target_densities=target_densities,
         penalties=penalties,
+        compliance_normalizers=compliance_normalizers,
         surface_vars=surface_vars,
         compliance_fn=solve_forward,
         volume_fraction_fn=evaluate_volume,

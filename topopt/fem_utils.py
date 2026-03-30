@@ -1,9 +1,12 @@
 import math
 from typing import Sequence, Tuple
 
-import feax.flat as flat
 import jax.numpy as jnp
-from feax.gene import create_dynamic_compliance_fn, create_volume_fn
+from feax.gene import (
+    create_dynamic_compliance_fn,
+    create_helmholtz_filter,
+    create_volume_fn,
+)
 
 from feax import (
     DirichletBCConfig,
@@ -135,7 +138,7 @@ def create_objective_functions(
         def filter_fn(rho):
             return rho
     else:
-        filter_fn = flat.filters.create_helmholtz_filter(mesh, radius)
+        filter_fn = create_helmholtz_filter(mesh, radius)
 
     def solve_forward(rho, surface_vars=None):
         """Compute compliance for given node-based density field and surface vars."""

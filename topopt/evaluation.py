@@ -3,6 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+import equinox as eqx
+import feax.gene as gene
+import jax
 import jax.numpy as jnp
 import pandas as pd
 from feax.mesh import Mesh, rectangle_mesh
@@ -26,6 +29,11 @@ from topopt.serialization import (
     TrainingConfig,
     load_model_from_config,
 )
+
+
+def count_model_parameters(model) -> int:
+    array_leaves = jax.tree_util.tree_leaves(eqx.filter(model, eqx.is_array))
+    return int(sum(leaf.size for leaf in array_leaves))
 
 
 def plot_mesh(mesh: Mesh, linewidth: float = 0.5):
@@ -173,6 +181,8 @@ def evaluate_models(
     save_dir: Path,
     scale: Optional[int] = None,
     visualize: bool = False,
+    heaviside_beta: float = 10.0,
+    heaviside_threshold: float = 0.5,
 ) -> pd.DataFrame:
     """
     Evaluate and optionally visualize models saved by serialize_ensemble.
@@ -181,6 +191,8 @@ def evaluate_models(
         save_dir: directory with saved models
         scale: optional override for resolution scaling factor
         visualize: whether to show rho pages (default: False)
+        heaviside_beta: sharpness for Heaviside projection; set to 0 to disable
+        heaviside_threshold: transition threshold for Heaviside projection
 
     Returns:
         Pandas DataFrame with per-model metrics
@@ -267,6 +279,11 @@ def evaluate_models(
         Nx += 1
 
     print(f"Evaluating with {num_nodes} design variables")
+    if heaviside_beta > 0.0:
+        print(
+            "Applying Heaviside projection during evaluation "
+            f"(beta={heaviside_beta}, threshold={heaviside_threshold})"
+        )
     complience_timer = StepTimer()
 
     images, titles = [], []
@@ -294,10 +311,12 @@ def evaluate_models(
 
     for cfg_path in config_files:
         model, _, _, cfg = load_model_from_config(cfg_path, save_dir)
+        parameter_count = count_model_parameters(model)
 
         training = cfg.get("training", {})
         rho_target = training.get("target_density")
         penalty = training.get("penalty")
+        model_type = cfg.get("model_type")
         neumann_boundary_conditions = canonicalize_neumann_boundary_conditions(
             training["neumann_boundary_conditions"]
         )
@@ -307,21 +326,31 @@ def evaluate_models(
 
         rho_raw = sigmoid(model(coords))
         rho_filtered = filter_fn(rho_raw)
-        rho_pred = jnp.reshape(rho_filtered, (Ny, Nx), order="F")
+        if heaviside_beta > 0.0:
+            rho_eval = gene.heaviside_projection(
+                rho_filtered,
+                beta=heaviside_beta,
+                threshold=heaviside_threshold,
+            )
+        else:
+            rho_eval = rho_filtered
+        rho_pred = jnp.reshape(rho_eval, (Ny, Nx), order="F")
         
 
         complience_timer.start()
-        compliance = float(solve_forward(rho_filtered, surface_vars))
+        compliance = float(solve_forward(rho_eval, surface_vars))
         solve_time = complience_timer.stop()
         print(f"Solve took {solve_time:3f}s")
 
-        rho_actual = float(evaluate_volume(rho_filtered))
+        rho_actual = float(evaluate_volume(rho_eval))
 
         model_kwargs = cfg.get("model_kwargs", {}) if isinstance(cfg, dict) else {}
         omega = model_kwargs.get("omega")
 
         weights_file = cfg.get("weights_file")
         name = Path(weights_file).stem if weights_file else cfg_path.stem
+        if model_type == "SIREN":
+            print(f"{name}: SIREN parameter count = {parameter_count}")
 
         record = dict(
             model=name,
@@ -335,6 +364,8 @@ def evaluate_models(
             neumann_boundary_conditions=neumann_boundary_conditions,
             omega=omega,
             scale=scale_original,
+            heaviside_beta=heaviside_beta,
+            heaviside_threshold=heaviside_threshold,
         )
         records.append(record)
 

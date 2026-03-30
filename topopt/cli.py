@@ -72,6 +72,13 @@ def train(train_config_path: Path, save_dir: Optional[Path], solver: str) -> Non
 @click.option(
     "--save-dir", type=click.Path(file_okay=False, path_type=Path), default=None
 )
+@click.option("--heaviside-beta", type=float, default=10.0, show_default=True)
+@click.option(
+    "--heaviside-threshold",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
 @click.option(
     "--visualize/--no-visualize",
     default=False,
@@ -80,6 +87,8 @@ def train(train_config_path: Path, save_dir: Optional[Path], solver: str) -> Non
 def evaluate(
     scale: Optional[int],
     save_dir: Optional[Path],
+    heaviside_beta: float,
+    heaviside_threshold: float,
     visualize: bool,
 ) -> None:
     """
@@ -94,6 +103,8 @@ def evaluate(
         save_dir=base_dir,
         scale=scale,
         visualize=visualize,
+        heaviside_beta=heaviside_beta,
+        heaviside_threshold=heaviside_threshold,
     )
 
     click.echo(f"\nEvaluated {len(df)} models.")
@@ -114,10 +125,26 @@ def evaluate(
     show_default=True,
 )
 @click.option("--vol-frac", type=float, default=0.5, show_default=True)
-@click.option("--radius", type=float, default=1.0, show_default=True)
+@click.option("--radius", type=float, default=0.5, show_default=True)
+@click.option("--heaviside-beta", type=float, default=10.0, show_default=True)
+@click.option(
+    "--heaviside-threshold",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--solver",
+    type=click.Choice(
+        list(AVAILABLE_SOLVERS),
+        case_sensitive=False,
+    ),
+    default="cholmod",
+    show_default=True,
+    help="Solver preset used for both forward and adjoint solves.",
+)
 @click.option("--max-iter", type=int, default=200, show_default=True)
 @click.option("--save-every", type=int, default=10, show_default=True)
-@click.option("--print-every", type=int, default=10, show_default=True)
 def mma(
     lx: float,
     ly: float,
@@ -126,9 +153,11 @@ def mma(
     bc_preset_name: str,
     vol_frac: float,
     radius: float,
+    heaviside_beta: float,
+    heaviside_threshold: float,
+    solver: str,
     max_iter: int,
     save_every: int,
-    print_every: int,
 ) -> None:
     save_dir = (save_dir or _fresh_train_dir(suffix="baseline")).expanduser().resolve()
     save_dir.mkdir(parents=True, exist_ok=True)
@@ -144,7 +173,9 @@ def mma(
         neumann_boundary_conditions=bc_preset_name,
         vol_frac=vol_frac,
         radius=radius,
+        heaviside_beta=heaviside_beta,
+        heaviside_threshold=heaviside_threshold,
+        solver=solver,
         max_iter=max_iter,
         save_every=save_every,
-        print_every=print_every,
     )

@@ -154,20 +154,82 @@ class MetricTracker:
         hist_np = np.asarray(hist)
         x = np.arange(T)
 
-        if M == 1:
-            fig, ax = plt.subplots(figsize=(7.5, 4.2))
-            ax.plot(x, hist_np[:, 0])
+        def draw_lines(ax):
+            if M == 1:
+                ax.plot(x, hist_np[:, 0])
+            else:
+                for m in range(M):
+                    ax.plot(x, hist_np[:, m], label=model_names[m])
+
             ax.set_title(name)
             ax.set_xlabel("step")
             ax.set_ylabel(name)
+
+            if M > 1 and M <= 15:
+                ax.legend(fontsize=8)
+
+        def save_figure(fig, file_stem: str) -> Path:
+            self.save_dir.mkdir(parents=True, exist_ok=True)
+            p = self.save_dir / f"{file_stem}.png"
+            fig.savefig(p, dpi=150, bbox_inches="tight")
+            return p
+
+        def save_loss_zoomed_log_plot(out_paths: List[Path]) -> None:
+            if name != "loss" or T < 20:
+                return
+            if not (np.all(np.isfinite(hist_np)) and np.all(hist_np > 0)):
+                return
+
+            # Skip the steep warm-up so the later-stage fit is legible.
+            trim = max(5, T // 10)
+            if T - trim < 5:
+                return
+
+            x_tail = x[trim:]
+            hist_tail = hist_np[trim:]
+            fig_tail, ax_tail = plt.subplots(figsize=(7.5, 4.2))
+            if M == 1:
+                ax_tail.plot(x_tail, hist_tail[:, 0])
+            else:
+                for m in range(M):
+                    ax_tail.plot(x_tail, hist_tail[:, m], label=model_names[m])
+                if M <= 15:
+                    ax_tail.legend(fontsize=8)
+
+            ax_tail.set_yscale("log")
+            ax_tail.set_title(f"{name} (log scale, after step {trim})")
+            ax_tail.set_xlabel("step")
+            ax_tail.set_ylabel(name)
+            fig_tail.tight_layout()
+            out_paths.append(save_figure(fig_tail, f"{name}_log_tail"))
+
+            if show:
+                plt.show()
+            else:
+                plt.close(fig_tail)
+
+        if M == 1:
+            fig, ax = plt.subplots(figsize=(7.5, 4.2))
+            draw_lines(ax)
             fig.tight_layout()
 
             out_paths: List[Path] = []
             if save and self.save_dir is not None:
-                self.save_dir.mkdir(parents=True, exist_ok=True)
-                p = self.save_dir / f"{name}.png"
-                fig.savefig(p, dpi=150, bbox_inches="tight")
-                out_paths.append(p)
+                out_paths.append(save_figure(fig, name))
+
+                if name == "loss" and np.all(np.isfinite(hist_np)) and np.all(hist_np > 0):
+                    fig_log, ax_log = plt.subplots(figsize=(7.5, 4.2))
+                    draw_lines(ax_log)
+                    ax_log.set_yscale("log")
+                    ax_log.set_title(f"{name} (log scale)")
+                    fig_log.tight_layout()
+                    out_paths.append(save_figure(fig_log, f"{name}_log"))
+                    save_loss_zoomed_log_plot(out_paths)
+
+                    if show:
+                        plt.show()
+                    else:
+                        plt.close(fig_log)
 
             if show:
                 plt.show()
@@ -184,24 +246,27 @@ class MetricTracker:
         x = np.arange(T)
 
         fig, ax = plt.subplots(figsize=(7.5, 4.2))
-        for m in range(M):
-            ax.plot(x, hist_np[:, m], label=model_names[m])
-
-        ax.set_title(name)
-        ax.set_xlabel("step")
-        ax.set_ylabel(name)
-
-        if M <= 15:
-            ax.legend(fontsize=8)
+        draw_lines(ax)
 
         fig.tight_layout()
 
         out_paths: List[Path] = []
         if save and self.save_dir is not None:
-            self.save_dir.mkdir(parents=True, exist_ok=True)
-            p = self.save_dir / f"{name}.png"
-            fig.savefig(p, dpi=150, bbox_inches="tight")
-            out_paths.append(p)
+            out_paths.append(save_figure(fig, name))
+
+            if name == "loss" and np.all(np.isfinite(hist_np)) and np.all(hist_np > 0):
+                fig_log, ax_log = plt.subplots(figsize=(7.5, 4.2))
+                draw_lines(ax_log)
+                ax_log.set_yscale("log")
+                ax_log.set_title(f"{name} (log scale)")
+                fig_log.tight_layout()
+                out_paths.append(save_figure(fig_log, f"{name}_log"))
+                save_loss_zoomed_log_plot(out_paths)
+
+                if show:
+                    plt.show()
+                else:
+                    plt.close(fig_log)
 
         if show:
             plt.show()
