@@ -152,8 +152,8 @@ def train_model_batch(
     hyperparameters: TrainingHyperparams,
     tracker=MetricTracker,
 ):
-    platue_config = hyperparameters.plateau
     lr = hyperparameters.lr
+    lr_schedule_config = hyperparameters.learning_rate_schedule
 
     step_timer = StepTimer()
     wal_timer = StepTimer()
@@ -168,17 +168,27 @@ def train_model_batch(
     compliance_fn = jax.vmap(compliance_fn, in_axes=(0, 0))
     volume_fraction_fn = jax.vmap(volume_fraction_fn)
 
+    if lr_schedule_config is None:
+        lr_scale_schedule = optax.polynomial_schedule(
+            init_value=1.0,
+            end_value=0.1,
+            power=0.9,
+            transition_steps=80,
+            transition_begin=20,
+        )
+    else:
+        lr_scale_schedule = optax.polynomial_schedule(
+            init_value=lr_schedule_config.init_value,
+            end_value=lr_schedule_config.end_value,
+            power=lr_schedule_config.power,
+            transition_steps=lr_schedule_config.transition_steps,
+            transition_begin=lr_schedule_config.transition_begin,
+        )
+
     optimizer = optax.chain(
         optax.zero_nans(),
         optax.clip_by_global_norm(hyperparameters.grad_clip_norm),
-        optax.adabelief(lr),
-        optax.contrib.reduce_on_plateau(
-            patience=platue_config.patience,
-            cooldown=platue_config.cooldown,
-            factor=platue_config.factor,
-            rtol=platue_config.rtol,
-            accumulation_size=platue_config.accumulation_size,
-        ),
+        optax.adabelief(learning_rate=lambda count: lr * lr_scale_schedule(count)),
     )
 
     opt_states = jax.vmap(lambda m: optimizer.init(eqx.filter(m, eqx.is_array)))(models)
@@ -241,7 +251,8 @@ def train_model_batch(
         lam_updates = lams - old_lams
 
         # Monitoring
-        lr_scales = jax.vmap(lambda s: optax.tree.get(s, "scale"))(opt_states)
+        lr_scale = float(lr_scale_schedule(iteration))
+        lr_scales = jnp.full(losses.shape, lr_scale, dtype=float)
         effective_lrs = lr * lr_scales
         tracker.log("loss", losses)
         tracker.log("true_compliance", true_compliances)

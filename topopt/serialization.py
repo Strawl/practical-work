@@ -161,6 +161,26 @@ class PlateauConfig(ConfigSerializable):
 
 
 @dataclass
+class PolynomialLearningRateScheduleConfig(ConfigSerializable):
+    init_value: float
+    end_value: float
+    power: float
+    transition_steps: int
+    transition_begin: int
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "PolynomialLearningRateScheduleConfig":
+        ctx = cls.__name__
+        return cls(
+            init_value=float(_require(d, "init_value", ctx)),
+            end_value=float(_require(d, "end_value", ctx)),
+            power=float(_require(d, "power", ctx)),
+            transition_steps=int(_require(d, "transition_steps", ctx)),
+            transition_begin=int(_require(d, "transition_begin", ctx)),
+        )
+
+
+@dataclass
 class TrainingHyperparams(ConfigSerializable):
     """Run-level training hyperparameters (shared across all models)."""
 
@@ -178,12 +198,21 @@ class TrainingHyperparams(ConfigSerializable):
 
     train_rng_seed: int
     model_rng_seed: int
+    deterministic_models: bool = False
 
-    plateau: PlateauConfig
+    learning_rate_schedule: PolynomialLearningRateScheduleConfig | None = None
+    plateau: PlateauConfig | None = None
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
-        d["plateau"] = self.plateau.to_dict()
+        if self.learning_rate_schedule is not None:
+            d["learning_rate_schedule"] = self.learning_rate_schedule.to_dict()
+        else:
+            d.pop("learning_rate_schedule", None)
+        if self.plateau is not None:
+            d["plateau"] = self.plateau.to_dict()
+        else:
+            d.pop("plateau", None)
         return d
 
     @classmethod
@@ -191,8 +220,17 @@ class TrainingHyperparams(ConfigSerializable):
         ctx = cls.__name__
         d = dict(d)
 
-        plateau_raw = _require(d, "plateau", ctx)
-        if not isinstance(plateau_raw, dict):
+        learning_rate_schedule_raw = d.get("learning_rate_schedule")
+        if learning_rate_schedule_raw is not None and not isinstance(
+            learning_rate_schedule_raw, dict
+        ):
+            raise TypeError(
+                f"{ctx}: 'learning_rate_schedule' must be a mapping/dict, "
+                f"got {type(learning_rate_schedule_raw)}"
+            )
+
+        plateau_raw = d.get("plateau")
+        if plateau_raw is not None and not isinstance(plateau_raw, dict):
             raise TypeError(
                 f"{ctx}: 'plateau' must be a mapping/dict, got {type(plateau_raw)}"
             )
@@ -212,7 +250,19 @@ class TrainingHyperparams(ConfigSerializable):
             max_consecutive_errors=int(_require(d, "max_consecutive_errors", ctx)),
             train_rng_seed=int(_require(d, "train_rng_seed", ctx)),
             model_rng_seed=int(_require(d, "model_rng_seed", ctx)),
-            plateau=PlateauConfig.from_dict(plateau_raw),
+            deterministic_models=bool(d.get("deterministic_models", False)),
+            learning_rate_schedule=(
+                PolynomialLearningRateScheduleConfig.from_dict(
+                    learning_rate_schedule_raw
+                )
+                if learning_rate_schedule_raw is not None
+                else None
+            ),
+            plateau=(
+                PlateauConfig.from_dict(plateau_raw)
+                if plateau_raw is not None
+                else None
+            ),
         )
 
 
@@ -339,7 +389,10 @@ def create_models(
         )
 
     model_cls = MODEL_REGISTRY[first_type]
-    keys = jax.random.split(rng_key, num_models)
+    if train_cfg.training.deterministic_models:
+        keys = [rng_key] * num_models
+    else:
+        keys = jax.random.split(rng_key, num_models)
 
     models = [model_cls(rng_key=k, **cfg.model_kwargs) for k, cfg in zip(keys, configs)]
 

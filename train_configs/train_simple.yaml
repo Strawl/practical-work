@@ -10,14 +10,15 @@ training:
   grad_clip_norm: 1.0
   max_consecutive_errors: 30
   train_rng_seed: 534
-  model_rng_seed: 324
+  model_rng_seed: 34
+  deterministic_models: true
   helmholtz_radius: 0.0
-  plateau:
-    patience: 2
-    cooldown: 0
-    factor: 0.75
-    rtol: 0.025
-    accumulation_size: 8
+  learning_rate_schedule:
+    init_value: 1.0
+    end_value: 0.1
+    power: 2
+    transition_steps: 80
+    transition_begin: 20
 
 models:
   - model_type: SIREN
@@ -29,7 +30,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.5
-      penalty: 0.1
+      penalty: 0.09
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
@@ -53,8 +54,8 @@ models:
       omega: 23.0
     training:
       target_density: 0.5
-      penalty: 0.1
-      neumann_boundary_conditions: "cantilever_mid"
+      penalty: 0.11
+      neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
     model_kwargs:
@@ -65,5 +66,42 @@ models:
       omega: 23.0
     training:
       target_density: 0.5
-      penalty: 0.1
-      neumann_boundary_conditions: "cantilever_mid"
+      penalty: 0.12
+      neumann_boundary_conditions: "cantilever_corner"
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 3
+      num_latent_channels: 512
+      omega: 23.0
+    training:
+      target_density: 0.5
+      penalty: 0.13
+      neumann_boundary_conditions: "cantilever_corner"
+
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 3
+      num_latent_channels: 512
+      omega: 23.0
+    training:
+      target_density: 0.5
+      penalty: 0.14
+      neumann_boundary_conditions: "cantilever_corner"
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 3
+      num_latent_channels: 512
+      omega: 23.0
+    training:
+      target_density: 0.5
+      penalty: 0.15
+      neumann_boundary_conditions: "cantilever_corner"
