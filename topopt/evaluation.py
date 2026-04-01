@@ -181,7 +181,7 @@ def evaluate_models(
     save_dir: Path,
     scale: Optional[int] = None,
     visualize: bool = False,
-    heaviside_beta: float = 10.0,
+    heaviside_beta: float = 30.0,
     heaviside_threshold: float = 0.5,
 ) -> pd.DataFrame:
     """

@@ -61,7 +61,7 @@ def batched_loss_and_grad(
         vol_frac = volume_fraction_fn(rhos)
         vol_frac_error = vol_frac - target_densities
         normalized_constraint = (
-            vol_frac_error / target_densities
+            vol_frac_error * 10
         )
         normalized_violation = jnp.maximum(normalized_constraint, 0.0)
 
@@ -243,11 +243,9 @@ def train_model_batch(
             al_terms,
         ) = aux
 
-        projected_lams = jnp.maximum(
-            0.0, lams + penalties * normalized_constraints
-        )
         good = jnp.isfinite(normalized_constraints)
-        lams = jnp.where(good, projected_lams, lams)
+        updated_lams = lams + penalties * normalized_constraints
+        lams = jnp.where(good, updated_lams, lams)
         lam_updates = lams - old_lams
 
         # Monitoring
