@@ -15,7 +15,7 @@ training:
   helmholtz_radius: 0.0
   learning_rate_schedule:
     init_value: 1.0
-    end_value: 0.1
+    end_value: 0.05
     power: 2
     transition_steps: 60
     transition_begin: 40
@@ -30,7 +30,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.82
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
@@ -42,7 +42,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.68
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_lower_mid"
 
   - model_type: SIREN
@@ -54,7 +54,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.58
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_mid"
 
   - model_type: SIREN
@@ -66,7 +66,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.47
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_upper_mid"
 
   - model_type: SIREN
@@ -78,7 +78,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.39
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_top_corner"
 
   - model_type: SIREN
@@ -90,7 +90,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.31
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_double"
 
   - model_type: SIREN
@@ -102,7 +102,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.24
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_triple"
 
   - model_type: SIREN
@@ -114,5 +114,5 @@ models:
       omega: 23.0
     training:
       target_density: 0.14
-      penalty: 0.0125
+      penalty: 0.003
       neumann_boundary_conditions: "cantilever_endcaps"

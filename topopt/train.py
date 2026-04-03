@@ -20,6 +20,8 @@ from topopt.fem_utils import (
 )
 from topopt.monitoring import MetricTracker, StepTimer
 from topopt.serialization import (
+    CosineRestartLearningRateScheduleConfig,
+    PolynomialLearningRateScheduleConfig,
     TrainingConfig,
     TrainingHyperparams,
     create_models,
@@ -33,6 +35,7 @@ from topopt.serialization import (
 def batched_loss_and_grad(
     models,
     target_densities,
+    full_material_compliances,
     compliance_normalizers,
     lams,
     penalties,
@@ -44,6 +47,7 @@ def batched_loss_and_grad(
     def batched_loss(
         models,
         target_densities,
+        full_material_compliances,
         compliance_normalizers,
         lams,
         penalties,
@@ -54,8 +58,11 @@ def batched_loss_and_grad(
     ):
         rhos = jax.vmap(lambda m: jax.nn.sigmoid(m(coords)))(models)
         true_compliances = compliance_fn(rhos, surface_vars)
-        normalized_compliances = (
-            true_compliances / compliance_normalizers
+        compliance_spans = compliance_normalizers - full_material_compliances
+        normalized_compliances = jnp.where(
+            jnp.abs(compliance_spans) > 0.0,
+            (true_compliances - full_material_compliances) / compliance_spans,
+            0.0,
         )
 
         vol_frac = volume_fraction_fn(rhos)
@@ -69,7 +76,7 @@ def batched_loss_and_grad(
         al_quadratic = 0.5 * penalties * normalized_violation**2
         al_term = al_linear + al_quadratic
 
-        losses = normalized_compliances + al_term
+        losses = normalized_compliances
         aux = (
             normalized_constraint,
             normalized_violation,
@@ -87,6 +94,7 @@ def batched_loss_and_grad(
     (total_loss, (losses, aux)), grads = batched_loss_and_grad_fn(
         models,
         target_densities,
+        full_material_compliances,
         compliance_normalizers,
         lams,
         penalties,
@@ -112,6 +120,7 @@ def optimisation_step(
     opt_states,
     optimizer,
     target_densities,
+    full_material_compliances,
     compliance_normalizers,
     lams,
     penalties,
@@ -123,6 +132,7 @@ def optimisation_step(
     losses, aux, grads = batched_loss_and_grad(
         models,
         target_densities,
+        full_material_compliances,
         compliance_normalizers,
         lams,
         penalties,
@@ -140,10 +150,76 @@ def optimisation_step(
     return new_models, new_opt_states, losses, aux
 
 
+def make_cosine_restart_schedule(
+    init_value: float,
+    end_value: float,
+    transition_steps: int,
+    transition_begin: int,
+    num_resets: int,
+):
+    total_cycles = max(num_resets + 1, 1)
+    transition_steps = max(transition_steps, 1)
+
+    def schedule(count):
+        count = jnp.asarray(count, dtype=jnp.float32)
+        start = jnp.asarray(transition_begin, dtype=jnp.float32)
+        duration = jnp.asarray(transition_steps, dtype=jnp.float32)
+        total_cycles_f = jnp.asarray(total_cycles, dtype=jnp.float32)
+
+        shifted_count = jnp.maximum(count - start, 0.0)
+        progress = jnp.clip(shifted_count / duration, 0.0, 1.0)
+        cycle_progress = jnp.minimum(progress * total_cycles_f, total_cycles_f - 1e-6)
+        local_progress = cycle_progress - jnp.floor(cycle_progress)
+        cosine_decay = 0.5 * (1.0 + jnp.cos(jnp.pi * local_progress))
+        scheduled_value = end_value + (init_value - end_value) * cosine_decay
+
+        return jnp.where(
+            count < start,
+            init_value,
+            jnp.where(shifted_count >= duration, end_value, scheduled_value),
+        )
+
+    return schedule
+
+
+def build_learning_rate_scale_schedule(hyperparameters: TrainingHyperparams):
+    lr_schedule_config = hyperparameters.learning_rate_schedule
+
+    if lr_schedule_config is None:
+        return make_cosine_restart_schedule(
+            init_value=1.0,
+            end_value=0.1,
+            transition_steps=max(hyperparameters.num_iterations - 20, 1),
+            transition_begin=20,
+            num_resets=2,
+        )
+
+    if isinstance(lr_schedule_config, PolynomialLearningRateScheduleConfig):
+        return optax.polynomial_schedule(
+            init_value=lr_schedule_config.init_value,
+            end_value=lr_schedule_config.end_value,
+            power=lr_schedule_config.power,
+            transition_steps=lr_schedule_config.transition_steps,
+            transition_begin=lr_schedule_config.transition_begin,
+        )
+
+    if isinstance(lr_schedule_config, CosineRestartLearningRateScheduleConfig):
+        return make_cosine_restart_schedule(
+            init_value=lr_schedule_config.init_value,
+            end_value=lr_schedule_config.end_value,
+            transition_steps=lr_schedule_config.transition_steps,
+            transition_begin=lr_schedule_config.transition_begin,
+            num_resets=lr_schedule_config.num_resets,
+        )
+
+    raise TypeError(f"Unsupported learning rate schedule: {type(lr_schedule_config)}")
+
+
 def train_model_batch(
     models,
     mesh: Mesh,
     target_densities: jnp.ndarray,
+    full_material_compliances: jnp.ndarray,
     penalties: jnp.ndarray,
     compliance_normalizers: jnp.ndarray,
     surface_vars,
@@ -153,7 +229,6 @@ def train_model_batch(
     tracker=MetricTracker,
 ):
     lr = hyperparameters.lr
-    lr_schedule_config = hyperparameters.learning_rate_schedule
 
     step_timer = StepTimer()
     wal_timer = StepTimer()
@@ -168,22 +243,7 @@ def train_model_batch(
     compliance_fn = jax.vmap(compliance_fn, in_axes=(0, 0))
     volume_fraction_fn = jax.vmap(volume_fraction_fn)
 
-    if lr_schedule_config is None:
-        lr_scale_schedule = optax.polynomial_schedule(
-            init_value=1.0,
-            end_value=0.1,
-            power=0.9,
-            transition_steps=80,
-            transition_begin=20,
-        )
-    else:
-        lr_scale_schedule = optax.polynomial_schedule(
-            init_value=lr_schedule_config.init_value,
-            end_value=lr_schedule_config.end_value,
-            power=lr_schedule_config.power,
-            transition_steps=lr_schedule_config.transition_steps,
-            transition_begin=lr_schedule_config.transition_begin,
-        )
+    lr_scale_schedule = build_learning_rate_scale_schedule(hyperparameters)
 
     optimizer = optax.chain(
         optax.zero_nans(),
@@ -217,6 +277,7 @@ def train_model_batch(
             opt_states,
             optimizer,
             target_densities,
+            full_material_compliances,
             compliance_normalizers,
             lams,
             penalties,
@@ -244,7 +305,7 @@ def train_model_batch(
         ) = aux
 
         good = jnp.isfinite(normalized_constraints)
-        updated_lams = lams + penalties * normalized_constraints
+        updated_lams = jnp.maximum(lams + penalties * normalized_constraints, 0.0)
         lams = jnp.where(good, updated_lams, lams)
         lam_updates = lams - old_lams
 
@@ -319,6 +380,7 @@ def train_from_config(
     save_dir.mkdir(parents=True, exist_ok=True)
     tracker = MetricTracker(save_dir=save_dir)
     ele_type = "QUAD4"
+    simp_penalty = 3.0
 
     Lx = train_config.training.Lx
     Ly = train_config.training.Ly
@@ -351,6 +413,7 @@ def train_from_config(
         dirichlet_boundary_conditions,
         neumann_boundary_location,
         ele_type=ele_type,
+        p=simp_penalty,
         check_convergence=True,
         verbose=True,
         radius=train_config.training.helmholtz_radius,
@@ -399,28 +462,42 @@ def train_from_config(
 
     full_material_rho = jnp.ones(problem.num_cells)
     no_material_rho = jnp.zeros(problem.num_cells)
+    gamma = simp_penalty / 2
     full_material_compliances = []
+    compliance_normalizers = []
     print("Compliance bounds after solver warm-up")
     for model_index, (neumann_boundary_condition, model_surface_var) in enumerate(
         zip(model_neumann_boundary_conditions, model_surface_vars),
         start=1,
     ):
+        target_density = float(target_densities[model_index - 1])
         full_material_compliance = float(
             solve_forward(full_material_rho, model_surface_var)
         )
+        target_density_rho = jnp.full(problem.num_cells, target_density)
+        target_density_compliance = float(
+            solve_forward(target_density_rho, model_surface_var)
+        )
         void_compliance = float(solve_forward(no_material_rho, model_surface_var))
         full_material_compliances.append(full_material_compliance)
+        compliance_normalizer = target_density_compliance * (target_density ** gamma)
+        compliance_normalizers.append(compliance_normalizer)
         print(
             f"  model {model_index:02d} [{neumann_boundary_condition}] "
             f"full = {full_material_compliance:.6f} | "
-            f"void = {void_compliance:.6f}"
+            f"uniform(v={target_density:.3f}) = {target_density_compliance:.6f} | "
+            f"void = {void_compliance:.6f} | "
+            f"gamma = {gamma:.3f} | "
+            f"C_ref = {compliance_normalizer:.6f}"
         )
-    compliance_normalizers = jnp.asarray(full_material_compliances, dtype=float)
+    full_material_compliances = jnp.asarray(full_material_compliances, dtype=float)
+    compliance_normalizers = jnp.asarray(compliance_normalizers, dtype=float)
 
     trained_models, opt_states, hot_time, wal_time, compile_time = train_model_batch(
         models=model_batch,
         mesh=mesh,
         target_densities=target_densities,
+        full_material_compliances=full_material_compliances,
         penalties=penalties,
         compliance_normalizers=compliance_normalizers,
         surface_vars=surface_vars,

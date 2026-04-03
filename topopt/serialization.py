@@ -167,17 +167,46 @@ class PolynomialLearningRateScheduleConfig(ConfigSerializable):
     power: float
     transition_steps: int
     transition_begin: int
+    schedule_type: str = "polynomial"
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "PolynomialLearningRateScheduleConfig":
         ctx = cls.__name__
         return cls(
+            schedule_type=str(d.get("schedule_type", "polynomial")),
             init_value=float(_require(d, "init_value", ctx)),
             end_value=float(_require(d, "end_value", ctx)),
             power=float(_require(d, "power", ctx)),
             transition_steps=int(_require(d, "transition_steps", ctx)),
             transition_begin=int(_require(d, "transition_begin", ctx)),
         )
+
+
+@dataclass
+class CosineRestartLearningRateScheduleConfig(ConfigSerializable):
+    init_value: float = 1.0
+    end_value: float = 0.1
+    transition_steps: int = 80
+    transition_begin: int = 20
+    num_resets: int = 2
+    schedule_type: str = "cosine_restarts"
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "CosineRestartLearningRateScheduleConfig":
+        ctx = cls.__name__
+        return cls(
+            schedule_type=str(d.get("schedule_type", "cosine_restarts")),
+            init_value=float(_require(d, "init_value", ctx)),
+            end_value=float(_require(d, "end_value", ctx)),
+            transition_steps=int(_require(d, "transition_steps", ctx)),
+            transition_begin=int(_require(d, "transition_begin", ctx)),
+            num_resets=int(d.get("num_resets", 2)),
+        )
+
+
+LearningRateScheduleConfig = (
+    PolynomialLearningRateScheduleConfig | CosineRestartLearningRateScheduleConfig
+)
 
 
 @dataclass
@@ -200,7 +229,7 @@ class TrainingHyperparams(ConfigSerializable):
     model_rng_seed: int
     deterministic_models: bool = False
 
-    learning_rate_schedule: PolynomialLearningRateScheduleConfig | None = None
+    learning_rate_schedule: LearningRateScheduleConfig | None = None
     plateau: PlateauConfig | None = None
 
     def to_dict(self) -> Dict[str, Any]:
@@ -252,8 +281,15 @@ class TrainingHyperparams(ConfigSerializable):
             model_rng_seed=int(_require(d, "model_rng_seed", ctx)),
             deterministic_models=bool(d.get("deterministic_models", False)),
             learning_rate_schedule=(
-                PolynomialLearningRateScheduleConfig.from_dict(
-                    learning_rate_schedule_raw
+                (
+                    CosineRestartLearningRateScheduleConfig.from_dict(
+                        learning_rate_schedule_raw
+                    )
+                    if learning_rate_schedule_raw.get("schedule_type")
+                    == "cosine_restarts"
+                    else PolynomialLearningRateScheduleConfig.from_dict(
+                        learning_rate_schedule_raw
+                    )
                 )
                 if learning_rate_schedule_raw is not None
                 else None
