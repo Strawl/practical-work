@@ -29,35 +29,64 @@ class SIREN(eqx.Module):
 
     def __init__(
         self,
-        num_channels_in: int,
-        num_channels_out: int,
-        num_layers: int,
-        num_latent_channels: int,
+        *,
+        num_input_units: int | None = None,
+        num_output_units: int | None = None,
+        num_hidden_layers: int | None = None,
+        num_hidden_units: int | None = None,
         omega: float,
         rng_key: jax.random.PRNGKey,
+        **legacy_kwargs,
     ):
         self.omega = omega
 
+        # Backward-compatible aliases for older configs and scripts.
+        if num_input_units is None:
+            num_input_units = legacy_kwargs.pop("num_channels_in", None)
+        if num_output_units is None:
+            num_output_units = legacy_kwargs.pop("num_channels_out", None)
+        if num_hidden_layers is None:
+            legacy_num_layers = legacy_kwargs.pop("num_layers", None)
+            if legacy_num_layers is not None:
+                num_hidden_layers = legacy_num_layers - 1
+        if num_hidden_units is None:
+            num_hidden_units = legacy_kwargs.pop("num_latent_channels", None)
+
+        if legacy_kwargs:
+            unexpected = ", ".join(sorted(legacy_kwargs))
+            raise TypeError(f"Unexpected keyword arguments: {unexpected}")
+
+        if (
+            num_input_units is None
+            or num_output_units is None
+            or num_hidden_layers is None
+            or num_hidden_units is None
+        ):
+            raise TypeError(
+                "SIREN requires num_input_units, num_output_units, "
+                "num_hidden_layers, and num_hidden_units."
+            )
+
         # define layer sizes
-        channels = (
-            num_channels_in,
-            *[num_latent_channels] * (num_layers - 1),
-            num_channels_out,
+        units_per_layer = (
+            num_input_units,
+            *[num_hidden_units] * num_hidden_layers,
+            num_output_units,
         )
 
         # initialize weights and biases for each layer
-        keys = jax.random.split(rng_key, 2 * (len(channels) - 1))
-        weight_keys = keys[: len(channels) - 1]
-        bias_keys = keys[len(channels) - 1 :]
+        keys = jax.random.split(rng_key, 2 * (len(units_per_layer) - 1))
+        weight_keys = keys[: len(units_per_layer) - 1]
+        bias_keys = keys[len(units_per_layer) - 1 :]
 
         weights, biases = [], []
         is_first = True
-        for in_c, out_c, wk, bk in zip(
-            channels[:-1], channels[1:], weight_keys, bias_keys
+        for num_inputs, num_outputs, wk, bk in zip(
+            units_per_layer[:-1], units_per_layer[1:], weight_keys, bias_keys
         ):
             w_init = _get_siren_weights_init_fun(omega, first_layer=is_first)
-            weights.append(w_init(wk, (in_c, out_c)))
-            biases.append(_siren_bias_init(bk, (out_c,)))
+            weights.append(w_init(wk, (num_inputs, num_outputs)))
+            biases.append(_siren_bias_init(bk, (num_outputs,)))
             is_first = False
 
         self.weights = weights

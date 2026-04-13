@@ -5,20 +5,20 @@ training:
   dirichlet_boundary_conditions: "cantilever_left_support"
 
   num_iterations: 100
-  lr: 0.001
+  lr: 0.0005
   jitted_coords: false
   grad_clip_norm: 1.0
   max_consecutive_errors: 30
   train_rng_seed: 534
   model_rng_seed: 34
-  deterministic_models: true
+  deterministic_models: false
   helmholtz_radius: 0.0
   learning_rate_schedule:
     init_value: 1.0
-    end_value: 0.1
+    end_value: 0.4
     power: 2
-    transition_steps: 80
-    transition_begin: 20
+    transition_steps: 60
+    transition_begin: 40
 
 models:
   - model_type: SIREN
@@ -29,32 +29,8 @@ models:
       num_latent_channels: 512
       omega: 23.0
     training:
-      target_density: 0.8
-      penalty: 0.11
-      neumann_boundary_conditions: "cantilever_corner"
-
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 3
-      num_latent_channels: 512
-      omega: 23.0
-    training:
-      target_density: 0.7
-      penalty: 0.12
-      neumann_boundary_conditions: "cantilever_corner"
-
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 3
-      num_latent_channels: 512
-      omega: 23.0
-    training:
-      target_density: 0.6
-      penalty: 0.12
+      target_density: 0.5
+      penalty: 0.002
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
@@ -66,7 +42,7 @@ models:
       omega: 23.0
     training:
       target_density: 0.5
-      penalty: 0.12
+      penalty: 0.002
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
@@ -77,21 +53,8 @@ models:
       num_latent_channels: 512
       omega: 23.0
     training:
-      target_density: 0.4
-      penalty: 0.12
-      neumann_boundary_conditions: "cantilever_corner"
-
-
-  - model_type: SIREN
-    model_kwargs:
-      num_channels_in: 2
-      num_channels_out: 1
-      num_layers: 3
-      num_latent_channels: 512
-      omega: 23.0
-    training:
-      target_density: 0.3
-      penalty: 0.12
+      target_density: 0.5
+      penalty: 0.002
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
@@ -102,6 +65,6 @@ models:
       num_latent_channels: 512
       omega: 23.0
     training:
-      target_density: 0.2
-      penalty: 0.12
+      target_density: 0.5
+      penalty: 0.002
       neumann_boundary_conditions: "cantilever_corner"

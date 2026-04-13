@@ -76,8 +76,9 @@ def batched_loss_and_grad(
         al_quadratic = 0.5 * penalties * normalized_violation**2
         al_term = al_linear + al_quadratic
 
-        losses = normalized_compliances
+        losses = normalized_compliances + al_term
         aux = (
+            rhos,
             normalized_constraint,
             normalized_violation,
             true_compliances,
@@ -148,6 +149,18 @@ def optimisation_step(
     new_models = jax.vmap(eqx.apply_updates)(models, updates)
 
     return new_models, new_opt_states, losses, aux
+def compute_relative_metric_change(current_values, previous_values, eps: float = 1e-12):
+    safe_denominator = jnp.where(
+        jnp.abs(previous_values) > eps,
+        jnp.abs(previous_values),
+        jnp.nan,
+    )
+    return jnp.abs(current_values - previous_values) / safe_denominator
+
+
+def compute_density_field_l2_change(current_fields, previous_fields):
+    field_deltas = current_fields - previous_fields
+    return jnp.linalg.norm(field_deltas.reshape((field_deltas.shape[0], -1)), axis=1)
 
 
 def make_cosine_restart_schedule(
@@ -255,6 +268,8 @@ def train_model_batch(
 
     rng = jax.random.PRNGKey(hyperparameters.model_rng_seed)
     lams = jnp.zeros_like(target_densities)
+    previous_normalized_compliances = None
+    previous_density_fields = None
     compile_time = 0
     for iteration in tqdm(range(hyperparameters.num_iterations), desc="Iterations"):
         if hyperparameters.jitted_coords:
@@ -293,6 +308,7 @@ def train_model_batch(
             compile_time += step_time_s
 
         (
+            density_fields,
             normalized_constraints,
             normalized_violations,
             true_compliances,
@@ -328,6 +344,33 @@ def train_model_batch(
         tracker.log("learning_rate_scale", lr_scales)
         tracker.log("effective_lr", effective_lrs)
 
+        if previous_normalized_compliances is None:
+            normalized_compliance_relative_change = jnp.full_like(
+                normalized_compliances, jnp.nan
+            )
+        else:
+            normalized_compliance_relative_change = compute_relative_metric_change(
+                normalized_compliances,
+                previous_normalized_compliances,
+            )
+
+        if previous_density_fields is None:
+            density_field_l2_change = jnp.full(losses.shape, jnp.nan, dtype=float)
+        else:
+            density_field_l2_change = compute_density_field_l2_change(
+                density_fields,
+                previous_density_fields,
+            )
+
+        tracker.log(
+            "normalized_compliance_relative_change",
+            normalized_compliance_relative_change,
+        )
+        tracker.log("density_field_l2_change", density_field_l2_change)
+
+        previous_normalized_compliances = normalized_compliances
+        previous_density_fields = density_fields
+
         loss_values = jnp.array(losses)
         loss_str = " | ".join(
             [f"{loss_values[i]:.6f}" for i in range(len(loss_values))]
@@ -346,6 +389,11 @@ def train_model_batch(
             ("al_linear", al_linears),
             ("al_quadratic", al_quadratics),
             ("al_term", al_terms),
+            (
+                "normalized_compliance_relative_change",
+                normalized_compliance_relative_change,
+            ),
+            ("density_field_l2_change", density_field_l2_change),
         )
         for name, values in aux_items:
             values_flat = jnp.ravel(jnp.asarray(values))

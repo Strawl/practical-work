@@ -46,6 +46,21 @@ def _write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def _normalize_siren_model_kwargs(model_kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = dict(model_kwargs)
+
+    if "num_input_units" not in normalized and "num_channels_in" in normalized:
+        normalized["num_input_units"] = normalized.pop("num_channels_in")
+    if "num_output_units" not in normalized and "num_channels_out" in normalized:
+        normalized["num_output_units"] = normalized.pop("num_channels_out")
+    if "num_hidden_units" not in normalized and "num_latent_channels" in normalized:
+        normalized["num_hidden_units"] = normalized.pop("num_latent_channels")
+    if "num_hidden_layers" not in normalized and "num_layers" in normalized:
+        normalized["num_hidden_layers"] = int(normalized.pop("num_layers")) - 1
+
+    return normalized
+
+
 class ConfigSerializable:
     """
     Dataclass-friendly config IO.
@@ -120,15 +135,20 @@ class ModelInstanceConfig(ConfigSerializable):
     def to_dict(self) -> Dict[str, Any]:
         return {
             "model_type": self.model_type.value,
-            "model_kwargs": self.model_kwargs,
+            "model_kwargs": _normalize_siren_model_kwargs(self.model_kwargs),
             "training": self.training.to_dict(),
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ModelInstanceConfig":
+        model_type = ModelType(data["model_type"])
+        model_kwargs = dict(data.get("model_kwargs", {}))
+        if model_type == ModelType.SIREN:
+            model_kwargs = _normalize_siren_model_kwargs(model_kwargs)
+
         return cls(
-            model_type=ModelType(data["model_type"]),
-            model_kwargs=dict(data.get("model_kwargs", {})),
+            model_type=model_type,
+            model_kwargs=model_kwargs,
             training=ModelTrainingParams.from_dict(data["training"]),
         )
 
