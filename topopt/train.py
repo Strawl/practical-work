@@ -428,7 +428,7 @@ def train_from_config(
     save_dir.mkdir(parents=True, exist_ok=True)
     tracker = MetricTracker(save_dir=save_dir)
     ele_type = "QUAD4"
-    simp_penalty = 3.0
+    material = train_config.material
 
     Lx = train_config.training.Lx
     Ly = train_config.training.Ly
@@ -453,7 +453,7 @@ def train_from_config(
         unique_neumann_boundary_conditions,
         Lx,
         Ly,
-        traction_value=1e2,
+        traction_value=material.traction,
     )
 
     solve_forward, evaluate_volume, filter_fn, _, _, problem = create_objective_functions(
@@ -461,7 +461,11 @@ def train_from_config(
         dirichlet_boundary_conditions,
         neumann_boundary_location,
         ele_type=ele_type,
-        p=simp_penalty,
+        E0=material.E,
+        E_eps=material.Emin,
+        nu=material.nu,
+        p=material.penal,
+        T=material.traction,
         check_convergence=True,
         verbose=True,
         radius=train_config.training.helmholtz_radius,
@@ -510,7 +514,7 @@ def train_from_config(
 
     full_material_rho = jnp.ones(problem.num_cells)
     no_material_rho = jnp.zeros(problem.num_cells)
-    gamma = simp_penalty / 2
+    gamma = material.penal / 2
     full_material_compliances = []
     compliance_normalizers = []
     print("Compliance bounds after solver warm-up")

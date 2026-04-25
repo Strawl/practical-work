@@ -323,6 +323,28 @@ class TrainingHyperparams(ConfigSerializable):
 
 
 @dataclass
+class MaterialConfig(ConfigSerializable):
+    """Material and load settings for FE compliance evaluations."""
+
+    E: float = 70e3
+    Emin: float = 7.0
+    nu: float = 0.3
+    penal: float = 3.0
+    traction: float = 1e2
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "MaterialConfig":
+        d = dict(d or {})
+        return cls(
+            E=float(d.get("E", d.get("E0", cls.E))),
+            Emin=float(d.get("Emin", d.get("E_eps", cls.Emin))),
+            nu=float(d.get("nu", cls.nu)),
+            penal=float(d.get("penal", d.get("p", cls.penal))),
+            traction=float(d.get("traction", d.get("T", cls.traction))),
+        )
+
+
+@dataclass
 class TrainingConfig(ConfigSerializable):
     """
     Top-level config: models + run-level training hyperparams.
@@ -331,11 +353,13 @@ class TrainingConfig(ConfigSerializable):
 
     models: List[ModelInstanceConfig]
     training: TrainingHyperparams
+    material: MaterialConfig
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "models": [m.to_dict() for m in self.models],
             "training": self.training.to_dict(),
+            "material": self.material.to_dict(),
         }
 
     @classmethod
@@ -355,6 +379,7 @@ class TrainingConfig(ConfigSerializable):
         return cls(
             models=[ModelInstanceConfig.from_dict(m) for m in models_raw],
             training=TrainingHyperparams.from_dict(training_raw),
+            material=MaterialConfig.from_dict(data.get("material", {})),
         )
 
 
