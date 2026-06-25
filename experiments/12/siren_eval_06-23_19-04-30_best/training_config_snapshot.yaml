@@ -1,0 +1,75 @@
+models:
+- model_type: SIREN
+  model_kwargs:
+    num_hidden_layers: 5
+    num_hidden_units: 64
+    omega: 20.0
+    num_input_units: 2
+    num_output_units: 1
+  training:
+    target_density: 0.5
+    penalty: 0.09
+    neumann_boundary_conditions: cantilever_corner
+- model_type: SIREN
+  model_kwargs:
+    num_hidden_layers: 5
+    num_hidden_units: 64
+    omega: 20.0
+    num_input_units: 2
+    num_output_units: 1
+  training:
+    target_density: 0.5
+    penalty: 0.09
+    neumann_boundary_conditions: cantilever_corner
+- model_type: SIREN
+  model_kwargs:
+    num_hidden_layers: 5
+    num_hidden_units: 64
+    omega: 20.0
+    num_input_units: 2
+    num_output_units: 1
+  training:
+    target_density: 0.5
+    penalty: 0.09
+    neumann_boundary_conditions: cantilever_corner
+- model_type: SIREN
+  model_kwargs:
+    num_hidden_layers: 5
+    num_hidden_units: 64
+    omega: 20.0
+    num_input_units: 2
+    num_output_units: 1
+  training:
+    target_density: 0.5
+    penalty: 0.08
+    neumann_boundary_conditions: cantilever_corner
+training:
+  num_iterations: 50
+  lr: 0.001
+  jitted_coords: false
+  Lx: 60.0
+  Ly: 30.0
+  scale: 3
+  dirichlet_boundary_conditions: cantilever_left_support
+  helmholtz_radius: 0.0
+  grad_clip_norm: 1.0
+  max_consecutive_errors: 30
+  train_rng_seed: 112
+  model_rng_seed: 32
+  deterministic_models: false
+  learning_rate_schedule:
+    init_value: 1.0
+    end_value: 0.01
+    power: 2.0
+    transition_steps: 0
+    transition_begin: 50
+    schedule_type: polynomial
+material:
+  E: 1.0
+  Emin: 1.0e-06
+  nu: 0.3
+  penal: 3.0
+  traction: 100.0
+  problem_type: plane_stress
+  load_mode: equivalent_point_load
+  point_load_magnitude: 1.0

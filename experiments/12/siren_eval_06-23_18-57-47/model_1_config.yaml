@@ -1,0 +1,13 @@
+model_type: SIREN
+model_kwargs:
+  num_hidden_layers: 5
+  num_hidden_units: 64
+  omega: 20.0
+  num_input_units: 2
+  num_output_units: 1
+training:
+  target_density: 0.5
+  penalty: 0.09
+  neumann_boundary_conditions: cantilever_corner
+weights_file: model_1.eqx
+opt_state_file: opt_state_1.eqx

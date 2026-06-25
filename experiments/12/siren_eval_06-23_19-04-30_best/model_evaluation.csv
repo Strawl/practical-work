@@ -1,0 +1,5 @@
+model,compliance,rho_actual,rho_target,rho_error,penalty,neumann_boundary_conditions,omega,train_scale,eval_scale,load_mode,point_load_magnitude,heaviside_beta,heaviside_threshold
+model_3,71.3401,0.4819,0.5,0.0181,0.08,cantilever_corner,20.0,3,3,equivalent_point_load,1.0,10.0,0.5
+model_1,72.1919,0.5051,0.5,0.0051,0.09,cantilever_corner,20.0,3,3,equivalent_point_load,1.0,10.0,0.5
+model_0,74.5058,0.4689,0.5,0.0311,0.09,cantilever_corner,20.0,3,3,equivalent_point_load,1.0,10.0,0.5
+model_2,81.0148,0.4622,0.5,0.0378,0.09,cantilever_corner,20.0,3,3,equivalent_point_load,1.0,10.0,0.5

@@ -1,0 +1,29 @@
+JAX backend: cpu
+Using directory (SAVE_DIR): /Users/dominik/Documents/Shared/ai-bachelor/thesis/practical-work/outputs/02-07_13-46-57_neural_field_train_siren_different_layer_5_channel_64
+Domain: Lx=60.0, Ly=30.0 | scale=15 -> Nx=900, Ny=450
+Evaluating with 406351 design variables
+Solve took 21.005363s
+Solve took 19.350727s
+Solve took 19.652301s
+Solve took 19.530311s
+Solve took 19.873039s
+Solve took 19.436758s
+Solve took 19.576027s
+Solve took 19.825618s
+
+Model evaluation summary:
+
+         compliance  rho_actual  rho_target  rho_error  penalty  omega  scale
+model                                                                        
+model_3     75.4242      0.4993         0.5     0.0007     10.0   23.0      5
+model_0     75.6404      0.4989         0.5     0.0011     10.0   23.0      5
+model_1     75.8812      0.5000         0.5     0.0000     10.0   23.0      5
+model_5     76.0187      0.4996         0.5     0.0004     10.0   23.0      5
+model_4     76.2092      0.4998         0.5     0.0002     10.0   23.0      5
+model_7     77.5450      0.4996         0.5     0.0004     10.0   23.0      5
+model_2     77.7673      0.4999         0.5     0.0001     10.0   23.0      5
+model_6     78.0746      0.4995         0.5     0.0005     10.0   23.0      5
+
+Saved evaluation table to: /Users/dominik/Documents/Shared/ai-bachelor/thesis/practical-work/outputs/02-07_13-46-57_neural_field_train_siren_different_layer_5_channel_64/model_evaluation.csv
+
+Evaluated 8 models.

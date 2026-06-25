@@ -1,0 +1,2616 @@
+JAX backend: gpu
+Saving data to: /workspace/practical-work/outputs/02-07_17-34-23_neural_field_train_siren_different_layer_3_channel_768
+Iterations:   0%|          | 0/200 [00:00<?, ?it/s]/workspace/practical-work/.venv/lib/python3.14/site-packages/spineax/cudss/solver.py:536: RuntimeWarning: pbatch_solve not available (CUDA version mismatch?). Falling back to batch_solve. Batched inertia will not be computed correctly.
+  warnings.warn(
+/workspace/practical-work/.venv/lib/python3.14/site-packages/feax/solver.py:281: UserWarning: A JAX array is being set as static! This can result in unexpected behavior and is usually a mistake to do.
+  cudss_solver = CuDSSSolver(
+solving with float64
+/workspace/practical-work/.venv/lib/python3.14/site-packages/feax/solver.py:281: UserWarning: A JAX array is being set as static! This can result in unexpected behavior and is usually a mistake to do.
+  cudss_solver = CuDSSSolver(
+solving with float64
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+Adjoint solver residual: abs=4.002310e-10, rel=5.255290e-12
+Adjoint solver residual: abs=3.810673e-10, rel=5.003659e-12
+Adjoint solver residual: abs=3.847097e-10, rel=5.051486e-12
+Adjoint solver residual: abs=4.068843e-10, rel=5.342652e-12
+Linear solver residual: abs=3.495945e-10, rel=4.590400e-12
+Linear solver residual: abs=3.286730e-10, rel=4.315689e-12
+Linear solver residual: abs=3.313664e-10, rel=4.351054e-12
+Linear solver residual: abs=3.600745e-10, rel=4.728009e-12
+Iteration 000 | mean loss = 357.703846 | individual = [903.465167 | 168.452942 | 125.437495 | 233.459780]
+Iterations:   0%|          | 1/200 [01:06<3:41:13, 66.70s/it]/workspace/practical-work/.venv/lib/python3.14/site-packages/feax/solver.py:281: UserWarning: A JAX array is being set as static! This can result in unexpected behavior and is usually a mistake to do.
+  cudss_solver = CuDSSSolver(
+/workspace/practical-work/.venv/lib/python3.14/site-packages/feax/solver.py:281: UserWarning: A JAX array is being set as static! This can result in unexpected behavior and is usually a mistake to do.
+  cudss_solver = CuDSSSolver(
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+Adjoint solver residual: abs=4.734645e-10, rel=6.216893e-12
+Adjoint solver residual: abs=4.031795e-10, rel=5.294006e-12
+Adjoint solver residual: abs=3.977299e-10, rel=5.222449e-12
+Adjoint solver residual: abs=4.305126e-10, rel=5.652907e-12
+Linear solver residual: abs=4.072800e-10, rel=5.347849e-12
+Linear solver residual: abs=3.480083e-10, rel=4.569573e-12
+Linear solver residual: abs=3.409551e-10, rel=4.476959e-12
+Linear solver residual: abs=3.714305e-10, rel=4.877122e-12
+Iteration 001 | mean loss = 268.905312 | individual = [624.321189 | 145.213826 | 112.447859 | 193.638375]
+Iterations:   1%|          | 2/200 [01:57<3:08:57, 57.26s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=4.859866e-10, rel=6.381316e-12
+Adjoint solver residual: abs=3.953771e-10, rel=5.191556e-12
+Adjoint solver residual: abs=3.827805e-10, rel=5.026154e-12
+Adjoint solver residual: abs=3.875110e-10, rel=5.088269e-12
+Linear solver residual: abs=4.178106e-10, rel=5.486122e-12
+Linear solver residual: abs=3.435097e-10, rel=4.510503e-12
+Linear solver residual: abs=3.303299e-10, rel=4.337444e-12
+Linear solver residual: abs=3.343893e-10, rel=4.390746e-12
+Iteration 002 | mean loss = 192.330026 | individual = [395.895341 | 121.574569 | 98.459736 | 153.390461]
+Iterations:   2%|▏         | 3/200 [01:58<1:43:51, 31.63s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=5.604270e-10, rel=7.358767e-12
+Adjoint solver residual: abs=4.067232e-10, rel=5.340537e-12
+Adjoint solver residual: abs=3.869793e-10, rel=5.081287e-12
+Adjoint solver residual: abs=4.062857e-10, rel=5.334792e-12
+Linear solver residual: abs=4.764140e-10, rel=6.255622e-12
+Linear solver residual: abs=3.491794e-10, rel=4.584950e-12
+Linear solver residual: abs=3.317663e-10, rel=4.356305e-12
+Linear solver residual: abs=3.500181e-10, rel=4.595963e-12
+Iteration 003 | mean loss = 155.988147 | individual = [288.175422 | 109.093252 | 92.827197 | 133.856718]
+Iterations:   2%|▏         | 4/200 [01:59<1:04:06, 19.62s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=5.161792e-10, rel=6.777765e-12
+Adjoint solver residual: abs=4.050849e-10, rel=5.319026e-12
+Adjoint solver residual: abs=3.866617e-10, rel=5.077116e-12
+Adjoint solver residual: abs=4.061747e-10, rel=5.333335e-12
+Linear solver residual: abs=4.458039e-10, rel=5.853692e-12
+Linear solver residual: abs=3.465682e-10, rel=4.550664e-12
+Linear solver residual: abs=3.338240e-10, rel=4.383324e-12
+Linear solver residual: abs=3.521343e-10, rel=4.623750e-12
+Iteration 004 | mean loss = 124.293753 | individual = [196.312673 | 98.405433 | 88.035202 | 114.421703]
+Iterations:   2%|▎         | 5/200 [02:00<42:05, 12.95s/it]  vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=4.776138e-10, rel=6.271377e-12
+Adjoint solver residual: abs=3.867289e-10, rel=5.078000e-12
+Adjoint solver residual: abs=3.851492e-10, rel=5.057257e-12
+Adjoint solver residual: abs=4.000658e-10, rel=5.253121e-12
+Linear solver residual: abs=4.126038e-10, rel=5.417754e-12
+Linear solver residual: abs=3.364403e-10, rel=4.417678e-12
+Linear solver residual: abs=3.364919e-10, rel=4.418354e-12
+Linear solver residual: abs=3.463870e-10, rel=4.548284e-12
+Iteration 005 | mean loss = 104.869675 | individual = [143.683551 | 90.016231 | 84.707016 | 101.071904]
+Iterations:   3%|▎         | 6/200 [02:01<28:51,  8.93s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=4.564440e-10, rel=5.993404e-12
+Adjoint solver residual: abs=3.932565e-10, rel=5.163710e-12
+Adjoint solver residual: abs=3.841092e-10, rel=5.043601e-12
+Adjoint solver residual: abs=3.921926e-10, rel=5.149741e-12
+Linear solver residual: abs=3.937841e-10, rel=5.170639e-12
+Linear solver residual: abs=3.422246e-10, rel=4.493629e-12
+Linear solver residual: abs=3.316154e-10, rel=4.354324e-12
+Linear solver residual: abs=3.360739e-10, rel=4.412867e-12
+Iteration 006 | mean loss = 93.052231 | individual = [112.181485 | 85.869529 | 83.111960 | 91.045950]
+Iterations:   4%|▎         | 7/200 [02:03<20:28,  6.37s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=4.115881e-10, rel=5.404417e-12
+Adjoint solver residual: abs=3.849691e-10, rel=5.054892e-12
+Adjoint solver residual: abs=3.762586e-10, rel=4.940517e-12
+Adjoint solver residual: abs=3.861371e-10, rel=5.070229e-12
+Linear solver residual: abs=3.549002e-10, rel=4.660068e-12
+Linear solver residual: abs=3.382869e-10, rel=4.441925e-12
+Linear solver residual: abs=3.285606e-10, rel=4.314211e-12
+Linear solver residual: abs=3.378242e-10, rel=4.435849e-12
+Iteration 007 | mean loss = 85.885856 | individual = [91.348438 | 83.614087 | 83.004211 | 85.576689]
+Iterations:   4%|▍         | 8/200 [02:04<15:00,  4.69s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=4.153419e-10, rel=5.453707e-12
+Adjoint solver residual: abs=3.743329e-10, rel=4.915231e-12
+Adjoint solver residual: abs=3.679624e-10, rel=4.831583e-12
+Adjoint solver residual: abs=3.766212e-10, rel=4.945279e-12
+Linear solver residual: abs=3.605479e-10, rel=4.734225e-12
+Linear solver residual: abs=3.292494e-10, rel=4.323256e-12
+Linear solver residual: abs=3.166875e-10, rel=4.158310e-12
+Linear solver residual: abs=3.310785e-10, rel=4.347274e-12
+Iteration 008 | mean loss = 83.399396 | individual = [83.296021 | 83.224683 | 83.820372 | 83.256507]
+Iterations:   4%|▍         | 9/200 [02:05<11:20,  3.57s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.914646e-10, rel=5.140182e-12
+Adjoint solver residual: abs=3.616914e-10, rel=4.749241e-12
+Adjoint solver residual: abs=3.506644e-10, rel=4.604449e-12
+Adjoint solver residual: abs=3.640627e-10, rel=4.780377e-12
+Linear solver residual: abs=3.436677e-10, rel=4.512578e-12
+Linear solver residual: abs=3.143929e-10, rel=4.128181e-12
+Linear solver residual: abs=3.074203e-10, rel=4.036626e-12
+Linear solver residual: abs=3.210611e-10, rel=4.215738e-12
+Iteration 009 | mean loss = 82.665493 | individual = [78.631874 | 84.079798 | 85.154747 | 82.795552]
+Iterations:   5%|▌         | 10/200 [02:06<08:53,  2.81s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.864969e-10, rel=5.074953e-12
+Adjoint solver residual: abs=3.489169e-10, rel=4.581504e-12
+Adjoint solver residual: abs=3.422274e-10, rel=4.493666e-12
+Adjoint solver residual: abs=3.562161e-10, rel=4.677347e-12
+Linear solver residual: abs=3.335666e-10, rel=4.379944e-12
+Linear solver residual: abs=3.059703e-10, rel=4.017587e-12
+Linear solver residual: abs=2.966693e-10, rel=3.895459e-12
+Linear solver residual: abs=3.075048e-10, rel=4.037736e-12
+Iteration 010 | mean loss = 83.415889 | individual = [78.208972 | 85.248709 | 86.641916 | 83.563959]
+Iterations:   6%|▌         | 11/200 [02:07<07:11,  2.28s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.690672e-10, rel=4.846090e-12
+Adjoint solver residual: abs=3.344772e-10, rel=4.391901e-12
+Adjoint solver residual: abs=3.294947e-10, rel=4.326477e-12
+Adjoint solver residual: abs=3.413667e-10, rel=4.482365e-12
+Linear solver residual: abs=3.189987e-10, rel=4.188658e-12
+Linear solver residual: abs=2.904244e-10, rel=3.813459e-12
+Linear solver residual: abs=2.868511e-10, rel=3.766539e-12
+Linear solver residual: abs=2.964690e-10, rel=3.892828e-12
+Iteration 011 | mean loss = 84.567487 | individual = [79.136077 | 86.496104 | 88.054043 | 84.583722]
+Iterations:   6%|▌         | 12/200 [02:08<06:01,  1.92s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.531108e-10, rel=4.636572e-12
+Adjoint solver residual: abs=3.207982e-10, rel=4.212286e-12
+Adjoint solver residual: abs=3.149519e-10, rel=4.135522e-12
+Adjoint solver residual: abs=3.258061e-10, rel=4.278044e-12
+Linear solver residual: abs=3.102677e-10, rel=4.074015e-12
+Linear solver residual: abs=2.777058e-10, rel=3.646456e-12
+Linear solver residual: abs=2.743160e-10, rel=3.601946e-12
+Linear solver residual: abs=2.863842e-10, rel=3.760409e-12
+Iteration 012 | mean loss = 85.743549 | individual = [80.584644 | 87.702406 | 88.939423 | 85.747723]
+Iterations:   6%|▋         | 13/200 [02:09<05:12,  1.67s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.387181e-10, rel=4.447586e-12
+Adjoint solver residual: abs=3.224265e-10, rel=4.233668e-12
+Adjoint solver residual: abs=3.149453e-10, rel=4.135434e-12
+Adjoint solver residual: abs=3.084416e-10, rel=4.050037e-12
+Linear solver residual: abs=2.935379e-10, rel=3.854341e-12
+Linear solver residual: abs=2.779116e-10, rel=3.649159e-12
+Linear solver residual: abs=2.738821e-10, rel=3.596248e-12
+Linear solver residual: abs=2.710743e-10, rel=3.559380e-12
+Iteration 013 | mean loss = 86.547396 | individual = [81.851979 | 88.642314 | 88.987308 | 86.707985]
+Iterations:   7%|▋         | 14/200 [02:10<04:38,  1.50s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.213728e-10, rel=4.219832e-12
+Adjoint solver residual: abs=3.174158e-10, rel=4.167874e-12
+Adjoint solver residual: abs=3.205811e-10, rel=4.209437e-12
+Adjoint solver residual: abs=3.159709e-10, rel=4.148901e-12
+Linear solver residual: abs=2.797455e-10, rel=3.673239e-12
+Linear solver residual: abs=2.714534e-10, rel=3.564358e-12
+Linear solver residual: abs=2.783073e-10, rel=3.654354e-12
+Linear solver residual: abs=2.721825e-10, rel=3.573932e-12
+Iteration 014 | mean loss = 86.970071 | individual = [83.128417 | 88.914477 | 88.772216 | 87.065173]
+Iterations:   8%|▊         | 15/200 [02:11<04:13,  1.37s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.248057e-10, rel=4.264907e-12
+Adjoint solver residual: abs=3.193829e-10, rel=4.193703e-12
+Adjoint solver residual: abs=3.267232e-10, rel=4.290086e-12
+Adjoint solver residual: abs=3.085870e-10, rel=4.051945e-12
+Linear solver residual: abs=2.826470e-10, rel=3.711337e-12
+Linear solver residual: abs=2.773281e-10, rel=3.641496e-12
+Linear solver residual: abs=2.842878e-10, rel=3.732881e-12
+Linear solver residual: abs=2.705467e-10, rel=3.552452e-12
+Iteration 015 | mean loss = 87.111770 | individual = [84.082852 | 89.236302 | 88.242467 | 86.885460]
+Iterations:   8%|▊         | 16/200 [02:12<03:57,  1.29s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.149442e-10, rel=4.135420e-12
+Adjoint solver residual: abs=3.123719e-10, rel=4.101644e-12
+Adjoint solver residual: abs=3.236310e-10, rel=4.249483e-12
+Adjoint solver residual: abs=3.243460e-10, rel=4.258872e-12
+Linear solver residual: abs=2.728379e-10, rel=3.582537e-12
+Linear solver residual: abs=2.734911e-10, rel=3.591115e-12
+Linear solver residual: abs=2.794850e-10, rel=3.669818e-12
+Linear solver residual: abs=2.811385e-10, rel=3.691530e-12
+Iteration 016 | mean loss = 87.061381 | individual = [84.009256 | 88.616958 | 88.966992 | 86.652316]
+Iterations:   8%|▊         | 17/200 [02:14<03:45,  1.23s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.278773e-10, rel=4.305240e-12
+Adjoint solver residual: abs=3.219266e-10, rel=4.227104e-12
+Adjoint solver residual: abs=3.159145e-10, rel=4.148160e-12
+Adjoint solver residual: abs=3.131332e-10, rel=4.111641e-12
+Linear solver residual: abs=2.829233e-10, rel=3.714965e-12
+Linear solver residual: abs=2.722498e-10, rel=3.574815e-12
+Linear solver residual: abs=2.809478e-10, rel=3.689026e-12
+Linear solver residual: abs=2.724763e-10, rel=3.577789e-12
+Iteration 017 | mean loss = 86.649774 | individual = [84.125546 | 87.372509 | 88.132976 | 86.968065]
+Iterations:   9%|▉         | 18/200 [02:15<03:38,  1.20s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.213120e-10, rel=4.219033e-12
+Adjoint solver residual: abs=3.292569e-10, rel=4.323355e-12
+Adjoint solver residual: abs=3.317114e-10, rel=4.355585e-12
+Adjoint solver residual: abs=3.238338e-10, rel=4.252146e-12
+Linear solver residual: abs=2.817902e-10, rel=3.700087e-12
+Linear solver residual: abs=2.846624e-10, rel=3.737800e-12
+Linear solver residual: abs=2.840426e-10, rel=3.729662e-12
+Linear solver residual: abs=2.779566e-10, rel=3.649749e-12
+Iteration 018 | mean loss = 85.612769 | individual = [83.685537 | 86.604981 | 86.574563 | 85.585995]
+Iterations:  10%|▉         | 19/200 [02:16<03:30,  1.16s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.253980e-10, rel=4.272686e-12
+Adjoint solver residual: abs=3.236536e-10, rel=4.249780e-12
+Adjoint solver residual: abs=3.325892e-10, rel=4.367110e-12
+Adjoint solver residual: abs=3.345418e-10, rel=4.392750e-12
+Linear solver residual: abs=2.816393e-10, rel=3.698106e-12
+Linear solver residual: abs=2.847322e-10, rel=3.738717e-12
+Linear solver residual: abs=2.869101e-10, rel=3.767314e-12
+Linear solver residual: abs=2.872818e-10, rel=3.772194e-12
+Iteration 019 | mean loss = 84.958785 | individual = [82.936489 | 85.911128 | 85.661230 | 85.326295]
+Iterations:  10%|█         | 20/200 [02:17<03:26,  1.15s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.345175e-10, rel=4.392430e-12
+Adjoint solver residual: abs=3.355173e-10, rel=4.405558e-12
+Adjoint solver residual: abs=3.410407e-10, rel=4.478084e-12
+Adjoint solver residual: abs=3.272629e-10, rel=4.297172e-12
+Linear solver residual: abs=2.918308e-10, rel=3.831926e-12
+Linear solver residual: abs=2.868604e-10, rel=3.766661e-12
+Linear solver residual: abs=2.930357e-10, rel=3.847747e-12
+Linear solver residual: abs=2.797836e-10, rel=3.673739e-12
+Iteration 020 | mean loss = 84.181908 | individual = [82.387090 | 84.511629 | 84.706290 | 85.122624]
+Iterations:  10%|█         | 21/200 [02:18<03:23,  1.14s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.419862e-10, rel=4.490498e-12
+Adjoint solver residual: abs=3.418806e-10, rel=4.489113e-12
+Adjoint solver residual: abs=3.513283e-10, rel=4.613167e-12
+Adjoint solver residual: abs=3.497896e-10, rel=4.592963e-12
+Linear solver residual: abs=2.929015e-10, rel=3.845985e-12
+Linear solver residual: abs=2.922990e-10, rel=3.838074e-12
+Linear solver residual: abs=2.982832e-10, rel=3.916650e-12
+Linear solver residual: abs=3.000066e-10, rel=3.939280e-12
+Iteration 021 | mean loss = 83.634693 | individual = [82.259142 | 83.628876 | 84.053034 | 84.597719]
+Iterations:  11%|█         | 22/200 [02:19<03:20,  1.13s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.426568e-10, rel=4.499304e-12
+Adjoint solver residual: abs=3.454375e-10, rel=4.535817e-12
+Adjoint solver residual: abs=3.573487e-10, rel=4.692219e-12
+Adjoint solver residual: abs=3.515740e-10, rel=4.616393e-12
+Linear solver residual: abs=3.004251e-10, rel=3.944774e-12
+Linear solver residual: abs=2.960267e-10, rel=3.887022e-12
+Linear solver residual: abs=3.045420e-10, rel=3.998833e-12
+Linear solver residual: abs=3.005740e-10, rel=3.946730e-12
+Iteration 022 | mean loss = 83.264015 | individual = [81.746595 | 82.835035 | 83.293641 | 85.180789]
+Iterations:  12%|█▏        | 23/200 [02:20<03:18,  1.12s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.524947e-10, rel=4.628482e-12
+Adjoint solver residual: abs=3.500166e-10, rel=4.595943e-12
+Adjoint solver residual: abs=3.614726e-10, rel=4.746368e-12
+Adjoint solver residual: abs=3.417786e-10, rel=4.487773e-12
+Linear solver residual: abs=3.067435e-10, rel=4.027740e-12
+Linear solver residual: abs=3.036668e-10, rel=3.987341e-12
+Linear solver residual: abs=3.099989e-10, rel=4.070485e-12
+Linear solver residual: abs=2.948307e-10, rel=3.871317e-12
+Iteration 023 | mean loss = 82.922972 | individual = [81.599286 | 82.161289 | 82.993801 | 84.937512]
+Iterations:  12%|█▏        | 24/200 [02:21<03:14,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.467061e-10, rel=4.552474e-12
+Adjoint solver residual: abs=3.494798e-10, rel=4.588894e-12
+Adjoint solver residual: abs=3.524142e-10, rel=4.627425e-12
+Adjoint solver residual: abs=3.454960e-10, rel=4.536584e-12
+Linear solver residual: abs=3.050686e-10, rel=4.005747e-12
+Linear solver residual: abs=3.022150e-10, rel=3.968278e-12
+Linear solver residual: abs=3.077927e-10, rel=4.041516e-12
+Linear solver residual: abs=2.986097e-10, rel=3.920937e-12
+Iteration 024 | mean loss = 82.668607 | individual = [81.794160 | 82.038269 | 82.628049 | 84.213948]
+Iterations:  12%|█▎        | 25/200 [02:22<03:13,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.579575e-10, rel=4.700213e-12
+Adjoint solver residual: abs=3.562781e-10, rel=4.678160e-12
+Adjoint solver residual: abs=3.693601e-10, rel=4.849936e-12
+Adjoint solver residual: abs=3.420975e-10, rel=4.491960e-12
+Linear solver residual: abs=3.081050e-10, rel=4.045616e-12
+Linear solver residual: abs=3.089743e-10, rel=4.057032e-12
+Linear solver residual: abs=3.153049e-10, rel=4.140156e-12
+Linear solver residual: abs=2.974699e-10, rel=3.905971e-12
+Iteration 025 | mean loss = 81.788009 | individual = [81.372503 | 81.193602 | 81.485712 | 83.100220]
+Iterations:  13%|█▎        | 26/200 [02:23<03:12,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.594535e-10, rel=4.719855e-12
+Adjoint solver residual: abs=3.570431e-10, rel=4.688205e-12
+Adjoint solver residual: abs=3.682015e-10, rel=4.834722e-12
+Adjoint solver residual: abs=3.561637e-10, rel=4.676659e-12
+Linear solver residual: abs=3.135843e-10, rel=4.117563e-12
+Linear solver residual: abs=3.104618e-10, rel=4.076563e-12
+Linear solver residual: abs=3.190171e-10, rel=4.188899e-12
+Linear solver residual: abs=3.041172e-10, rel=3.993255e-12
+Iteration 026 | mean loss = 81.112042 | individual = [80.749716 | 80.551633 | 80.907184 | 82.239632]
+Iterations:  14%|█▎        | 27/200 [02:25<03:11,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.781950e-10, rel=4.965944e-12
+Adjoint solver residual: abs=3.649043e-10, rel=4.791428e-12
+Adjoint solver residual: abs=3.677987e-10, rel=4.829433e-12
+Adjoint solver residual: abs=3.535298e-10, rel=4.642073e-12
+Linear solver residual: abs=3.256928e-10, rel=4.276556e-12
+Linear solver residual: abs=3.179477e-10, rel=4.174857e-12
+Linear solver residual: abs=3.183721e-10, rel=4.180430e-12
+Linear solver residual: abs=3.066622e-10, rel=4.026672e-12
+Iteration 027 | mean loss = 80.564814 | individual = [80.960452 | 79.619745 | 80.221828 | 81.457232]
+Iterations:  14%|█▍        | 28/200 [02:26<03:08,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.759311e-10, rel=4.936217e-12
+Adjoint solver residual: abs=3.683305e-10, rel=4.836417e-12
+Adjoint solver residual: abs=3.772919e-10, rel=4.954085e-12
+Adjoint solver residual: abs=3.556576e-10, rel=4.670013e-12
+Linear solver residual: abs=3.211468e-10, rel=4.216865e-12
+Linear solver residual: abs=3.181497e-10, rel=4.177510e-12
+Linear solver residual: abs=3.253320e-10, rel=4.271819e-12
+Linear solver residual: abs=3.055606e-10, rel=4.012207e-12
+Iteration 028 | mean loss = 80.268284 | individual = [81.477081 | 79.141986 | 79.653862 | 80.800209]
+Iterations:  14%|█▍        | 29/200 [02:27<03:07,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.703701e-10, rel=4.863198e-12
+Adjoint solver residual: abs=3.771953e-10, rel=4.952816e-12
+Adjoint solver residual: abs=3.751332e-10, rel=4.925741e-12
+Adjoint solver residual: abs=3.589736e-10, rel=4.713554e-12
+Linear solver residual: abs=3.220436e-10, rel=4.228640e-12
+Linear solver residual: abs=3.173205e-10, rel=4.166622e-12
+Linear solver residual: abs=3.223230e-10, rel=4.232309e-12
+Linear solver residual: abs=3.074255e-10, rel=4.036694e-12
+Iteration 029 | mean loss = 79.723553 | individual = [81.281647 | 78.441770 | 79.194909 | 79.975886]
+Iterations:  15%|█▌        | 30/200 [02:28<03:06,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.693070e-10, rel=4.849238e-12
+Adjoint solver residual: abs=3.705192e-10, rel=4.865155e-12
+Adjoint solver residual: abs=3.753227e-10, rel=4.928228e-12
+Adjoint solver residual: abs=3.588276e-10, rel=4.711637e-12
+Linear solver residual: abs=3.176207e-10, rel=4.170564e-12
+Linear solver residual: abs=3.208988e-10, rel=4.213608e-12
+Linear solver residual: abs=3.233595e-10, rel=4.245918e-12
+Linear solver residual: abs=3.136398e-10, rel=4.118293e-12
+Iteration 030 | mean loss = 79.081284 | individual = [80.259188 | 77.855028 | 78.715930 | 79.494989]
+Iterations:  16%|█▌        | 31/200 [02:29<03:05,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.693999e-10, rel=4.850459e-12
+Adjoint solver residual: abs=3.689412e-10, rel=4.844436e-12
+Adjoint solver residual: abs=3.827160e-10, rel=5.025307e-12
+Adjoint solver residual: abs=3.628877e-10, rel=4.764949e-12
+Linear solver residual: abs=3.199076e-10, rel=4.200593e-12
+Linear solver residual: abs=3.245655e-10, rel=4.261753e-12
+Linear solver residual: abs=3.292316e-10, rel=4.323022e-12
+Linear solver residual: abs=3.129120e-10, rel=4.108736e-12
+Iteration 031 | mean loss = 78.449733 | individual = [79.241033 | 77.453626 | 78.173080 | 78.931191]
+Iterations:  16%|█▌        | 32/200 [02:30<03:04,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.687097e-10, rel=4.841396e-12
+Adjoint solver residual: abs=3.742906e-10, rel=4.914676e-12
+Adjoint solver residual: abs=3.812222e-10, rel=5.005693e-12
+Adjoint solver residual: abs=3.704185e-10, rel=4.863834e-12
+Linear solver residual: abs=3.192048e-10, rel=4.191365e-12
+Linear solver residual: abs=3.220357e-10, rel=4.228536e-12
+Linear solver residual: abs=3.279115e-10, rel=4.305689e-12
+Linear solver residual: abs=3.232647e-10, rel=4.244673e-12
+Iteration 032 | mean loss = 78.056287 | individual = [78.711163 | 77.151711 | 77.876811 | 78.485463]
+Iterations:  16%|█▋        | 33/200 [02:31<03:03,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.761548e-10, rel=4.939154e-12
+Adjoint solver residual: abs=3.783015e-10, rel=4.967342e-12
+Adjoint solver residual: abs=3.829128e-10, rel=5.027892e-12
+Adjoint solver residual: abs=3.729019e-10, rel=4.896442e-12
+Linear solver residual: abs=3.221374e-10, rel=4.229871e-12
+Linear solver residual: abs=3.263041e-10, rel=4.284582e-12
+Linear solver residual: abs=3.323507e-10, rel=4.363978e-12
+Linear solver residual: abs=3.223949e-10, rel=4.233253e-12
+Iteration 033 | mean loss = 77.699912 | individual = [78.168457 | 76.881737 | 77.517860 | 78.231594]
+Iterations:  17%|█▋        | 34/200 [02:32<03:02,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.794449e-10, rel=4.982355e-12
+Adjoint solver residual: abs=3.843216e-10, rel=5.046390e-12
+Adjoint solver residual: abs=3.848095e-10, rel=5.052796e-12
+Adjoint solver residual: abs=3.681134e-10, rel=4.833565e-12
+Linear solver residual: abs=3.322205e-10, rel=4.362269e-12
+Linear solver residual: abs=3.290860e-10, rel=4.321111e-12
+Linear solver residual: abs=3.286359e-10, rel=4.315201e-12
+Linear solver residual: abs=3.199214e-10, rel=4.200774e-12
+Iteration 034 | mean loss = 77.615492 | individual = [78.283964 | 77.027970 | 77.276349 | 77.873685]
+Iterations:  18%|█▊        | 35/200 [02:33<03:01,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.785686e-10, rel=4.970850e-12
+Adjoint solver residual: abs=3.772181e-10, rel=4.953116e-12
+Adjoint solver residual: abs=3.803683e-10, rel=4.994480e-12
+Adjoint solver residual: abs=3.791274e-10, rel=4.978186e-12
+Linear solver residual: abs=3.292208e-10, rel=4.322881e-12
+Linear solver residual: abs=3.241253e-10, rel=4.255973e-12
+Linear solver residual: abs=3.287165e-10, rel=4.316259e-12
+Linear solver residual: abs=3.274416e-10, rel=4.299519e-12
+Iteration 035 | mean loss = 77.487116 | individual = [78.364441 | 76.892065 | 77.227808 | 77.464149]
+Iterations:  18%|█▊        | 36/200 [02:34<03:00,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.811262e-10, rel=5.004432e-12
+Adjoint solver residual: abs=3.750269e-10, rel=4.924344e-12
+Adjoint solver residual: abs=3.760084e-10, rel=4.937232e-12
+Adjoint solver residual: abs=3.773970e-10, rel=4.955465e-12
+Linear solver residual: abs=3.263548e-10, rel=4.285248e-12
+Linear solver residual: abs=3.236530e-10, rel=4.249772e-12
+Linear solver residual: abs=3.261746e-10, rel=4.282882e-12
+Linear solver residual: abs=3.280690e-10, rel=4.307758e-12
+Iteration 036 | mean loss = 77.416562 | individual = [77.988645 | 76.822467 | 77.730509 | 77.124626]
+Iterations:  18%|█▊        | 37/200 [02:36<02:59,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.793456e-10, rel=4.981052e-12
+Adjoint solver residual: abs=3.795291e-10, rel=4.983461e-12
+Adjoint solver residual: abs=3.762058e-10, rel=4.939824e-12
+Adjoint solver residual: abs=3.819777e-10, rel=5.015613e-12
+Linear solver residual: abs=3.225656e-10, rel=4.235494e-12
+Linear solver residual: abs=3.276749e-10, rel=4.302582e-12
+Linear solver residual: abs=3.232335e-10, rel=4.244264e-12
+Linear solver residual: abs=3.252243e-10, rel=4.270405e-12
+Iteration 037 | mean loss = 77.200640 | individual = [77.595451 | 76.542104 | 77.638802 | 77.026201]
+Iterations:  19%|█▉        | 38/200 [02:37<02:58,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.771672e-10, rel=4.952448e-12
+Adjoint solver residual: abs=3.761491e-10, rel=4.939079e-12
+Adjoint solver residual: abs=3.842147e-10, rel=5.044986e-12
+Adjoint solver residual: abs=3.767881e-10, rel=4.947470e-12
+Linear solver residual: abs=3.228424e-10, rel=4.239128e-12
+Linear solver residual: abs=3.273204e-10, rel=4.297928e-12
+Linear solver residual: abs=3.283064e-10, rel=4.310874e-12
+Linear solver residual: abs=3.256859e-10, rel=4.276465e-12
+Iteration 038 | mean loss = 77.245783 | individual = [77.415660 | 77.187848 | 77.207115 | 77.172507]
+Iterations:  20%|█▉        | 39/200 [02:38<02:57,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.768061e-10, rel=4.947707e-12
+Adjoint solver residual: abs=3.761545e-10, rel=4.939151e-12
+Adjoint solver residual: abs=3.814994e-10, rel=5.009332e-12
+Adjoint solver residual: abs=3.756645e-10, rel=4.932717e-12
+Linear solver residual: abs=3.245158e-10, rel=4.261101e-12
+Linear solver residual: abs=3.239532e-10, rel=4.253714e-12
+Linear solver residual: abs=3.306490e-10, rel=4.341634e-12
+Linear solver residual: abs=3.237826e-10, rel=4.251474e-12
+Iteration 039 | mean loss = 76.854527 | individual = [77.129122 | 76.378884 | 76.806987 | 77.103114]
+Iterations:  20%|██        | 40/200 [02:39<02:55,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.792881e-10, rel=4.980297e-12
+Adjoint solver residual: abs=3.748281e-10, rel=4.921734e-12
+Adjoint solver residual: abs=3.903039e-10, rel=5.124941e-12
+Adjoint solver residual: abs=3.737595e-10, rel=4.907703e-12
+Linear solver residual: abs=3.250188e-10, rel=4.267706e-12
+Linear solver residual: abs=3.250661e-10, rel=4.268327e-12
+Linear solver residual: abs=3.297545e-10, rel=4.329889e-12
+Linear solver residual: abs=3.244690e-10, rel=4.260487e-12
+Iteration 040 | mean loss = 76.888977 | individual = [76.993934 | 76.254207 | 77.540729 | 76.767038]
+Iterations:  20%|██        | 41/200 [02:40<02:54,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.798610e-10, rel=4.987820e-12
+Adjoint solver residual: abs=3.740902e-10, rel=4.912045e-12
+Adjoint solver residual: abs=3.779252e-10, rel=4.962401e-12
+Adjoint solver residual: abs=3.732315e-10, rel=4.900770e-12
+Linear solver residual: abs=3.269846e-10, rel=4.293518e-12
+Linear solver residual: abs=3.244307e-10, rel=4.259984e-12
+Linear solver residual: abs=3.299932e-10, rel=4.333022e-12
+Linear solver residual: abs=3.253421e-10, rel=4.271951e-12
+Iteration 041 | mean loss = 76.735600 | individual = [76.883637 | 76.151638 | 76.711196 | 77.195928]
+Iterations:  21%|██        | 42/200 [02:41<02:54,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.772264e-10, rel=4.953226e-12
+Adjoint solver residual: abs=3.756670e-10, rel=4.932749e-12
+Adjoint solver residual: abs=3.775023e-10, rel=4.956848e-12
+Adjoint solver residual: abs=3.702761e-10, rel=4.861964e-12
+Linear solver residual: abs=3.228653e-10, rel=4.239430e-12
+Linear solver residual: abs=3.288676e-10, rel=4.318244e-12
+Linear solver residual: abs=3.280298e-10, rel=4.307243e-12
+Linear solver residual: abs=3.231597e-10, rel=4.243295e-12
+Iteration 042 | mean loss = 76.657798 | individual = [76.745535 | 76.800043 | 76.559726 | 76.525888]
+Iterations:  22%|██▏       | 43/200 [02:42<02:54,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.688790e-10, rel=4.843619e-12
+Adjoint solver residual: abs=3.808733e-10, rel=5.001111e-12
+Adjoint solver residual: abs=3.780289e-10, rel=4.963763e-12
+Adjoint solver residual: abs=3.717899e-10, rel=4.881841e-12
+Linear solver residual: abs=3.254065e-10, rel=4.272796e-12
+Linear solver residual: abs=3.242513e-10, rel=4.257628e-12
+Linear solver residual: abs=3.294280e-10, rel=4.325602e-12
+Linear solver residual: abs=3.206280e-10, rel=4.210052e-12
+Iteration 043 | mean loss = 76.378413 | individual = [76.547420 | 76.135109 | 76.447749 | 76.383372]
+Iterations:  22%|██▏       | 44/200 [02:43<02:53,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.776717e-10, rel=4.959073e-12
+Adjoint solver residual: abs=3.808594e-10, rel=5.000929e-12
+Adjoint solver residual: abs=3.812630e-10, rel=5.006229e-12
+Adjoint solver residual: abs=3.765468e-10, rel=4.944302e-12
+Linear solver residual: abs=3.259963e-10, rel=4.280542e-12
+Linear solver residual: abs=3.298255e-10, rel=4.330821e-12
+Linear solver residual: abs=3.277199e-10, rel=4.303173e-12
+Linear solver residual: abs=3.225022e-10, rel=4.234661e-12
+Iteration 044 | mean loss = 76.324006 | individual = [76.447633 | 75.983579 | 76.505700 | 76.359113]
+Iterations:  22%|██▎       | 45/200 [02:44<02:52,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.812507e-10, rel=5.006067e-12
+Adjoint solver residual: abs=3.812075e-10, rel=5.005500e-12
+Adjoint solver residual: abs=3.812884e-10, rel=5.006562e-12
+Adjoint solver residual: abs=3.744899e-10, rel=4.917294e-12
+Linear solver residual: abs=3.275675e-10, rel=4.301173e-12
+Linear solver residual: abs=3.271477e-10, rel=4.295659e-12
+Linear solver residual: abs=3.222710e-10, rel=4.231626e-12
+Linear solver residual: abs=3.239614e-10, rel=4.253822e-12
+Iteration 045 | mean loss = 76.314041 | individual = [76.328889 | 76.281299 | 76.368365 | 76.277612]
+Iterations:  23%|██▎       | 46/200 [02:45<02:50,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.840098e-10, rel=5.042296e-12
+Adjoint solver residual: abs=3.735689e-10, rel=4.905200e-12
+Adjoint solver residual: abs=3.869069e-10, rel=5.080337e-12
+Adjoint solver residual: abs=3.805329e-10, rel=4.996642e-12
+Linear solver residual: abs=3.242242e-10, rel=4.257272e-12
+Linear solver residual: abs=3.282676e-10, rel=4.310364e-12
+Linear solver residual: abs=3.283534e-10, rel=4.311491e-12
+Linear solver residual: abs=3.243952e-10, rel=4.259518e-12
+Iteration 046 | mean loss = 76.146510 | individual = [76.253686 | 76.043541 | 76.142832 | 76.145979]
+Iterations:  24%|██▎       | 47/200 [02:47<02:49,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.742534e-10, rel=4.914188e-12
+Adjoint solver residual: abs=3.727108e-10, rel=4.893932e-12
+Adjoint solver residual: abs=3.758098e-10, rel=4.934625e-12
+Adjoint solver residual: abs=3.739153e-10, rel=4.909749e-12
+Linear solver residual: abs=3.258208e-10, rel=4.278236e-12
+Linear solver residual: abs=3.248351e-10, rel=4.265294e-12
+Linear solver residual: abs=3.326774e-10, rel=4.368268e-12
+Linear solver residual: abs=3.242593e-10, rel=4.257734e-12
+Iteration 047 | mean loss = 76.180914 | individual = [76.487888 | 75.848349 | 76.195059 | 76.192358]
+Iterations:  24%|██▍       | 48/200 [02:48<02:47,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.784209e-10, rel=4.968910e-12
+Adjoint solver residual: abs=3.807133e-10, rel=4.999011e-12
+Adjoint solver residual: abs=3.803341e-10, rel=4.994031e-12
+Adjoint solver residual: abs=3.791243e-10, rel=4.978147e-12
+Linear solver residual: abs=3.264062e-10, rel=4.285923e-12
+Linear solver residual: abs=3.204410e-10, rel=4.207596e-12
+Linear solver residual: abs=3.283322e-10, rel=4.311213e-12
+Linear solver residual: abs=3.218298e-10, rel=4.225833e-12
+Iteration 048 | mean loss = 76.038015 | individual = [76.440939 | 75.749030 | 76.016478 | 75.945611]
+Iterations:  24%|██▍       | 49/200 [02:49<02:44,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.763970e-10, rel=4.942335e-12
+Adjoint solver residual: abs=3.757172e-10, rel=4.933408e-12
+Adjoint solver residual: abs=3.746030e-10, rel=4.918778e-12
+Adjoint solver residual: abs=3.777095e-10, rel=4.959569e-12
+Linear solver residual: abs=3.261675e-10, rel=4.282789e-12
+Linear solver residual: abs=3.237216e-10, rel=4.250673e-12
+Linear solver residual: abs=3.311875e-10, rel=4.348705e-12
+Linear solver residual: abs=3.247796e-10, rel=4.264566e-12
+Iteration 049 | mean loss = 76.191466 | individual = [76.241487 | 76.076465 | 76.640628 | 75.807286]
+Iterations:  25%|██▌       | 50/200 [02:50<02:43,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.869979e-10, rel=5.081531e-12
+Adjoint solver residual: abs=3.776452e-10, rel=4.958725e-12
+Adjoint solver residual: abs=3.804329e-10, rel=4.995328e-12
+Adjoint solver residual: abs=3.744536e-10, rel=4.916817e-12
+Linear solver residual: abs=3.252920e-10, rel=4.271294e-12
+Linear solver residual: abs=3.271547e-10, rel=4.295751e-12
+Linear solver residual: abs=3.259207e-10, rel=4.279548e-12
+Linear solver residual: abs=3.236644e-10, rel=4.249922e-12
+Iteration 050 | mean loss = 76.123970 | individual = [76.104824 | 75.833430 | 76.004331 | 76.553296]
+Iterations:  26%|██▌       | 51/200 [02:51<02:42,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.790186e-10, rel=4.976758e-12
+Adjoint solver residual: abs=3.756154e-10, rel=4.932071e-12
+Adjoint solver residual: abs=3.789611e-10, rel=4.976002e-12
+Adjoint solver residual: abs=3.794389e-10, rel=4.982277e-12
+Linear solver residual: abs=3.256918e-10, rel=4.276542e-12
+Linear solver residual: abs=3.235325e-10, rel=4.248190e-12
+Linear solver residual: abs=3.253576e-10, rel=4.272155e-12
+Linear solver residual: abs=3.221499e-10, rel=4.230035e-12
+Iteration 051 | mean loss = 75.949042 | individual = [76.162576 | 75.668023 | 76.137723 | 75.827847]
+Iterations:  26%|██▌       | 52/200 [02:52<02:41,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.749160e-10, rel=4.922888e-12
+Adjoint solver residual: abs=3.721648e-10, rel=4.886763e-12
+Adjoint solver residual: abs=3.766432e-10, rel=4.945567e-12
+Adjoint solver residual: abs=3.758510e-10, rel=4.935166e-12
+Linear solver residual: abs=3.263562e-10, rel=4.285267e-12
+Linear solver residual: abs=3.212737e-10, rel=4.218530e-12
+Linear solver residual: abs=3.219839e-10, rel=4.227856e-12
+Linear solver residual: abs=3.283976e-10, rel=4.312072e-12
+Iteration 052 | mean loss = 76.009423 | individual = [76.013737 | 75.653834 | 76.098875 | 76.271245]
+Iterations:  26%|██▋       | 53/200 [02:53<02:40,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.767614e-10, rel=4.947120e-12
+Adjoint solver residual: abs=3.736042e-10, rel=4.905664e-12
+Adjoint solver residual: abs=3.740765e-10, rel=4.911866e-12
+Adjoint solver residual: abs=3.740863e-10, rel=4.911994e-12
+Linear solver residual: abs=3.262161e-10, rel=4.283427e-12
+Linear solver residual: abs=3.283075e-10, rel=4.310889e-12
+Linear solver residual: abs=3.237718e-10, rel=4.251332e-12
+Linear solver residual: abs=3.191812e-10, rel=4.191055e-12
+Iteration 053 | mean loss = 75.953006 | individual = [75.935049 | 75.560433 | 75.979831 | 76.336713]
+Iterations:  27%|██▋       | 54/200 [02:54<02:41,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.755748e-10, rel=4.931539e-12
+Adjoint solver residual: abs=3.762265e-10, rel=4.940095e-12
+Adjoint solver residual: abs=3.847072e-10, rel=5.051453e-12
+Adjoint solver residual: abs=3.703720e-10, rel=4.863222e-12
+Linear solver residual: abs=3.234878e-10, rel=4.247603e-12
+Linear solver residual: abs=3.224996e-10, rel=4.234628e-12
+Linear solver residual: abs=3.282375e-10, rel=4.309970e-12
+Linear solver residual: abs=3.203882e-10, rel=4.206903e-12
+Iteration 054 | mean loss = 75.831290 | individual = [75.862522 | 75.616547 | 75.822862 | 76.023228]
+Iterations:  28%|██▊       | 55/200 [02:55<02:39,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.785689e-10, rel=4.970854e-12
+Adjoint solver residual: abs=3.759952e-10, rel=4.937058e-12
+Adjoint solver residual: abs=3.798662e-10, rel=4.987888e-12
+Adjoint solver residual: abs=3.764176e-10, rel=4.942605e-12
+Linear solver residual: abs=3.256180e-10, rel=4.275574e-12
+Linear solver residual: abs=3.276814e-10, rel=4.302667e-12
+Linear solver residual: abs=3.288857e-10, rel=4.318481e-12
+Linear solver residual: abs=3.263083e-10, rel=4.284637e-12
+Iteration 055 | mean loss = 75.866763 | individual = [76.082318 | 75.560640 | 76.131097 | 75.692999]
+Iterations:  28%|██▊       | 56/200 [02:56<02:40,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.788143e-10, rel=4.974076e-12
+Adjoint solver residual: abs=3.742763e-10, rel=4.914489e-12
+Adjoint solver residual: abs=3.861674e-10, rel=5.070627e-12
+Adjoint solver residual: abs=3.821833e-10, rel=5.018313e-12
+Linear solver residual: abs=3.244473e-10, rel=4.260202e-12
+Linear solver residual: abs=3.255104e-10, rel=4.274160e-12
+Linear solver residual: abs=3.297271e-10, rel=4.329529e-12
+Linear solver residual: abs=3.253253e-10, rel=4.271730e-12
+Iteration 056 | mean loss = 76.252679 | individual = [75.846082 | 75.560914 | 76.304493 | 77.299225]
+Iterations:  28%|██▊       | 57/200 [02:58<02:39,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.805734e-10, rel=4.997173e-12
+Adjoint solver residual: abs=3.764361e-10, rel=4.942848e-12
+Adjoint solver residual: abs=3.870476e-10, rel=5.082184e-12
+Adjoint solver residual: abs=3.820147e-10, rel=5.016098e-12
+Linear solver residual: abs=3.254725e-10, rel=4.273663e-12
+Linear solver residual: abs=3.216035e-10, rel=4.222860e-12
+Linear solver residual: abs=3.273920e-10, rel=4.298868e-12
+Linear solver residual: abs=3.244316e-10, rel=4.259995e-12
+Iteration 057 | mean loss = 76.187807 | individual = [75.814490 | 75.538695 | 75.799331 | 77.598712]
+Iterations:  29%|██▉       | 58/200 [02:59<02:37,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.789980e-10, rel=4.976487e-12
+Adjoint solver residual: abs=3.769584e-10, rel=4.949706e-12
+Adjoint solver residual: abs=3.809357e-10, rel=5.001931e-12
+Adjoint solver residual: abs=3.751869e-10, rel=4.926445e-12
+Linear solver residual: abs=3.242993e-10, rel=4.258259e-12
+Linear solver residual: abs=3.212962e-10, rel=4.218825e-12
+Linear solver residual: abs=3.265185e-10, rel=4.287398e-12
+Linear solver residual: abs=3.214487e-10, rel=4.220829e-12
+Iteration 058 | mean loss = 75.774003 | individual = [75.751145 | 75.460001 | 75.724153 | 76.160711]
+Iterations:  30%|██▉       | 59/200 [03:00<02:36,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.739480e-10, rel=4.910178e-12
+Adjoint solver residual: abs=3.814468e-10, rel=5.008642e-12
+Adjoint solver residual: abs=3.821866e-10, rel=5.018356e-12
+Adjoint solver residual: abs=3.733375e-10, rel=4.902161e-12
+Linear solver residual: abs=3.269257e-10, rel=4.292745e-12
+Linear solver residual: abs=3.232603e-10, rel=4.244615e-12
+Linear solver residual: abs=3.319676e-10, rel=4.358948e-12
+Linear solver residual: abs=3.206489e-10, rel=4.210326e-12
+Iteration 059 | mean loss = 75.852521 | individual = [75.959228 | 75.514062 | 75.647327 | 76.289466]
+Iterations:  30%|███       | 60/200 [03:01<02:35,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.813058e-10, rel=5.006790e-12
+Adjoint solver residual: abs=3.815912e-10, rel=5.010538e-12
+Adjoint solver residual: abs=3.853105e-10, rel=5.059375e-12
+Adjoint solver residual: abs=3.748824e-10, rel=4.922447e-12
+Linear solver residual: abs=3.288784e-10, rel=4.318385e-12
+Linear solver residual: abs=3.246377e-10, rel=4.262701e-12
+Linear solver residual: abs=3.322563e-10, rel=4.362739e-12
+Linear solver residual: abs=3.202106e-10, rel=4.204571e-12
+Iteration 060 | mean loss = 75.913971 | individual = [75.799529 | 75.460045 | 76.010252 | 76.386058]
+Iterations:  30%|███       | 61/200 [03:02<02:32,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.773178e-10, rel=4.954425e-12
+Adjoint solver residual: abs=3.778888e-10, rel=4.961923e-12
+Adjoint solver residual: abs=3.807070e-10, rel=4.998927e-12
+Adjoint solver residual: abs=3.705589e-10, rel=4.865676e-12
+Linear solver residual: abs=3.212911e-10, rel=4.218758e-12
+Linear solver residual: abs=3.234597e-10, rel=4.247234e-12
+Linear solver residual: abs=3.285817e-10, rel=4.314489e-12
+Linear solver residual: abs=3.226487e-10, rel=4.236585e-12
+Iteration 061 | mean loss = 75.811738 | individual = [75.699070 | 75.497312 | 75.767536 | 76.283035]
+Iterations:  31%|███       | 62/200 [03:03<02:32,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.809274e-10, rel=5.001821e-12
+Adjoint solver residual: abs=3.793442e-10, rel=4.981034e-12
+Adjoint solver residual: abs=3.792029e-10, rel=4.979178e-12
+Adjoint solver residual: abs=3.775386e-10, rel=4.957325e-12
+Linear solver residual: abs=3.289461e-10, rel=4.319274e-12
+Linear solver residual: abs=3.265414e-10, rel=4.287699e-12
+Linear solver residual: abs=3.319455e-10, rel=4.358658e-12
+Linear solver residual: abs=3.235418e-10, rel=4.248312e-12
+Iteration 062 | mean loss = 75.698084 | individual = [75.648220 | 75.475951 | 75.711385 | 75.956779]
+Iterations:  32%|███▏      | 63/200 [03:04<02:31,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.847236e-10, rel=5.051668e-12
+Adjoint solver residual: abs=3.768280e-10, rel=4.947995e-12
+Adjoint solver residual: abs=3.825466e-10, rel=5.023084e-12
+Adjoint solver residual: abs=3.760951e-10, rel=4.938371e-12
+Linear solver residual: abs=3.270427e-10, rel=4.294282e-12
+Linear solver residual: abs=3.225131e-10, rel=4.234804e-12
+Linear solver residual: abs=3.240014e-10, rel=4.254347e-12
+Linear solver residual: abs=3.210945e-10, rel=4.216177e-12
+Iteration 063 | mean loss = 75.703029 | individual = [75.903896 | 75.403902 | 75.741806 | 75.762513]
+Iterations:  32%|███▏      | 64/200 [03:05<02:29,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.788581e-10, rel=4.974651e-12
+Adjoint solver residual: abs=3.794410e-10, rel=4.982305e-12
+Adjoint solver residual: abs=3.783571e-10, rel=4.968072e-12
+Adjoint solver residual: abs=3.783457e-10, rel=4.967922e-12
+Linear solver residual: abs=3.259926e-10, rel=4.280493e-12
+Linear solver residual: abs=3.239094e-10, rel=4.253139e-12
+Linear solver residual: abs=3.269472e-10, rel=4.293028e-12
+Linear solver residual: abs=3.206723e-10, rel=4.210634e-12
+Iteration 064 | mean loss = 75.627148 | individual = [75.923547 | 75.412813 | 75.616996 | 75.555235]
+Iterations:  32%|███▎      | 65/200 [03:06<02:28,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.804160e-10, rel=4.995106e-12
+Adjoint solver residual: abs=3.757684e-10, rel=4.934081e-12
+Adjoint solver residual: abs=3.793761e-10, rel=4.981452e-12
+Adjoint solver residual: abs=3.796345e-10, rel=4.984846e-12
+Linear solver residual: abs=3.300222e-10, rel=4.333404e-12
+Linear solver residual: abs=3.273520e-10, rel=4.298342e-12
+Linear solver residual: abs=3.270456e-10, rel=4.294319e-12
+Linear solver residual: abs=3.252401e-10, rel=4.270611e-12
+Iteration 065 | mean loss = 75.797533 | individual = [75.862914 | 75.384936 | 75.541745 | 76.400537]
+Iterations:  33%|███▎      | 66/200 [03:07<02:27,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.803699e-10, rel=4.994502e-12
+Adjoint solver residual: abs=3.722768e-10, rel=4.888234e-12
+Adjoint solver residual: abs=3.799212e-10, rel=4.988610e-12
+Adjoint solver residual: abs=3.770869e-10, rel=4.951394e-12
+Linear solver residual: abs=3.252910e-10, rel=4.271281e-12
+Linear solver residual: abs=3.207843e-10, rel=4.212104e-12
+Linear solver residual: abs=3.306723e-10, rel=4.341940e-12
+Linear solver residual: abs=3.249988e-10, rel=4.267444e-12
+Iteration 066 | mean loss = 75.857162 | individual = [75.744603 | 75.388123 | 75.601449 | 76.694474]
+Iterations:  34%|███▎      | 67/200 [03:09<02:26,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.783328e-10, rel=4.967753e-12
+Adjoint solver residual: abs=3.758462e-10, rel=4.935102e-12
+Adjoint solver residual: abs=3.837702e-10, rel=5.039149e-12
+Adjoint solver residual: abs=3.773520e-10, rel=4.954875e-12
+Linear solver residual: abs=3.259062e-10, rel=4.279358e-12
+Linear solver residual: abs=3.260463e-10, rel=4.281197e-12
+Linear solver residual: abs=3.249545e-10, rel=4.266862e-12
+Linear solver residual: abs=3.262127e-10, rel=4.283382e-12
+Iteration 067 | mean loss = 75.715974 | individual = [75.613725 | 75.374543 | 75.615462 | 76.260168]
+Iterations:  34%|███▍      | 68/200 [03:10<02:23,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.794653e-10, rel=4.982623e-12
+Adjoint solver residual: abs=3.739104e-10, rel=4.909684e-12
+Adjoint solver residual: abs=3.814292e-10, rel=5.008411e-12
+Adjoint solver residual: abs=3.677598e-10, rel=4.828923e-12
+Linear solver residual: abs=3.225682e-10, rel=4.235528e-12
+Linear solver residual: abs=3.232289e-10, rel=4.244203e-12
+Linear solver residual: abs=3.264408e-10, rel=4.286377e-12
+Linear solver residual: abs=3.247230e-10, rel=4.263822e-12
+Iteration 068 | mean loss = 75.674509 | individual = [76.177590 | 75.298316 | 75.582231 | 75.639900]
+Iterations:  34%|███▍      | 69/200 [03:11<02:22,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.738776e-10, rel=4.909253e-12
+Adjoint solver residual: abs=3.821144e-10, rel=5.017408e-12
+Adjoint solver residual: abs=3.848820e-10, rel=5.053748e-12
+Adjoint solver residual: abs=3.735259e-10, rel=4.904635e-12
+Linear solver residual: abs=3.226285e-10, rel=4.236320e-12
+Linear solver residual: abs=3.290666e-10, rel=4.320856e-12
+Linear solver residual: abs=3.253372e-10, rel=4.271887e-12
+Linear solver residual: abs=3.211746e-10, rel=4.217229e-12
+Iteration 069 | mean loss = 75.661438 | individual = [76.249801 | 75.248026 | 75.485682 | 75.662241]
+Iterations:  35%|███▌      | 70/200 [03:12<02:20,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.745722e-10, rel=4.918374e-12
+Adjoint solver residual: abs=3.783788e-10, rel=4.968357e-12
+Adjoint solver residual: abs=3.795792e-10, rel=4.984119e-12
+Adjoint solver residual: abs=3.735663e-10, rel=4.905166e-12
+Linear solver residual: abs=3.240543e-10, rel=4.255041e-12
+Linear solver residual: abs=3.238914e-10, rel=4.252902e-12
+Linear solver residual: abs=3.273123e-10, rel=4.297820e-12
+Linear solver residual: abs=3.218445e-10, rel=4.226025e-12
+Iteration 070 | mean loss = 75.667733 | individual = [75.821115 | 75.261335 | 76.044089 | 75.544392]
+Iterations:  36%|███▌      | 71/200 [03:13<02:20,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.748612e-10, rel=4.922169e-12
+Adjoint solver residual: abs=3.808741e-10, rel=5.001122e-12
+Adjoint solver residual: abs=3.799500e-10, rel=4.988988e-12
+Adjoint solver residual: abs=3.748424e-10, rel=4.921922e-12
+Linear solver residual: abs=3.273746e-10, rel=4.298639e-12
+Linear solver residual: abs=3.242421e-10, rel=4.257507e-12
+Linear solver residual: abs=3.259618e-10, rel=4.280088e-12
+Linear solver residual: abs=3.243952e-10, rel=4.259517e-12
+Iteration 071 | mean loss = 75.634239 | individual = [75.784378 | 75.256732 | 76.077662 | 75.418184]
+Iterations:  36%|███▌      | 72/200 [03:14<02:20,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.764927e-10, rel=4.943591e-12
+Adjoint solver residual: abs=3.730332e-10, rel=4.898166e-12
+Adjoint solver residual: abs=3.873216e-10, rel=5.085782e-12
+Adjoint solver residual: abs=3.787029e-10, rel=4.972612e-12
+Linear solver residual: abs=3.232718e-10, rel=4.244767e-12
+Linear solver residual: abs=3.265411e-10, rel=4.287694e-12
+Linear solver residual: abs=3.243946e-10, rel=4.259510e-12
+Linear solver residual: abs=3.280785e-10, rel=4.307882e-12
+Iteration 072 | mean loss = 75.676326 | individual = [75.745964 | 75.244392 | 75.785969 | 75.928980]
+Iterations:  36%|███▋      | 73/200 [03:15<02:19,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.757533e-10, rel=4.933882e-12
+Adjoint solver residual: abs=3.787788e-10, rel=4.973609e-12
+Adjoint solver residual: abs=3.863288e-10, rel=5.072746e-12
+Adjoint solver residual: abs=3.754444e-10, rel=4.929826e-12
+Linear solver residual: abs=3.244308e-10, rel=4.259985e-12
+Linear solver residual: abs=3.207361e-10, rel=4.211471e-12
+Linear solver residual: abs=3.338929e-10, rel=4.384228e-12
+Linear solver residual: abs=3.236731e-10, rel=4.250036e-12
+Iteration 073 | mean loss = 75.566407 | individual = [75.704710 | 75.197662 | 75.420090 | 75.943164]
+Iterations:  37%|███▋      | 74/200 [03:16<02:18,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.806739e-10, rel=4.998494e-12
+Adjoint solver residual: abs=3.791288e-10, rel=4.978205e-12
+Adjoint solver residual: abs=3.837779e-10, rel=5.039250e-12
+Adjoint solver residual: abs=3.831152e-10, rel=5.030550e-12
+Linear solver residual: abs=3.242270e-10, rel=4.257309e-12
+Linear solver residual: abs=3.268356e-10, rel=4.291562e-12
+Linear solver residual: abs=3.305389e-10, rel=4.340188e-12
+Linear solver residual: abs=3.248059e-10, rel=4.264911e-12
+Iteration 074 | mean loss = 75.516630 | individual = [75.669749 | 75.551002 | 75.443117 | 75.402654]
+Iterations:  38%|███▊      | 75/200 [03:17<02:17,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.785095e-10, rel=4.970073e-12
+Adjoint solver residual: abs=3.752299e-10, rel=4.927010e-12
+Adjoint solver residual: abs=3.806062e-10, rel=4.997604e-12
+Adjoint solver residual: abs=3.745705e-10, rel=4.918352e-12
+Linear solver residual: abs=3.245226e-10, rel=4.261191e-12
+Linear solver residual: abs=3.238219e-10, rel=4.251990e-12
+Linear solver residual: abs=3.291429e-10, rel=4.321858e-12
+Linear solver residual: abs=3.265925e-10, rel=4.288369e-12
+Iteration 075 | mean loss = 75.521995 | individual = [75.620480 | 75.653293 | 75.412874 | 75.401334]
+Iterations:  38%|███▊      | 76/200 [03:18<02:16,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.844193e-10, rel=5.047673e-12
+Adjoint solver residual: abs=3.812674e-10, rel=5.006286e-12
+Adjoint solver residual: abs=3.813165e-10, rel=5.006930e-12
+Adjoint solver residual: abs=3.808019e-10, rel=5.000174e-12
+Linear solver residual: abs=3.262273e-10, rel=4.283574e-12
+Linear solver residual: abs=3.245661e-10, rel=4.261762e-12
+Linear solver residual: abs=3.271672e-10, rel=4.295916e-12
+Linear solver residual: abs=3.273714e-10, rel=4.298597e-12
+Iteration 076 | mean loss = 75.420639 | individual = [75.563668 | 75.465669 | 75.345735 | 75.307485]
+Iterations:  38%|███▊      | 77/200 [03:19<02:14,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.825171e-10, rel=5.022696e-12
+Adjoint solver residual: abs=3.799145e-10, rel=4.988522e-12
+Adjoint solver residual: abs=3.847624e-10, rel=5.052177e-12
+Adjoint solver residual: abs=3.807882e-10, rel=4.999994e-12
+Linear solver residual: abs=3.256822e-10, rel=4.276417e-12
+Linear solver residual: abs=3.242099e-10, rel=4.257085e-12
+Linear solver residual: abs=3.296687e-10, rel=4.328762e-12
+Linear solver residual: abs=3.252263e-10, rel=4.270431e-12
+Iteration 077 | mean loss = 75.595804 | individual = [75.647749 | 75.244573 | 75.632969 | 75.857927]
+Iterations:  39%|███▉      | 78/200 [03:21<02:12,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.852447e-10, rel=5.058511e-12
+Adjoint solver residual: abs=3.730219e-10, rel=4.898017e-12
+Adjoint solver residual: abs=3.827806e-10, rel=5.026155e-12
+Adjoint solver residual: abs=3.753858e-10, rel=4.929057e-12
+Linear solver residual: abs=3.242777e-10, rel=4.257974e-12
+Linear solver residual: abs=3.245473e-10, rel=4.261515e-12
+Linear solver residual: abs=3.294716e-10, rel=4.326174e-12
+Linear solver residual: abs=3.246166e-10, rel=4.262424e-12
+Iteration 078 | mean loss = 75.661036 | individual = [75.780057 | 75.254785 | 75.763448 | 75.845856]
+Iterations:  40%|███▉      | 79/200 [03:22<02:11,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.801519e-10, rel=4.991640e-12
+Adjoint solver residual: abs=3.806416e-10, rel=4.998069e-12
+Adjoint solver residual: abs=3.788092e-10, rel=4.974008e-12
+Adjoint solver residual: abs=3.735964e-10, rel=4.905561e-12
+Linear solver residual: abs=3.269346e-10, rel=4.292862e-12
+Linear solver residual: abs=3.262555e-10, rel=4.283944e-12
+Linear solver residual: abs=3.303353e-10, rel=4.337515e-12
+Linear solver residual: abs=3.252896e-10, rel=4.271261e-12
+Iteration 079 | mean loss = 75.424077 | individual = [75.591543 | 75.226183 | 75.592354 | 75.286226]
+Iterations:  40%|████      | 80/200 [03:23<02:10,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.775765e-10, rel=4.957822e-12
+Adjoint solver residual: abs=3.765859e-10, rel=4.944815e-12
+Adjoint solver residual: abs=3.785768e-10, rel=4.970958e-12
+Adjoint solver residual: abs=3.784275e-10, rel=4.968997e-12
+Linear solver residual: abs=3.292399e-10, rel=4.323131e-12
+Linear solver residual: abs=3.226543e-10, rel=4.236658e-12
+Linear solver residual: abs=3.278881e-10, rel=4.305382e-12
+Linear solver residual: abs=3.226281e-10, rel=4.236315e-12
+Iteration 080 | mean loss = 75.351273 | individual = [75.567276 | 75.180632 | 75.397270 | 75.259915]
+Iterations:  40%|████      | 81/200 [03:24<02:09,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.761180e-10, rel=4.938671e-12
+Adjoint solver residual: abs=3.779057e-10, rel=4.962145e-12
+Adjoint solver residual: abs=3.838643e-10, rel=5.040385e-12
+Adjoint solver residual: abs=3.766270e-10, rel=4.945354e-12
+Linear solver residual: abs=3.252191e-10, rel=4.270335e-12
+Linear solver residual: abs=3.268049e-10, rel=4.291159e-12
+Linear solver residual: abs=3.253259e-10, rel=4.271739e-12
+Linear solver residual: abs=3.239153e-10, rel=4.253217e-12
+Iteration 081 | mean loss = 75.429785 | individual = [75.523260 | 75.465992 | 75.413728 | 75.316158]
+Iterations:  41%|████      | 82/200 [03:25<02:07,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.768735e-10, rel=4.948591e-12
+Adjoint solver residual: abs=3.816048e-10, rel=5.010717e-12
+Adjoint solver residual: abs=3.811303e-10, rel=5.004486e-12
+Adjoint solver residual: abs=3.754799e-10, rel=4.930293e-12
+Linear solver residual: abs=3.261396e-10, rel=4.282423e-12
+Linear solver residual: abs=3.260479e-10, rel=4.281219e-12
+Linear solver residual: abs=3.258076e-10, rel=4.278063e-12
+Linear solver residual: abs=3.290053e-10, rel=4.320052e-12
+Iteration 082 | mean loss = 75.420298 | individual = [75.515413 | 75.566434 | 75.371633 | 75.227711]
+Iterations:  42%|████▏     | 83/200 [03:26<02:07,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.727294e-10, rel=4.894176e-12
+Adjoint solver residual: abs=3.777285e-10, rel=4.959819e-12
+Adjoint solver residual: abs=3.820758e-10, rel=5.016901e-12
+Adjoint solver residual: abs=3.769643e-10, rel=4.949783e-12
+Linear solver residual: abs=3.275406e-10, rel=4.300819e-12
+Linear solver residual: abs=3.227382e-10, rel=4.237760e-12
+Linear solver residual: abs=3.271515e-10, rel=4.295710e-12
+Linear solver residual: abs=3.238371e-10, rel=4.252189e-12
+Iteration 083 | mean loss = 75.346579 | individual = [75.507944 | 75.387737 | 75.304250 | 75.186386]
+Iterations:  42%|████▏     | 84/200 [03:27<02:05,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.787238e-10, rel=4.972887e-12
+Adjoint solver residual: abs=3.808380e-10, rel=5.000648e-12
+Adjoint solver residual: abs=3.765866e-10, rel=4.944824e-12
+Adjoint solver residual: abs=3.720778e-10, rel=4.885621e-12
+Linear solver residual: abs=3.221358e-10, rel=4.229850e-12
+Linear solver residual: abs=3.229309e-10, rel=4.240291e-12
+Linear solver residual: abs=3.271716e-10, rel=4.295974e-12
+Linear solver residual: abs=3.291502e-10, rel=4.321954e-12
+Iteration 084 | mean loss = 75.353905 | individual = [75.492638 | 75.245841 | 75.313296 | 75.363843]
+Iterations:  42%|████▎     | 85/200 [03:28<02:03,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.855225e-10, rel=5.062159e-12
+Adjoint solver residual: abs=3.772229e-10, rel=4.953179e-12
+Adjoint solver residual: abs=3.823338e-10, rel=5.020289e-12
+Adjoint solver residual: abs=3.747370e-10, rel=4.920537e-12
+Linear solver residual: abs=3.259296e-10, rel=4.279666e-12
+Linear solver residual: abs=3.229505e-10, rel=4.240548e-12
+Linear solver residual: abs=3.277710e-10, rel=4.303844e-12
+Linear solver residual: abs=3.277288e-10, rel=4.303289e-12
+Iteration 085 | mean loss = 75.356445 | individual = [75.464829 | 75.260584 | 75.356273 | 75.344094]
+Iterations:  43%|████▎     | 86/200 [03:29<02:03,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.760239e-10, rel=4.937436e-12
+Adjoint solver residual: abs=3.759630e-10, rel=4.936636e-12
+Adjoint solver residual: abs=3.856023e-10, rel=5.063207e-12
+Adjoint solver residual: abs=3.790005e-10, rel=4.976520e-12
+Linear solver residual: abs=3.240230e-10, rel=4.254630e-12
+Linear solver residual: abs=3.253910e-10, rel=4.272593e-12
+Linear solver residual: abs=3.296901e-10, rel=4.329044e-12
+Linear solver residual: abs=3.249974e-10, rel=4.267425e-12
+Iteration 086 | mean loss = 75.305925 | individual = [75.483518 | 75.229685 | 75.344778 | 75.165721]
+Iterations:  44%|████▎     | 87/200 [03:30<02:03,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.813148e-10, rel=5.006908e-12
+Adjoint solver residual: abs=3.761600e-10, rel=4.939223e-12
+Adjoint solver residual: abs=3.795775e-10, rel=4.984096e-12
+Adjoint solver residual: abs=3.768210e-10, rel=4.947902e-12
+Linear solver residual: abs=3.252576e-10, rel=4.270842e-12
+Linear solver residual: abs=3.223848e-10, rel=4.233120e-12
+Linear solver residual: abs=3.330085e-10, rel=4.372616e-12
+Linear solver residual: abs=3.232852e-10, rel=4.244942e-12
+Iteration 087 | mean loss = 75.269816 | individual = [75.443798 | 75.184510 | 75.302042 | 75.148915]
+Iterations:  44%|████▍     | 88/200 [03:31<02:02,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.754910e-10, rel=4.930438e-12
+Adjoint solver residual: abs=3.757567e-10, rel=4.933927e-12
+Adjoint solver residual: abs=3.791372e-10, rel=4.978315e-12
+Adjoint solver residual: abs=3.763135e-10, rel=4.941238e-12
+Linear solver residual: abs=3.346576e-10, rel=4.394270e-12
+Linear solver residual: abs=3.220405e-10, rel=4.228599e-12
+Linear solver residual: abs=3.295550e-10, rel=4.327269e-12
+Linear solver residual: abs=3.237436e-10, rel=4.250962e-12
+Iteration 088 | mean loss = 75.380721 | individual = [75.424517 | 75.398688 | 75.578090 | 75.121587]
+Iterations:  44%|████▍     | 89/200 [03:33<02:02,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.807823e-10, rel=4.999916e-12
+Adjoint solver residual: abs=3.829079e-10, rel=5.027826e-12
+Adjoint solver residual: abs=3.821089e-10, rel=5.017335e-12
+Adjoint solver residual: abs=3.757770e-10, rel=4.934194e-12
+Linear solver residual: abs=3.221929e-10, rel=4.230601e-12
+Linear solver residual: abs=3.225622e-10, rel=4.235449e-12
+Linear solver residual: abs=3.292752e-10, rel=4.323595e-12
+Linear solver residual: abs=3.207062e-10, rel=4.211078e-12
+Iteration 089 | mean loss = 75.458382 | individual = [75.527802 | 75.506190 | 75.660186 | 75.139348]
+Iterations:  45%|████▌     | 90/200 [03:34<02:00,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.783503e-10, rel=4.967982e-12
+Adjoint solver residual: abs=3.775823e-10, rel=4.957898e-12
+Adjoint solver residual: abs=3.809557e-10, rel=5.002193e-12
+Adjoint solver residual: abs=3.797582e-10, rel=4.986470e-12
+Linear solver residual: abs=3.278434e-10, rel=4.304794e-12
+Linear solver residual: abs=3.262151e-10, rel=4.283414e-12
+Linear solver residual: abs=3.240689e-10, rel=4.255233e-12
+Linear solver residual: abs=3.243666e-10, rel=4.259142e-12
+Iteration 090 | mean loss = 75.344001 | individual = [75.455912 | 75.347721 | 75.462595 | 75.109775]
+Iterations:  46%|████▌     | 91/200 [03:35<01:59,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774233e-10, rel=4.955811e-12
+Adjoint solver residual: abs=3.728871e-10, rel=4.896248e-12
+Adjoint solver residual: abs=3.825151e-10, rel=5.022669e-12
+Adjoint solver residual: abs=3.766978e-10, rel=4.946284e-12
+Linear solver residual: abs=3.270207e-10, rel=4.293992e-12
+Linear solver residual: abs=3.226027e-10, rel=4.235980e-12
+Linear solver residual: abs=3.280482e-10, rel=4.307484e-12
+Linear solver residual: abs=3.251261e-10, rel=4.269115e-12
+Iteration 091 | mean loss = 75.309424 | individual = [75.416029 | 75.211038 | 75.278703 | 75.331925]
+Iterations:  46%|████▌     | 92/200 [03:36<01:58,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.832390e-10, rel=5.032175e-12
+Adjoint solver residual: abs=3.736653e-10, rel=4.906465e-12
+Adjoint solver residual: abs=3.796290e-10, rel=4.984773e-12
+Adjoint solver residual: abs=3.785003e-10, rel=4.969952e-12
+Linear solver residual: abs=3.260373e-10, rel=4.281080e-12
+Linear solver residual: abs=3.244798e-10, rel=4.260628e-12
+Linear solver residual: abs=3.267820e-10, rel=4.290858e-12
+Linear solver residual: abs=3.261282e-10, rel=4.282273e-12
+Iteration 092 | mean loss = 75.307329 | individual = [75.411454 | 75.220547 | 75.283663 | 75.313651]
+Iterations:  46%|████▋     | 93/200 [03:37<01:57,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.800134e-10, rel=4.989820e-12
+Adjoint solver residual: abs=3.760187e-10, rel=4.937368e-12
+Adjoint solver residual: abs=3.809209e-10, rel=5.001737e-12
+Adjoint solver residual: abs=3.736986e-10, rel=4.906903e-12
+Linear solver residual: abs=3.288096e-10, rel=4.317482e-12
+Linear solver residual: abs=3.260356e-10, rel=4.281057e-12
+Linear solver residual: abs=3.261967e-10, rel=4.283173e-12
+Linear solver residual: abs=3.239599e-10, rel=4.253802e-12
+Iteration 093 | mean loss = 75.237949 | individual = [75.393607 | 75.191180 | 75.264922 | 75.102086]
+Iterations:  47%|████▋     | 94/200 [03:38<01:55,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.792017e-10, rel=4.979162e-12
+Adjoint solver residual: abs=3.790811e-10, rel=4.977579e-12
+Adjoint solver residual: abs=3.794954e-10, rel=4.983019e-12
+Adjoint solver residual: abs=3.740599e-10, rel=4.911647e-12
+Linear solver residual: abs=3.251000e-10, rel=4.268772e-12
+Linear solver residual: abs=3.268512e-10, rel=4.291766e-12
+Linear solver residual: abs=3.274982e-10, rel=4.300262e-12
+Linear solver residual: abs=3.219186e-10, rel=4.226999e-12
+Iteration 094 | mean loss = 75.229680 | individual = [75.375635 | 75.143899 | 75.303655 | 75.095532]
+Iterations:  48%|████▊     | 95/200 [03:39<01:55,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.777619e-10, rel=4.960256e-12
+Adjoint solver residual: abs=3.780958e-10, rel=4.964642e-12
+Adjoint solver residual: abs=3.806421e-10, rel=4.998076e-12
+Adjoint solver residual: abs=3.741123e-10, rel=4.912335e-12
+Linear solver residual: abs=3.273564e-10, rel=4.298401e-12
+Linear solver residual: abs=3.249485e-10, rel=4.266783e-12
+Linear solver residual: abs=3.276343e-10, rel=4.302049e-12
+Linear solver residual: abs=3.274155e-10, rel=4.299176e-12
+Iteration 095 | mean loss = 75.319984 | individual = [75.426264 | 75.415412 | 75.311616 | 75.126642]
+Iterations:  48%|████▊     | 96/200 [03:40<01:54,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.836289e-10, rel=5.037294e-12
+Adjoint solver residual: abs=3.816944e-10, rel=5.011893e-12
+Adjoint solver residual: abs=3.806099e-10, rel=4.997653e-12
+Adjoint solver residual: abs=3.818901e-10, rel=5.014463e-12
+Linear solver residual: abs=3.260904e-10, rel=4.281776e-12
+Linear solver residual: abs=3.237500e-10, rel=4.251045e-12
+Linear solver residual: abs=3.292911e-10, rel=4.323804e-12
+Linear solver residual: abs=3.242957e-10, rel=4.258211e-12
+Iteration 096 | mean loss = 75.333901 | individual = [75.475388 | 75.533250 | 75.267296 | 75.059670]
+Iterations:  48%|████▊     | 97/200 [03:41<01:53,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774132e-10, rel=4.955678e-12
+Adjoint solver residual: abs=3.804425e-10, rel=4.995455e-12
+Adjoint solver residual: abs=3.797536e-10, rel=4.986408e-12
+Adjoint solver residual: abs=3.767069e-10, rel=4.946404e-12
+Linear solver residual: abs=3.278255e-10, rel=4.304560e-12
+Linear solver residual: abs=3.237737e-10, rel=4.251357e-12
+Linear solver residual: abs=3.254484e-10, rel=4.273346e-12
+Linear solver residual: abs=3.223014e-10, rel=4.232025e-12
+Iteration 097 | mean loss = 75.291289 | individual = [75.378390 | 75.386707 | 75.261031 | 75.139028]
+Iterations:  49%|████▉     | 98/200 [03:42<01:51,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.781764e-10, rel=4.965699e-12
+Adjoint solver residual: abs=3.816694e-10, rel=5.011565e-12
+Adjoint solver residual: abs=3.814221e-10, rel=5.008317e-12
+Adjoint solver residual: abs=3.805253e-10, rel=4.996543e-12
+Linear solver residual: abs=3.251260e-10, rel=4.269113e-12
+Linear solver residual: abs=3.269279e-10, rel=4.292774e-12
+Linear solver residual: abs=3.255929e-10, rel=4.275245e-12
+Linear solver residual: abs=3.242743e-10, rel=4.257930e-12
+Iteration 098 | mean loss = 75.212869 | individual = [75.401171 | 75.155376 | 75.235656 | 75.059275]
+Iterations:  50%|████▉     | 99/200 [03:43<01:49,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.758669e-10, rel=4.935375e-12
+Adjoint solver residual: abs=3.738568e-10, rel=4.908981e-12
+Adjoint solver residual: abs=3.843788e-10, rel=5.047141e-12
+Adjoint solver residual: abs=3.790384e-10, rel=4.977018e-12
+Linear solver residual: abs=3.247292e-10, rel=4.263903e-12
+Linear solver residual: abs=3.265805e-10, rel=4.288212e-12
+Linear solver residual: abs=3.239064e-10, rel=4.253099e-12
+Linear solver residual: abs=3.274527e-10, rel=4.299665e-12
+Iteration 099 | mean loss = 75.207926 | individual = [75.399837 | 75.159838 | 75.240924 | 75.031106]
+Iterations:  50%|█████     | 100/200 [03:45<01:48,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.773028e-10, rel=4.954229e-12
+Adjoint solver residual: abs=3.733669e-10, rel=4.902548e-12
+Adjoint solver residual: abs=3.782928e-10, rel=4.967227e-12
+Adjoint solver residual: abs=3.761620e-10, rel=4.939249e-12
+Linear solver residual: abs=3.247136e-10, rel=4.263698e-12
+Linear solver residual: abs=3.257312e-10, rel=4.277061e-12
+Linear solver residual: abs=3.284932e-10, rel=4.313328e-12
+Linear solver residual: abs=3.237242e-10, rel=4.250706e-12
+Iteration 100 | mean loss = 75.207211 | individual = [75.382843 | 75.125843 | 75.250156 | 75.070001]
+Iterations:  50%|█████     | 101/200 [03:46<01:47,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.804366e-10, rel=4.995377e-12
+Adjoint solver residual: abs=3.752085e-10, rel=4.926729e-12
+Adjoint solver residual: abs=3.832321e-10, rel=5.032084e-12
+Adjoint solver residual: abs=3.777429e-10, rel=4.960008e-12
+Linear solver residual: abs=3.291128e-10, rel=4.321462e-12
+Linear solver residual: abs=3.247948e-10, rel=4.264765e-12
+Linear solver residual: abs=3.293340e-10, rel=4.324368e-12
+Linear solver residual: abs=3.211791e-10, rel=4.217289e-12
+Iteration 101 | mean loss = 75.189075 | individual = [75.364901 | 75.095822 | 75.240131 | 75.055446]
+Iterations:  51%|█████     | 102/200 [03:47<01:45,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.809503e-10, rel=5.002123e-12
+Adjoint solver residual: abs=3.797640e-10, rel=4.986546e-12
+Adjoint solver residual: abs=3.791358e-10, rel=4.978297e-12
+Adjoint solver residual: abs=3.778443e-10, rel=4.961339e-12
+Linear solver residual: abs=3.252164e-10, rel=4.270301e-12
+Linear solver residual: abs=3.235372e-10, rel=4.248252e-12
+Linear solver residual: abs=3.296446e-10, rel=4.328445e-12
+Linear solver residual: abs=3.225375e-10, rel=4.235125e-12
+Iteration 102 | mean loss = 75.212862 | individual = [75.347391 | 75.168076 | 75.224463 | 75.111520]
+Iterations:  52%|█████▏    | 103/200 [03:48<01:45,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.788707e-10, rel=4.974816e-12
+Adjoint solver residual: abs=3.807228e-10, rel=4.999135e-12
+Adjoint solver residual: abs=3.831720e-10, rel=5.031295e-12
+Adjoint solver residual: abs=3.762969e-10, rel=4.941020e-12
+Linear solver residual: abs=3.267097e-10, rel=4.289909e-12
+Linear solver residual: abs=3.262396e-10, rel=4.283736e-12
+Linear solver residual: abs=3.288438e-10, rel=4.317930e-12
+Linear solver residual: abs=3.294475e-10, rel=4.325857e-12
+Iteration 103 | mean loss = 75.252263 | individual = [75.424715 | 75.248187 | 75.236040 | 75.100110]
+Iterations:  52%|█████▏    | 104/200 [03:49<01:44,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.778165e-10, rel=4.960974e-12
+Adjoint solver residual: abs=3.767251e-10, rel=4.946643e-12
+Adjoint solver residual: abs=3.796208e-10, rel=4.984666e-12
+Adjoint solver residual: abs=3.746116e-10, rel=4.918891e-12
+Linear solver residual: abs=3.271828e-10, rel=4.296121e-12
+Linear solver residual: abs=3.270936e-10, rel=4.294950e-12
+Linear solver residual: abs=3.299841e-10, rel=4.332904e-12
+Linear solver residual: abs=3.263085e-10, rel=4.284641e-12
+Iteration 104 | mean loss = 75.230803 | individual = [75.484294 | 75.197809 | 75.223327 | 75.017783]
+Iterations:  52%|█████▎    | 105/200 [03:50<01:43,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.766471e-10, rel=4.945619e-12
+Adjoint solver residual: abs=3.774037e-10, rel=4.955553e-12
+Adjoint solver residual: abs=3.815012e-10, rel=5.009356e-12
+Adjoint solver residual: abs=3.777311e-10, rel=4.959852e-12
+Linear solver residual: abs=3.263852e-10, rel=4.285648e-12
+Linear solver residual: abs=3.257250e-10, rel=4.276979e-12
+Linear solver residual: abs=3.267856e-10, rel=4.290906e-12
+Linear solver residual: abs=3.232619e-10, rel=4.244637e-12
+Iteration 105 | mean loss = 75.205662 | individual = [75.398868 | 75.090217 | 75.319199 | 75.014363]
+Iterations:  53%|█████▎    | 106/200 [03:51<01:42,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.795504e-10, rel=4.983742e-12
+Adjoint solver residual: abs=3.779179e-10, rel=4.962305e-12
+Adjoint solver residual: abs=3.862903e-10, rel=5.072241e-12
+Adjoint solver residual: abs=3.792898e-10, rel=4.980319e-12
+Linear solver residual: abs=3.239400e-10, rel=4.253541e-12
+Linear solver residual: abs=3.227318e-10, rel=4.237676e-12
+Linear solver residual: abs=3.323562e-10, rel=4.364051e-12
+Linear solver residual: abs=3.270251e-10, rel=4.294050e-12
+Iteration 106 | mean loss = 75.215717 | individual = [75.374705 | 75.094341 | 75.329065 | 75.064756]
+Iterations:  54%|█████▎    | 107/200 [03:52<01:40,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.706124e-10, rel=4.866379e-12
+Adjoint solver residual: abs=3.728270e-10, rel=4.895458e-12
+Adjoint solver residual: abs=3.782993e-10, rel=4.967313e-12
+Adjoint solver residual: abs=3.776881e-10, rel=4.959287e-12
+Linear solver residual: abs=3.272641e-10, rel=4.297188e-12
+Linear solver residual: abs=3.256622e-10, rel=4.276154e-12
+Linear solver residual: abs=3.241848e-10, rel=4.256755e-12
+Linear solver residual: abs=3.255028e-10, rel=4.274061e-12
+Iteration 107 | mean loss = 75.175546 | individual = [75.369824 | 75.077479 | 75.214199 | 75.040680]
+Iterations:  54%|█████▍    | 108/200 [03:53<01:39,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.825490e-10, rel=5.023114e-12
+Adjoint solver residual: abs=3.790576e-10, rel=4.977270e-12
+Adjoint solver residual: abs=3.790995e-10, rel=4.977821e-12
+Adjoint solver residual: abs=3.783126e-10, rel=4.967488e-12
+Linear solver residual: abs=3.270897e-10, rel=4.294898e-12
+Linear solver residual: abs=3.225386e-10, rel=4.235139e-12
+Linear solver residual: abs=3.268993e-10, rel=4.292398e-12
+Linear solver residual: abs=3.222675e-10, rel=4.231579e-12
+Iteration 108 | mean loss = 75.181299 | individual = [75.346152 | 75.150598 | 75.207907 | 75.020538]
+Iterations:  55%|█████▍    | 109/200 [03:54<01:38,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.783558e-10, rel=4.968055e-12
+Adjoint solver residual: abs=3.797381e-10, rel=4.986206e-12
+Adjoint solver residual: abs=3.829074e-10, rel=5.027821e-12
+Adjoint solver residual: abs=3.799273e-10, rel=4.988690e-12
+Linear solver residual: abs=3.254889e-10, rel=4.273878e-12
+Linear solver residual: abs=3.225255e-10, rel=4.234967e-12
+Linear solver residual: abs=3.274838e-10, rel=4.300073e-12
+Linear solver residual: abs=3.243289e-10, rel=4.258648e-12
+Iteration 109 | mean loss = 75.209273 | individual = [75.342912 | 75.162544 | 75.310350 | 75.021286]
+Iterations:  55%|█████▌    | 110/200 [03:55<01:38,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.828897e-10, rel=5.027588e-12
+Adjoint solver residual: abs=3.780093e-10, rel=4.963506e-12
+Adjoint solver residual: abs=3.869948e-10, rel=5.081491e-12
+Adjoint solver residual: abs=3.781997e-10, rel=4.966005e-12
+Linear solver residual: abs=3.227167e-10, rel=4.237478e-12
+Linear solver residual: abs=3.242289e-10, rel=4.257334e-12
+Linear solver residual: abs=3.271773e-10, rel=4.296048e-12
+Linear solver residual: abs=3.259052e-10, rel=4.279345e-12
+Iteration 110 | mean loss = 75.169631 | individual = [75.337932 | 75.059979 | 75.284173 | 74.996440]
+Iterations:  56%|█████▌    | 111/200 [03:57<01:37,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.801102e-10, rel=4.991092e-12
+Adjoint solver residual: abs=3.786252e-10, rel=4.971593e-12
+Adjoint solver residual: abs=3.837260e-10, rel=5.038569e-12
+Adjoint solver residual: abs=3.747648e-10, rel=4.920903e-12
+Linear solver residual: abs=3.226500e-10, rel=4.236602e-12
+Linear solver residual: abs=3.279514e-10, rel=4.306213e-12
+Linear solver residual: abs=3.256309e-10, rel=4.275743e-12
+Linear solver residual: abs=3.245440e-10, rel=4.261472e-12
+Iteration 111 | mean loss = 75.188703 | individual = [75.320643 | 75.054181 | 75.210628 | 75.169361]
+Iterations:  56%|█████▌    | 112/200 [03:58<01:35,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.763846e-10, rel=4.942172e-12
+Adjoint solver residual: abs=3.777104e-10, rel=4.959581e-12
+Adjoint solver residual: abs=3.753138e-10, rel=4.928112e-12
+Adjoint solver residual: abs=3.782235e-10, rel=4.966317e-12
+Linear solver residual: abs=3.285832e-10, rel=4.314509e-12
+Linear solver residual: abs=3.239081e-10, rel=4.253122e-12
+Linear solver residual: abs=3.309866e-10, rel=4.346067e-12
+Linear solver residual: abs=3.237376e-10, rel=4.250884e-12
+Iteration 112 | mean loss = 75.228281 | individual = [75.303212 | 75.151155 | 75.225967 | 75.232792]
+Iterations:  56%|█████▋    | 113/200 [03:59<01:35,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.782368e-10, rel=4.966492e-12
+Adjoint solver residual: abs=3.799528e-10, rel=4.989024e-12
+Adjoint solver residual: abs=3.732669e-10, rel=4.901235e-12
+Adjoint solver residual: abs=3.774085e-10, rel=4.955616e-12
+Linear solver residual: abs=3.263877e-10, rel=4.285680e-12
+Linear solver residual: abs=3.212156e-10, rel=4.217768e-12
+Linear solver residual: abs=3.289930e-10, rel=4.319890e-12
+Linear solver residual: abs=3.245579e-10, rel=4.261654e-12
+Iteration 113 | mean loss = 75.235948 | individual = [75.414052 | 75.126842 | 75.236764 | 75.166133]
+Iterations:  57%|█████▋    | 114/200 [04:00<01:34,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.749567e-10, rel=4.923423e-12
+Adjoint solver residual: abs=3.774280e-10, rel=4.955873e-12
+Adjoint solver residual: abs=3.822194e-10, rel=5.018787e-12
+Adjoint solver residual: abs=3.805168e-10, rel=4.996431e-12
+Linear solver residual: abs=3.255379e-10, rel=4.274522e-12
+Linear solver residual: abs=3.233859e-10, rel=4.246265e-12
+Linear solver residual: abs=3.274094e-10, rel=4.299096e-12
+Linear solver residual: abs=3.223619e-10, rel=4.232819e-12
+Iteration 114 | mean loss = 75.189392 | individual = [75.469492 | 75.065412 | 75.230819 | 74.991845]
+Iterations:  57%|█████▊    | 115/200 [04:01<01:32,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.791444e-10, rel=4.978410e-12
+Adjoint solver residual: abs=3.735114e-10, rel=4.904445e-12
+Adjoint solver residual: abs=3.779295e-10, rel=4.962457e-12
+Adjoint solver residual: abs=3.778449e-10, rel=4.961346e-12
+Linear solver residual: abs=3.215155e-10, rel=4.221705e-12
+Linear solver residual: abs=3.256663e-10, rel=4.276208e-12
+Linear solver residual: abs=3.307414e-10, rel=4.342847e-12
+Linear solver residual: abs=3.254473e-10, rel=4.273333e-12
+Iteration 115 | mean loss = 75.194555 | individual = [75.444625 | 75.066469 | 75.213093 | 75.054033]
+Iterations:  58%|█████▊    | 116/200 [04:02<01:31,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.783483e-10, rel=4.967957e-12
+Adjoint solver residual: abs=3.763709e-10, rel=4.941992e-12
+Adjoint solver residual: abs=3.816843e-10, rel=5.011761e-12
+Adjoint solver residual: abs=3.779170e-10, rel=4.962293e-12
+Linear solver residual: abs=3.259456e-10, rel=4.279876e-12
+Linear solver residual: abs=3.280838e-10, rel=4.307951e-12
+Linear solver residual: abs=3.310691e-10, rel=4.347151e-12
+Linear solver residual: abs=3.207737e-10, rel=4.211965e-12
+Iteration 116 | mean loss = 75.166403 | individual = [75.342889 | 75.047197 | 75.190120 | 75.085405]
+Iterations:  58%|█████▊    | 117/200 [04:03<01:30,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.807869e-10, rel=4.999977e-12
+Adjoint solver residual: abs=3.792967e-10, rel=4.980410e-12
+Adjoint solver residual: abs=3.821277e-10, rel=5.017582e-12
+Adjoint solver residual: abs=3.736533e-10, rel=4.906308e-12
+Linear solver residual: abs=3.227575e-10, rel=4.238013e-12
+Linear solver residual: abs=3.215655e-10, rel=4.222362e-12
+Linear solver residual: abs=3.294281e-10, rel=4.325603e-12
+Linear solver residual: abs=3.250996e-10, rel=4.268767e-12
+Iteration 117 | mean loss = 75.233616 | individual = [75.330630 | 75.173693 | 75.350033 | 75.080109]
+Iterations:  59%|█████▉    | 118/200 [04:04<01:30,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.796701e-10, rel=4.985313e-12
+Adjoint solver residual: abs=3.796584e-10, rel=4.985159e-12
+Adjoint solver residual: abs=3.812196e-10, rel=5.005659e-12
+Adjoint solver residual: abs=3.797153e-10, rel=4.985906e-12
+Linear solver residual: abs=3.251736e-10, rel=4.269739e-12
+Linear solver residual: abs=3.265923e-10, rel=4.288367e-12
+Linear solver residual: abs=3.301063e-10, rel=4.334508e-12
+Linear solver residual: abs=3.232901e-10, rel=4.245007e-12
+Iteration 118 | mean loss = 75.258963 | individual = [75.334440 | 75.210018 | 75.441519 | 75.049876]
+Iterations:  60%|█████▉    | 119/200 [04:05<01:29,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.773069e-10, rel=4.954282e-12
+Adjoint solver residual: abs=3.755774e-10, rel=4.931573e-12
+Adjoint solver residual: abs=3.762441e-10, rel=4.940327e-12
+Adjoint solver residual: abs=3.796800e-10, rel=4.985442e-12
+Linear solver residual: abs=3.277462e-10, rel=4.303518e-12
+Linear solver residual: abs=3.260785e-10, rel=4.281620e-12
+Linear solver residual: abs=3.271975e-10, rel=4.296313e-12
+Linear solver residual: abs=3.293887e-10, rel=4.325085e-12
+Iteration 119 | mean loss = 75.232081 | individual = [75.336350 | 75.124229 | 75.458254 | 75.009494]
+Iterations:  60%|██████    | 120/200 [04:06<01:27,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774387e-10, rel=4.956013e-12
+Adjoint solver residual: abs=3.777350e-10, rel=4.959903e-12
+Adjoint solver residual: abs=3.848312e-10, rel=5.053081e-12
+Adjoint solver residual: abs=3.792346e-10, rel=4.979594e-12
+Linear solver residual: abs=3.241762e-10, rel=4.256642e-12
+Linear solver residual: abs=3.233288e-10, rel=4.245515e-12
+Linear solver residual: abs=3.289317e-10, rel=4.319085e-12
+Linear solver residual: abs=3.245686e-10, rel=4.261795e-12
+Iteration 120 | mean loss = 75.239115 | individual = [75.331125 | 75.067726 | 75.406074 | 75.151534]
+Iterations:  60%|██████    | 121/200 [04:07<01:26,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.790459e-10, rel=4.977117e-12
+Adjoint solver residual: abs=3.777403e-10, rel=4.959973e-12
+Adjoint solver residual: abs=3.800114e-10, rel=4.989794e-12
+Adjoint solver residual: abs=3.831289e-10, rel=5.030729e-12
+Linear solver residual: abs=3.231143e-10, rel=4.242699e-12
+Linear solver residual: abs=3.277096e-10, rel=4.303038e-12
+Linear solver residual: abs=3.275920e-10, rel=4.301494e-12
+Linear solver residual: abs=3.235492e-10, rel=4.248409e-12
+Iteration 121 | mean loss = 75.245084 | individual = [75.319135 | 75.070013 | 75.293538 | 75.297650]
+Iterations:  61%|██████    | 122/200 [04:09<01:25,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.827433e-10, rel=5.025665e-12
+Adjoint solver residual: abs=3.736995e-10, rel=4.906915e-12
+Adjoint solver residual: abs=3.768060e-10, rel=4.947705e-12
+Adjoint solver residual: abs=3.738079e-10, rel=4.908339e-12
+Linear solver residual: abs=3.261127e-10, rel=4.282070e-12
+Linear solver residual: abs=3.234876e-10, rel=4.247600e-12
+Linear solver residual: abs=3.278652e-10, rel=4.305081e-12
+Linear solver residual: abs=3.238769e-10, rel=4.252712e-12
+Iteration 122 | mean loss = 75.218727 | individual = [75.307477 | 75.060839 | 75.202299 | 75.304293]
+Iterations:  62%|██████▏   | 123/200 [04:10<01:24,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.779367e-10, rel=4.962553e-12
+Adjoint solver residual: abs=3.764012e-10, rel=4.942390e-12
+Adjoint solver residual: abs=3.812501e-10, rel=5.006059e-12
+Adjoint solver residual: abs=3.773928e-10, rel=4.955410e-12
+Linear solver residual: abs=3.233039e-10, rel=4.245188e-12
+Linear solver residual: abs=3.279050e-10, rel=4.305604e-12
+Linear solver residual: abs=3.302234e-10, rel=4.336045e-12
+Linear solver residual: abs=3.242287e-10, rel=4.257332e-12
+Iteration 123 | mean loss = 75.216399 | individual = [75.361715 | 75.044842 | 75.213362 | 75.245677]
+Iterations:  62%|██████▏   | 124/200 [04:11<01:23,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.760272e-10, rel=4.937479e-12
+Adjoint solver residual: abs=3.793365e-10, rel=4.980932e-12
+Adjoint solver residual: abs=3.853450e-10, rel=5.059828e-12
+Adjoint solver residual: abs=3.788785e-10, rel=4.974919e-12
+Linear solver residual: abs=3.242308e-10, rel=4.257359e-12
+Linear solver residual: abs=3.269775e-10, rel=4.293426e-12
+Linear solver residual: abs=3.283789e-10, rel=4.311827e-12
+Linear solver residual: abs=3.277729e-10, rel=4.303869e-12
+Iteration 124 | mean loss = 75.209499 | individual = [75.418660 | 75.071264 | 75.213096 | 75.134975]
+Iterations:  62%|██████▎   | 125/200 [04:12<01:22,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.791201e-10, rel=4.978091e-12
+Adjoint solver residual: abs=3.773362e-10, rel=4.954667e-12
+Adjoint solver residual: abs=3.873182e-10, rel=5.085738e-12
+Adjoint solver residual: abs=3.783252e-10, rel=4.967653e-12
+Linear solver residual: abs=3.215592e-10, rel=4.222279e-12
+Linear solver residual: abs=3.273192e-10, rel=4.297911e-12
+Linear solver residual: abs=3.249155e-10, rel=4.266349e-12
+Linear solver residual: abs=3.213268e-10, rel=4.219227e-12
+Iteration 125 | mean loss = 75.177287 | individual = [75.404853 | 75.117713 | 75.203178 | 74.983404]
+Iterations:  63%|██████▎   | 126/200 [04:13<01:21,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.829167e-10, rel=5.027943e-12
+Adjoint solver residual: abs=3.749853e-10, rel=4.923798e-12
+Adjoint solver residual: abs=3.869646e-10, rel=5.081094e-12
+Adjoint solver residual: abs=3.769207e-10, rel=4.949212e-12
+Linear solver residual: abs=3.256826e-10, rel=4.276422e-12
+Linear solver residual: abs=3.256213e-10, rel=4.275617e-12
+Linear solver residual: abs=3.301251e-10, rel=4.334755e-12
+Linear solver residual: abs=3.272669e-10, rel=4.297225e-12
+Iteration 126 | mean loss = 75.156903 | individual = [75.325204 | 75.101501 | 75.185230 | 75.015679]
+Iterations:  64%|██████▎   | 127/200 [04:14<01:20,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774362e-10, rel=4.955980e-12
+Adjoint solver residual: abs=3.791152e-10, rel=4.978027e-12
+Adjoint solver residual: abs=3.775455e-10, rel=4.957415e-12
+Adjoint solver residual: abs=3.759348e-10, rel=4.936266e-12
+Linear solver residual: abs=3.259787e-10, rel=4.280310e-12
+Linear solver residual: abs=3.261076e-10, rel=4.282002e-12
+Linear solver residual: abs=3.320313e-10, rel=4.359785e-12
+Linear solver residual: abs=3.229073e-10, rel=4.239980e-12
+Iteration 127 | mean loss = 75.174498 | individual = [75.319548 | 75.042868 | 75.292092 | 75.043485]
+Iterations:  64%|██████▍   | 128/200 [04:15<01:19,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.808487e-10, rel=5.000788e-12
+Adjoint solver residual: abs=3.822903e-10, rel=5.019718e-12
+Adjoint solver residual: abs=3.853412e-10, rel=5.059778e-12
+Adjoint solver residual: abs=3.799958e-10, rel=4.989589e-12
+Linear solver residual: abs=3.259266e-10, rel=4.279626e-12
+Linear solver residual: abs=3.261479e-10, rel=4.282531e-12
+Linear solver residual: abs=3.279430e-10, rel=4.306103e-12
+Linear solver residual: abs=3.214158e-10, rel=4.220397e-12
+Iteration 128 | mean loss = 75.195182 | individual = [75.320512 | 75.041837 | 75.363182 | 75.055197]
+Iterations:  64%|██████▍   | 129/200 [04:16<01:17,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.743235e-10, rel=4.915108e-12
+Adjoint solver residual: abs=3.770505e-10, rel=4.950915e-12
+Adjoint solver residual: abs=3.804385e-10, rel=4.995402e-12
+Adjoint solver residual: abs=3.731364e-10, rel=4.899521e-12
+Linear solver residual: abs=3.265331e-10, rel=4.287590e-12
+Linear solver residual: abs=3.242222e-10, rel=4.257246e-12
+Linear solver residual: abs=3.295245e-10, rel=4.326868e-12
+Linear solver residual: abs=3.185022e-10, rel=4.182139e-12
+Iteration 129 | mean loss = 75.189650 | individual = [75.313575 | 75.031078 | 75.363088 | 75.050857]
+Iterations:  65%|██████▌   | 130/200 [04:17<01:16,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.780540e-10, rel=4.964093e-12
+Adjoint solver residual: abs=3.789583e-10, rel=4.975966e-12
+Adjoint solver residual: abs=3.738508e-10, rel=4.908902e-12
+Adjoint solver residual: abs=3.778394e-10, rel=4.961274e-12
+Linear solver residual: abs=3.277873e-10, rel=4.304058e-12
+Linear solver residual: abs=3.234565e-10, rel=4.247192e-12
+Linear solver residual: abs=3.275991e-10, rel=4.301587e-12
+Linear solver residual: abs=3.240360e-10, rel=4.254802e-12
+Iteration 130 | mean loss = 75.176314 | individual = [75.308595 | 75.063248 | 75.299281 | 75.034133]
+Iterations:  66%|██████▌   | 131/200 [04:18<01:15,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.769044e-10, rel=4.948997e-12
+Adjoint solver residual: abs=3.753323e-10, rel=4.928354e-12
+Adjoint solver residual: abs=3.811198e-10, rel=5.004349e-12
+Adjoint solver residual: abs=3.733054e-10, rel=4.901740e-12
+Linear solver residual: abs=3.272622e-10, rel=4.297163e-12
+Linear solver residual: abs=3.243811e-10, rel=4.259333e-12
+Linear solver residual: abs=3.311296e-10, rel=4.347944e-12
+Linear solver residual: abs=3.214793e-10, rel=4.221230e-12
+Iteration 131 | mean loss = 75.154333 | individual = [75.303042 | 75.064262 | 75.239605 | 75.010424]
+Iterations:  66%|██████▌   | 132/200 [04:20<01:14,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774477e-10, rel=4.956131e-12
+Adjoint solver residual: abs=3.794632e-10, rel=4.982596e-12
+Adjoint solver residual: abs=3.815014e-10, rel=5.009359e-12
+Adjoint solver residual: abs=3.731662e-10, rel=4.899912e-12
+Linear solver residual: abs=3.235908e-10, rel=4.248956e-12
+Linear solver residual: abs=3.261391e-10, rel=4.282417e-12
+Linear solver residual: abs=3.304466e-10, rel=4.338977e-12
+Linear solver residual: abs=3.265316e-10, rel=4.287570e-12
+Iteration 132 | mean loss = 75.124663 | individual = [75.297652 | 75.033817 | 75.182871 | 74.984312]
+Iterations:  66%|██████▋   | 133/200 [04:21<01:13,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.780616e-10, rel=4.964192e-12
+Adjoint solver residual: abs=3.755108e-10, rel=4.930699e-12
+Adjoint solver residual: abs=3.755966e-10, rel=4.931824e-12
+Adjoint solver residual: abs=3.708668e-10, rel=4.869719e-12
+Linear solver residual: abs=3.270465e-10, rel=4.294331e-12
+Linear solver residual: abs=3.240136e-10, rel=4.254507e-12
+Linear solver residual: abs=3.231976e-10, rel=4.243792e-12
+Linear solver residual: abs=3.263897e-10, rel=4.285707e-12
+Iteration 133 | mean loss = 75.153047 | individual = [75.291880 | 75.034741 | 75.189669 | 75.095898]
+Iterations:  67%|██████▋   | 134/200 [04:22<01:11,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.794923e-10, rel=4.982978e-12
+Adjoint solver residual: abs=3.821880e-10, rel=5.018375e-12
+Adjoint solver residual: abs=3.800718e-10, rel=4.990588e-12
+Adjoint solver residual: abs=3.812810e-10, rel=5.006465e-12
+Linear solver residual: abs=3.282045e-10, rel=4.309536e-12
+Linear solver residual: abs=3.226407e-10, rel=4.236480e-12
+Linear solver residual: abs=3.236637e-10, rel=4.249913e-12
+Linear solver residual: abs=3.222016e-10, rel=4.230715e-12
+Iteration 134 | mean loss = 75.188397 | individual = [75.330822 | 75.025050 | 75.189369 | 75.208348]
+Iterations:  68%|██████▊   | 135/200 [04:23<01:10,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.800590e-10, rel=4.990419e-12
+Adjoint solver residual: abs=3.741350e-10, rel=4.912633e-12
+Adjoint solver residual: abs=3.783044e-10, rel=4.967380e-12
+Adjoint solver residual: abs=3.766759e-10, rel=4.945997e-12
+Linear solver residual: abs=3.258633e-10, rel=4.278795e-12
+Linear solver residual: abs=3.248985e-10, rel=4.266126e-12
+Linear solver residual: abs=3.309761e-10, rel=4.345929e-12
+Linear solver residual: abs=3.298977e-10, rel=4.331769e-12
+Iteration 135 | mean loss = 75.209725 | individual = [75.383408 | 75.023030 | 75.183330 | 75.249133]
+Iterations:  68%|██████▊   | 136/200 [04:24<01:09,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.785524e-10, rel=4.970637e-12
+Adjoint solver residual: abs=3.764508e-10, rel=4.943041e-12
+Adjoint solver residual: abs=3.767846e-10, rel=4.947424e-12
+Adjoint solver residual: abs=3.785227e-10, rel=4.970246e-12
+Linear solver residual: abs=3.262903e-10, rel=4.284401e-12
+Linear solver residual: abs=3.263485e-10, rel=4.285166e-12
+Linear solver residual: abs=3.248940e-10, rel=4.266067e-12
+Linear solver residual: abs=3.237487e-10, rel=4.251029e-12
+Iteration 136 | mean loss = 75.202693 | individual = [75.397534 | 75.015746 | 75.173333 | 75.224157]
+Iterations:  68%|██████▊   | 137/200 [04:25<01:08,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.773776e-10, rel=4.955211e-12
+Adjoint solver residual: abs=3.757558e-10, rel=4.933915e-12
+Adjoint solver residual: abs=3.825838e-10, rel=5.023571e-12
+Adjoint solver residual: abs=3.753625e-10, rel=4.928751e-12
+Linear solver residual: abs=3.315396e-10, rel=4.353329e-12
+Linear solver residual: abs=3.238355e-10, rel=4.252169e-12
+Linear solver residual: abs=3.282107e-10, rel=4.309618e-12
+Linear solver residual: abs=3.247005e-10, rel=4.263526e-12
+Iteration 137 | mean loss = 75.206558 | individual = [75.376980 | 75.090808 | 75.216114 | 75.142332]
+Iterations:  69%|██████▉   | 138/200 [04:26<01:07,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774492e-10, rel=4.956151e-12
+Adjoint solver residual: abs=3.758888e-10, rel=4.935662e-12
+Adjoint solver residual: abs=3.792528e-10, rel=4.979833e-12
+Adjoint solver residual: abs=3.757492e-10, rel=4.933829e-12
+Linear solver residual: abs=3.241130e-10, rel=4.255813e-12
+Linear solver residual: abs=3.213058e-10, rel=4.218952e-12
+Linear solver residual: abs=3.268799e-10, rel=4.292143e-12
+Linear solver residual: abs=3.248399e-10, rel=4.265357e-12
+Iteration 138 | mean loss = 75.173579 | individual = [75.325888 | 75.103369 | 75.249659 | 75.015402]
+Iterations:  70%|██████▉   | 139/200 [04:27<01:06,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.784739e-10, rel=4.969606e-12
+Adjoint solver residual: abs=3.779379e-10, rel=4.962568e-12
+Adjoint solver residual: abs=3.812056e-10, rel=5.005475e-12
+Adjoint solver residual: abs=3.769114e-10, rel=4.949090e-12
+Linear solver residual: abs=3.285357e-10, rel=4.313885e-12
+Linear solver residual: abs=3.256734e-10, rel=4.276301e-12
+Linear solver residual: abs=3.247133e-10, rel=4.263695e-12
+Linear solver residual: abs=3.245119e-10, rel=4.261050e-12
+Iteration 139 | mean loss = 75.143945 | individual = [75.283368 | 75.057723 | 75.249348 | 74.985340]
+Iterations:  70%|███████   | 140/200 [04:28<01:05,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.780053e-10, rel=4.963453e-12
+Adjoint solver residual: abs=3.724466e-10, rel=4.890464e-12
+Adjoint solver residual: abs=3.776200e-10, rel=4.958393e-12
+Adjoint solver residual: abs=3.781785e-10, rel=4.965726e-12
+Linear solver residual: abs=3.242086e-10, rel=4.257068e-12
+Linear solver residual: abs=3.217135e-10, rel=4.224305e-12
+Linear solver residual: abs=3.300927e-10, rel=4.334330e-12
+Linear solver residual: abs=3.253801e-10, rel=4.272450e-12
+Iteration 140 | mean loss = 75.136817 | individual = [75.284810 | 75.037662 | 75.218162 | 75.006634]
+Iterations:  70%|███████   | 141/200 [04:29<01:04,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.758330e-10, rel=4.934929e-12
+Adjoint solver residual: abs=3.796493e-10, rel=4.985040e-12
+Adjoint solver residual: abs=3.833804e-10, rel=5.034032e-12
+Adjoint solver residual: abs=3.814863e-10, rel=5.009160e-12
+Linear solver residual: abs=3.209641e-10, rel=4.214465e-12
+Linear solver residual: abs=3.254594e-10, rel=4.273492e-12
+Linear solver residual: abs=3.273824e-10, rel=4.298741e-12
+Linear solver residual: abs=3.289697e-10, rel=4.319584e-12
+Iteration 141 | mean loss = 75.128180 | individual = [75.284272 | 75.039493 | 75.175806 | 75.013148]
+Iterations:  71%|███████   | 142/200 [04:30<01:02,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.814515e-10, rel=5.008703e-12
+Adjoint solver residual: abs=3.746538e-10, rel=4.919445e-12
+Adjoint solver residual: abs=3.836392e-10, rel=5.037429e-12
+Adjoint solver residual: abs=3.726371e-10, rel=4.892965e-12
+Linear solver residual: abs=3.233651e-10, rel=4.245992e-12
+Linear solver residual: abs=3.235017e-10, rel=4.247785e-12
+Linear solver residual: abs=3.235354e-10, rel=4.248227e-12
+Linear solver residual: abs=3.241234e-10, rel=4.255948e-12
+Iteration 142 | mean loss = 75.124935 | individual = [75.281670 | 75.033559 | 75.179618 | 75.004893]
+Iterations:  72%|███████▏  | 143/200 [04:32<01:01,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.752286e-10, rel=4.926993e-12
+Adjoint solver residual: abs=3.795090e-10, rel=4.983198e-12
+Adjoint solver residual: abs=3.842581e-10, rel=5.045555e-12
+Adjoint solver residual: abs=3.809040e-10, rel=5.001515e-12
+Linear solver residual: abs=3.278381e-10, rel=4.304725e-12
+Linear solver residual: abs=3.207463e-10, rel=4.211605e-12
+Linear solver residual: abs=3.273492e-10, rel=4.298305e-12
+Linear solver residual: abs=3.266930e-10, rel=4.289689e-12
+Iteration 143 | mean loss = 75.118232 | individual = [75.277482 | 75.023746 | 75.176597 | 74.995103]
+Iterations:  72%|███████▏  | 144/200 [04:33<01:01,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.812990e-10, rel=5.006701e-12
+Adjoint solver residual: abs=3.784221e-10, rel=4.968926e-12
+Adjoint solver residual: abs=3.859672e-10, rel=5.067998e-12
+Adjoint solver residual: abs=3.788633e-10, rel=4.974719e-12
+Linear solver residual: abs=3.270590e-10, rel=4.294495e-12
+Linear solver residual: abs=3.248794e-10, rel=4.265876e-12
+Linear solver residual: abs=3.302497e-10, rel=4.336391e-12
+Linear solver residual: abs=3.254119e-10, rel=4.272868e-12
+Iteration 144 | mean loss = 75.118451 | individual = [75.311309 | 75.013063 | 75.168098 | 74.981334]
+Iterations:  72%|███████▎  | 145/200 [04:34<01:00,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.856997e-10, rel=5.064485e-12
+Adjoint solver residual: abs=3.820762e-10, rel=5.016906e-12
+Adjoint solver residual: abs=3.826075e-10, rel=5.023882e-12
+Adjoint solver residual: abs=3.763643e-10, rel=4.941906e-12
+Linear solver residual: abs=3.285146e-10, rel=4.313608e-12
+Linear solver residual: abs=3.267698e-10, rel=4.290698e-12
+Linear solver residual: abs=3.263164e-10, rel=4.284745e-12
+Linear solver residual: abs=3.265508e-10, rel=4.287823e-12
+Iteration 145 | mean loss = 75.141228 | individual = [75.338627 | 75.044905 | 75.215752 | 74.965629]
+Iterations:  73%|███████▎  | 146/200 [04:35<00:58,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.751323e-10, rel=4.925729e-12
+Adjoint solver residual: abs=3.787841e-10, rel=4.973679e-12
+Adjoint solver residual: abs=3.786377e-10, rel=4.971756e-12
+Adjoint solver residual: abs=3.797892e-10, rel=4.986877e-12
+Linear solver residual: abs=3.252697e-10, rel=4.271000e-12
+Linear solver residual: abs=3.262039e-10, rel=4.283268e-12
+Linear solver residual: abs=3.251384e-10, rel=4.269276e-12
+Linear solver residual: abs=3.240210e-10, rel=4.254604e-12
+Iteration 146 | mean loss = 75.162791 | individual = [75.331344 | 75.077383 | 75.234981 | 75.007453]
+Iterations:  74%|███████▎  | 147/200 [04:36<00:57,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.802810e-10, rel=4.993335e-12
+Adjoint solver residual: abs=3.793628e-10, rel=4.981278e-12
+Adjoint solver residual: abs=3.793839e-10, rel=4.981554e-12
+Adjoint solver residual: abs=3.799537e-10, rel=4.989037e-12
+Linear solver residual: abs=3.256756e-10, rel=4.276330e-12
+Linear solver residual: abs=3.266285e-10, rel=4.288842e-12
+Linear solver residual: abs=3.285359e-10, rel=4.313888e-12
+Linear solver residual: abs=3.262079e-10, rel=4.283320e-12
+Iteration 147 | mean loss = 75.166818 | individual = [75.293242 | 75.081086 | 75.222302 | 75.070643]
+Iterations:  74%|███████▍  | 148/200 [04:37<00:56,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.806339e-10, rel=4.997969e-12
+Adjoint solver residual: abs=3.782903e-10, rel=4.967195e-12
+Adjoint solver residual: abs=3.793063e-10, rel=4.980536e-12
+Adjoint solver residual: abs=3.750058e-10, rel=4.924067e-12
+Linear solver residual: abs=3.277698e-10, rel=4.303828e-12
+Linear solver residual: abs=3.256970e-10, rel=4.276611e-12
+Linear solver residual: abs=3.288835e-10, rel=4.318452e-12
+Linear solver residual: abs=3.229740e-10, rel=4.240856e-12
+Iteration 148 | mean loss = 75.153483 | individual = [75.275699 | 75.057713 | 75.181156 | 75.099364]
+Iterations:  74%|███████▍  | 149/200 [04:38<00:55,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.746931e-10, rel=4.919961e-12
+Adjoint solver residual: abs=3.764619e-10, rel=4.943187e-12
+Adjoint solver residual: abs=3.798151e-10, rel=4.987217e-12
+Adjoint solver residual: abs=3.759130e-10, rel=4.935979e-12
+Linear solver residual: abs=3.244991e-10, rel=4.260882e-12
+Linear solver residual: abs=3.268213e-10, rel=4.291374e-12
+Linear solver residual: abs=3.301634e-10, rel=4.335257e-12
+Linear solver residual: abs=3.236013e-10, rel=4.249093e-12
+Iteration 149 | mean loss = 75.143195 | individual = [75.277266 | 75.025084 | 75.174383 | 75.096048]
+Iterations:  75%|███████▌  | 150/200 [04:39<00:54,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.818465e-10, rel=5.013890e-12
+Adjoint solver residual: abs=3.727285e-10, rel=4.894165e-12
+Adjoint solver residual: abs=3.833669e-10, rel=5.033854e-12
+Adjoint solver residual: abs=3.732706e-10, rel=4.901283e-12
+Linear solver residual: abs=3.256585e-10, rel=4.276105e-12
+Linear solver residual: abs=3.227240e-10, rel=4.237574e-12
+Linear solver residual: abs=3.257050e-10, rel=4.276716e-12
+Linear solver residual: abs=3.207665e-10, rel=4.211870e-12
+Iteration 150 | mean loss = 75.137391 | individual = [75.276579 | 75.027713 | 75.181199 | 75.064071]
+Iterations:  76%|███████▌  | 151/200 [04:40<00:53,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.804669e-10, rel=4.995776e-12
+Adjoint solver residual: abs=3.764757e-10, rel=4.943368e-12
+Adjoint solver residual: abs=3.868382e-10, rel=5.079434e-12
+Adjoint solver residual: abs=3.791629e-10, rel=4.978653e-12
+Linear solver residual: abs=3.288198e-10, rel=4.317616e-12
+Linear solver residual: abs=3.231113e-10, rel=4.242660e-12
+Linear solver residual: abs=3.261685e-10, rel=4.282802e-12
+Linear solver residual: abs=3.265791e-10, rel=4.288194e-12
+Iteration 151 | mean loss = 75.121463 | individual = [75.274575 | 75.023030 | 75.180791 | 75.007456]
+Iterations:  76%|███████▌  | 152/200 [04:41<00:53,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.776398e-10, rel=4.958654e-12
+Adjoint solver residual: abs=3.751255e-10, rel=4.925639e-12
+Adjoint solver residual: abs=3.794333e-10, rel=4.982203e-12
+Adjoint solver residual: abs=3.774515e-10, rel=4.956181e-12
+Linear solver residual: abs=3.255833e-10, rel=4.275118e-12
+Linear solver residual: abs=3.252861e-10, rel=4.271215e-12
+Linear solver residual: abs=3.235166e-10, rel=4.247981e-12
+Linear solver residual: abs=3.250397e-10, rel=4.267980e-12
+Iteration 152 | mean loss = 75.105047 | individual = [75.271630 | 75.014305 | 75.176935 | 74.957317]
+Iterations:  76%|███████▋  | 153/200 [04:43<00:52,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.797013e-10, rel=4.985722e-12
+Adjoint solver residual: abs=3.785311e-10, rel=4.970357e-12
+Adjoint solver residual: abs=3.824160e-10, rel=5.021368e-12
+Adjoint solver residual: abs=3.754609e-10, rel=4.930044e-12
+Linear solver residual: abs=3.241529e-10, rel=4.256336e-12
+Linear solver residual: abs=3.247102e-10, rel=4.263654e-12
+Linear solver residual: abs=3.260556e-10, rel=4.281320e-12
+Linear solver residual: abs=3.274996e-10, rel=4.300280e-12
+Iteration 153 | mean loss = 75.102011 | individual = [75.268196 | 75.005615 | 75.170288 | 74.963945]
+Iterations:  77%|███████▋  | 154/200 [04:44<00:51,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.782530e-10, rel=4.966705e-12
+Adjoint solver residual: abs=3.802421e-10, rel=4.992823e-12
+Adjoint solver residual: abs=3.820622e-10, rel=5.016722e-12
+Adjoint solver residual: abs=3.797972e-10, rel=4.986981e-12
+Linear solver residual: abs=3.264234e-10, rel=4.286149e-12
+Linear solver residual: abs=3.235712e-10, rel=4.248698e-12
+Linear solver residual: abs=3.278675e-10, rel=4.305111e-12
+Linear solver residual: abs=3.240155e-10, rel=4.254532e-12
+Iteration 154 | mean loss = 75.112828 | individual = [75.311689 | 75.012618 | 75.161628 | 74.965375]
+Iterations:  78%|███████▊  | 155/200 [04:45<00:49,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.830844e-10, rel=5.030145e-12
+Adjoint solver residual: abs=3.759546e-10, rel=4.936525e-12
+Adjoint solver residual: abs=3.816538e-10, rel=5.011360e-12
+Adjoint solver residual: abs=3.734816e-10, rel=4.904054e-12
+Linear solver residual: abs=3.303950e-10, rel=4.338299e-12
+Linear solver residual: abs=3.213133e-10, rel=4.219050e-12
+Linear solver residual: abs=3.269092e-10, rel=4.292528e-12
+Linear solver residual: abs=3.266493e-10, rel=4.289115e-12
+Iteration 155 | mean loss = 75.127903 | individual = [75.338298 | 75.007694 | 75.204168 | 74.961454]
+Iterations:  78%|███████▊  | 156/200 [04:46<00:48,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.828602e-10, rel=5.027201e-12
+Adjoint solver residual: abs=3.804679e-10, rel=4.995788e-12
+Adjoint solver residual: abs=3.819441e-10, rel=5.015172e-12
+Adjoint solver residual: abs=3.767606e-10, rel=4.947110e-12
+Linear solver residual: abs=3.269236e-10, rel=4.292718e-12
+Linear solver residual: abs=3.233431e-10, rel=4.245704e-12
+Linear solver residual: abs=3.279203e-10, rel=4.305805e-12
+Linear solver residual: abs=3.223457e-10, rel=4.232606e-12
+Iteration 156 | mean loss = 75.135322 | individual = [75.346609 | 75.009094 | 75.232693 | 74.952893]
+Iterations:  78%|███████▊  | 157/200 [04:47<00:47,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.844969e-10, rel=5.048692e-12
+Adjoint solver residual: abs=3.808898e-10, rel=5.001328e-12
+Adjoint solver residual: abs=3.849263e-10, rel=5.054330e-12
+Adjoint solver residual: abs=3.815278e-10, rel=5.009705e-12
+Linear solver residual: abs=3.257929e-10, rel=4.277871e-12
+Linear solver residual: abs=3.249802e-10, rel=4.267200e-12
+Linear solver residual: abs=3.297500e-10, rel=4.329830e-12
+Linear solver residual: abs=3.251819e-10, rel=4.269847e-12
+Iteration 157 | mean loss = 75.152233 | individual = [75.338384 | 75.026456 | 75.243358 | 75.000733]
+Iterations:  79%|███████▉  | 158/200 [04:48<00:46,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.768406e-10, rel=4.948160e-12
+Adjoint solver residual: abs=3.726356e-10, rel=4.892946e-12
+Adjoint solver residual: abs=3.830328e-10, rel=5.029467e-12
+Adjoint solver residual: abs=3.759742e-10, rel=4.936783e-12
+Linear solver residual: abs=3.238895e-10, rel=4.252878e-12
+Linear solver residual: abs=3.249541e-10, rel=4.266856e-12
+Linear solver residual: abs=3.293997e-10, rel=4.325230e-12
+Linear solver residual: abs=3.236897e-10, rel=4.250254e-12
+Iteration 158 | mean loss = 75.151942 | individual = [75.315378 | 75.023162 | 75.237797 | 75.031430]
+Iterations:  80%|███████▉  | 159/200 [04:49<00:44,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.839984e-10, rel=5.042146e-12
+Adjoint solver residual: abs=3.821932e-10, rel=5.018443e-12
+Adjoint solver residual: abs=3.811807e-10, rel=5.005148e-12
+Adjoint solver residual: abs=3.789106e-10, rel=4.975340e-12
+Linear solver residual: abs=3.278796e-10, rel=4.305270e-12
+Linear solver residual: abs=3.255951e-10, rel=4.275273e-12
+Linear solver residual: abs=3.263076e-10, rel=4.284628e-12
+Linear solver residual: abs=3.247977e-10, rel=4.264802e-12
+Iteration 159 | mean loss = 75.134787 | individual = [75.279319 | 75.010517 | 75.217633 | 75.031678]
+Iterations:  80%|████████  | 160/200 [04:50<00:43,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774189e-10, rel=4.955753e-12
+Adjoint solver residual: abs=3.729511e-10, rel=4.897088e-12
+Adjoint solver residual: abs=3.840756e-10, rel=5.043160e-12
+Adjoint solver residual: abs=3.816051e-10, rel=5.010721e-12
+Linear solver residual: abs=3.254586e-10, rel=4.273481e-12
+Linear solver residual: abs=3.265224e-10, rel=4.287449e-12
+Linear solver residual: abs=3.272698e-10, rel=4.297263e-12
+Linear solver residual: abs=3.232531e-10, rel=4.244521e-12
+Iteration 160 | mean loss = 75.116657 | individual = [75.268554 | 75.008920 | 75.184455 | 75.004698]
+Iterations:  80%|████████  | 161/200 [04:51<00:42,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.770381e-10, rel=4.950753e-12
+Adjoint solver residual: abs=3.773663e-10, rel=4.955062e-12
+Adjoint solver residual: abs=3.841533e-10, rel=5.044179e-12
+Adjoint solver residual: abs=3.775656e-10, rel=4.957679e-12
+Linear solver residual: abs=3.239551e-10, rel=4.253739e-12
+Linear solver residual: abs=3.250716e-10, rel=4.268399e-12
+Linear solver residual: abs=3.259881e-10, rel=4.280434e-12
+Linear solver residual: abs=3.222847e-10, rel=4.231805e-12
+Iteration 161 | mean loss = 75.098094 | individual = [75.270447 | 75.005695 | 75.162022 | 74.954212]
+Iterations:  81%|████████  | 162/200 [04:52<00:41,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.766332e-10, rel=4.945436e-12
+Adjoint solver residual: abs=3.780912e-10, rel=4.964580e-12
+Adjoint solver residual: abs=3.806317e-10, rel=4.997939e-12
+Adjoint solver residual: abs=3.774835e-10, rel=4.956601e-12
+Linear solver residual: abs=3.254648e-10, rel=4.273562e-12
+Linear solver residual: abs=3.243218e-10, rel=4.258553e-12
+Linear solver residual: abs=3.271365e-10, rel=4.295513e-12
+Linear solver residual: abs=3.262894e-10, rel=4.284390e-12
+Iteration 162 | mean loss = 75.102550 | individual = [75.270776 | 75.010822 | 75.166690 | 74.961913]
+Iterations:  82%|████████▏ | 163/200 [04:53<00:40,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.805780e-10, rel=4.997235e-12
+Adjoint solver residual: abs=3.806388e-10, rel=4.998032e-12
+Adjoint solver residual: abs=3.795784e-10, rel=4.984109e-12
+Adjoint solver residual: abs=3.743359e-10, rel=4.915271e-12
+Linear solver residual: abs=3.239820e-10, rel=4.254093e-12
+Linear solver residual: abs=3.261371e-10, rel=4.282390e-12
+Linear solver residual: abs=3.291421e-10, rel=4.321847e-12
+Linear solver residual: abs=3.236490e-10, rel=4.249720e-12
+Iteration 163 | mean loss = 75.104333 | individual = [75.269717 | 75.013701 | 75.167925 | 74.965989]
+Iterations:  82%|████████▏ | 164/200 [04:55<00:39,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.772195e-10, rel=4.953135e-12
+Adjoint solver residual: abs=3.753313e-10, rel=4.928341e-12
+Adjoint solver residual: abs=3.788455e-10, rel=4.974486e-12
+Adjoint solver residual: abs=3.742735e-10, rel=4.914452e-12
+Linear solver residual: abs=3.265382e-10, rel=4.287657e-12
+Linear solver residual: abs=3.224795e-10, rel=4.234363e-12
+Linear solver residual: abs=3.261626e-10, rel=4.282724e-12
+Linear solver residual: abs=3.261177e-10, rel=4.282136e-12
+Iteration 164 | mean loss = 75.100690 | individual = [75.267657 | 75.002519 | 75.166000 | 74.966586]
+Iterations:  82%|████████▎ | 165/200 [04:56<00:38,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.811849e-10, rel=5.005203e-12
+Adjoint solver residual: abs=3.774992e-10, rel=4.956808e-12
+Adjoint solver residual: abs=3.790023e-10, rel=4.976544e-12
+Adjoint solver residual: abs=3.765517e-10, rel=4.944366e-12
+Linear solver residual: abs=3.266272e-10, rel=4.288826e-12
+Linear solver residual: abs=3.246076e-10, rel=4.262307e-12
+Linear solver residual: abs=3.276624e-10, rel=4.302418e-12
+Linear solver residual: abs=3.188040e-10, rel=4.186101e-12
+Iteration 165 | mean loss = 75.098311 | individual = [75.265006 | 75.002844 | 75.161343 | 74.964051]
+Iterations:  83%|████████▎ | 166/200 [04:57<00:37,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.737084e-10, rel=4.907032e-12
+Adjoint solver residual: abs=3.782293e-10, rel=4.966395e-12
+Adjoint solver residual: abs=3.807620e-10, rel=4.999651e-12
+Adjoint solver residual: abs=3.835822e-10, rel=5.036682e-12
+Linear solver residual: abs=3.219259e-10, rel=4.227094e-12
+Linear solver residual: abs=3.223375e-10, rel=4.232499e-12
+Linear solver residual: abs=3.311076e-10, rel=4.347655e-12
+Linear solver residual: abs=3.236132e-10, rel=4.249249e-12
+Iteration 166 | mean loss = 75.098631 | individual = [75.267495 | 75.003829 | 75.164240 | 74.958962]
+Iterations:  84%|████████▎ | 167/200 [04:58<00:36,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.758952e-10, rel=4.935746e-12
+Adjoint solver residual: abs=3.752289e-10, rel=4.926997e-12
+Adjoint solver residual: abs=3.777431e-10, rel=4.960009e-12
+Adjoint solver residual: abs=3.734845e-10, rel=4.904092e-12
+Linear solver residual: abs=3.254144e-10, rel=4.272901e-12
+Linear solver residual: abs=3.251063e-10, rel=4.268854e-12
+Linear solver residual: abs=3.279446e-10, rel=4.306123e-12
+Linear solver residual: abs=3.261825e-10, rel=4.282986e-12
+Iteration 167 | mean loss = 75.105083 | individual = [75.287024 | 75.002641 | 75.178632 | 74.952035]
+Iterations:  84%|████████▍ | 168/200 [04:59<00:34,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.791897e-10, rel=4.979004e-12
+Adjoint solver residual: abs=3.783462e-10, rel=4.967929e-12
+Adjoint solver residual: abs=3.802112e-10, rel=4.992418e-12
+Adjoint solver residual: abs=3.763676e-10, rel=4.941948e-12
+Linear solver residual: abs=3.267216e-10, rel=4.290065e-12
+Linear solver residual: abs=3.245794e-10, rel=4.261937e-12
+Linear solver residual: abs=3.294406e-10, rel=4.325767e-12
+Linear solver residual: abs=3.245206e-10, rel=4.261165e-12
+Iteration 168 | mean loss = 75.105841 | individual = [75.289237 | 74.999526 | 75.176585 | 74.958018]
+Iterations:  84%|████████▍ | 169/200 [05:00<00:33,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.794421e-10, rel=4.982319e-12
+Adjoint solver residual: abs=3.764129e-10, rel=4.942544e-12
+Adjoint solver residual: abs=3.849926e-10, rel=5.055201e-12
+Adjoint solver residual: abs=3.817060e-10, rel=5.012045e-12
+Linear solver residual: abs=3.297142e-10, rel=4.329360e-12
+Linear solver residual: abs=3.232137e-10, rel=4.244003e-12
+Linear solver residual: abs=3.255612e-10, rel=4.274827e-12
+Linear solver residual: abs=3.243412e-10, rel=4.258808e-12
+Iteration 169 | mean loss = 75.111508 | individual = [75.275831 | 75.028163 | 75.159780 | 74.982257]
+Iterations:  85%|████████▌ | 170/200 [05:01<00:32,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.775796e-10, rel=4.957864e-12
+Adjoint solver residual: abs=3.726451e-10, rel=4.893069e-12
+Adjoint solver residual: abs=3.776414e-10, rel=4.958675e-12
+Adjoint solver residual: abs=3.762505e-10, rel=4.940412e-12
+Linear solver residual: abs=3.243683e-10, rel=4.259165e-12
+Linear solver residual: abs=3.256142e-10, rel=4.275523e-12
+Linear solver residual: abs=3.266733e-10, rel=4.289430e-12
+Linear solver residual: abs=3.242848e-10, rel=4.258068e-12
+Iteration 170 | mean loss = 75.113541 | individual = [75.262139 | 75.042368 | 75.158807 | 74.990851]
+Iterations:  86%|████████▌ | 171/200 [05:02<00:31,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.822606e-10, rel=5.019328e-12
+Adjoint solver residual: abs=3.846832e-10, rel=5.051138e-12
+Adjoint solver residual: abs=3.757484e-10, rel=4.933818e-12
+Adjoint solver residual: abs=3.742791e-10, rel=4.914525e-12
+Linear solver residual: abs=3.252518e-10, rel=4.270766e-12
+Linear solver residual: abs=3.265014e-10, rel=4.287174e-12
+Linear solver residual: abs=3.295793e-10, rel=4.327588e-12
+Linear solver residual: abs=3.270790e-10, rel=4.294758e-12
+Iteration 171 | mean loss = 75.112268 | individual = [75.263039 | 75.041134 | 75.159804 | 74.985096]
+Iterations:  86%|████████▌ | 172/200 [05:03<00:30,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.802114e-10, rel=4.992421e-12
+Adjoint solver residual: abs=3.776583e-10, rel=4.958897e-12
+Adjoint solver residual: abs=3.836539e-10, rel=5.037622e-12
+Adjoint solver residual: abs=3.830877e-10, rel=5.030188e-12
+Linear solver residual: abs=3.283555e-10, rel=4.311519e-12
+Linear solver residual: abs=3.210703e-10, rel=4.215859e-12
+Linear solver residual: abs=3.275833e-10, rel=4.301380e-12
+Linear solver residual: abs=3.223162e-10, rel=4.232219e-12
+Iteration 172 | mean loss = 75.103809 | individual = [75.263535 | 75.026010 | 75.159245 | 74.966445]
+Iterations:  86%|████████▋ | 173/200 [05:04<00:29,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.787640e-10, rel=4.973415e-12
+Adjoint solver residual: abs=3.801191e-10, rel=4.991208e-12
+Adjoint solver residual: abs=3.828388e-10, rel=5.026920e-12
+Adjoint solver residual: abs=3.803270e-10, rel=4.993938e-12
+Linear solver residual: abs=3.289140e-10, rel=4.318853e-12
+Linear solver residual: abs=3.302317e-10, rel=4.336154e-12
+Linear solver residual: abs=3.264856e-10, rel=4.286966e-12
+Linear solver residual: abs=3.262090e-10, rel=4.283334e-12
+Iteration 173 | mean loss = 75.091785 | individual = [75.263366 | 74.998883 | 75.157285 | 74.947606]
+Iterations:  87%|████████▋ | 174/200 [05:06<00:28,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.798327e-10, rel=4.987447e-12
+Adjoint solver residual: abs=3.772259e-10, rel=4.953219e-12
+Adjoint solver residual: abs=3.843345e-10, rel=5.046559e-12
+Adjoint solver residual: abs=3.801608e-10, rel=4.991756e-12
+Linear solver residual: abs=3.252500e-10, rel=4.270741e-12
+Linear solver residual: abs=3.236884e-10, rel=4.250237e-12
+Linear solver residual: abs=3.310643e-10, rel=4.347088e-12
+Linear solver residual: abs=3.251617e-10, rel=4.269582e-12
+Iteration 174 | mean loss = 75.091711 | individual = [75.262620 | 75.000245 | 75.154101 | 74.949879]
+Iterations:  88%|████████▊ | 175/200 [05:07<00:27,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.767674e-10, rel=4.947198e-12
+Adjoint solver residual: abs=3.770819e-10, rel=4.951328e-12
+Adjoint solver residual: abs=3.856635e-10, rel=5.064010e-12
+Adjoint solver residual: abs=3.804221e-10, rel=4.995187e-12
+Linear solver residual: abs=3.276017e-10, rel=4.301621e-12
+Linear solver residual: abs=3.248188e-10, rel=4.265080e-12
+Linear solver residual: abs=3.237402e-10, rel=4.250917e-12
+Linear solver residual: abs=3.224777e-10, rel=4.234340e-12
+Iteration 175 | mean loss = 75.094972 | individual = [75.261413 | 74.999211 | 75.169842 | 74.949422]
+Iterations:  88%|████████▊ | 176/200 [05:08<00:26,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.815138e-10, rel=5.009522e-12
+Adjoint solver residual: abs=3.761692e-10, rel=4.939343e-12
+Adjoint solver residual: abs=3.813853e-10, rel=5.007834e-12
+Adjoint solver residual: abs=3.772862e-10, rel=4.954010e-12
+Linear solver residual: abs=3.283892e-10, rel=4.311962e-12
+Linear solver residual: abs=3.256344e-10, rel=4.275789e-12
+Linear solver residual: abs=3.281794e-10, rel=4.309206e-12
+Linear solver residual: abs=3.240566e-10, rel=4.255072e-12
+Iteration 176 | mean loss = 75.098110 | individual = [75.259870 | 75.004930 | 75.181126 | 74.946515]
+Iterations:  88%|████████▊ | 177/200 [05:09<00:25,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.820460e-10, rel=5.016510e-12
+Adjoint solver residual: abs=3.814419e-10, rel=5.008577e-12
+Adjoint solver residual: abs=3.857404e-10, rel=5.065020e-12
+Adjoint solver residual: abs=3.764608e-10, rel=4.943173e-12
+Linear solver residual: abs=3.264171e-10, rel=4.286067e-12
+Linear solver residual: abs=3.234392e-10, rel=4.246964e-12
+Linear solver residual: abs=3.294574e-10, rel=4.325987e-12
+Linear solver residual: abs=3.268049e-10, rel=4.291159e-12
+Iteration 177 | mean loss = 75.104915 | individual = [75.270144 | 75.005120 | 75.183776 | 74.960619]
+Iterations:  89%|████████▉ | 178/200 [05:10<00:23,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.786629e-10, rel=4.972087e-12
+Adjoint solver residual: abs=3.779083e-10, rel=4.962179e-12
+Adjoint solver residual: abs=3.779252e-10, rel=4.962401e-12
+Adjoint solver residual: abs=3.739804e-10, rel=4.910603e-12
+Linear solver residual: abs=3.275083e-10, rel=4.300395e-12
+Linear solver residual: abs=3.226010e-10, rel=4.235959e-12
+Linear solver residual: abs=3.281229e-10, rel=4.308465e-12
+Linear solver residual: abs=3.258701e-10, rel=4.278884e-12
+Iteration 178 | mean loss = 75.106511 | individual = [75.280545 | 74.997130 | 75.178665 | 74.969705]
+Iterations:  90%|████████▉ | 179/200 [05:11<00:22,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.740152e-10, rel=4.911060e-12
+Adjoint solver residual: abs=3.785630e-10, rel=4.970775e-12
+Adjoint solver residual: abs=3.861090e-10, rel=5.069860e-12
+Adjoint solver residual: abs=3.804326e-10, rel=4.995325e-12
+Linear solver residual: abs=3.275869e-10, rel=4.301426e-12
+Linear solver residual: abs=3.249625e-10, rel=4.266966e-12
+Linear solver residual: abs=3.289041e-10, rel=4.318722e-12
+Linear solver residual: abs=3.285874e-10, rel=4.314563e-12
+Iteration 179 | mean loss = 75.102529 | individual = [75.282368 | 74.996535 | 75.166600 | 74.964611]
+Iterations:  90%|█████████ | 180/200 [05:12<00:21,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.774731e-10, rel=4.956464e-12
+Adjoint solver residual: abs=3.773447e-10, rel=4.954779e-12
+Adjoint solver residual: abs=3.799313e-10, rel=4.988743e-12
+Adjoint solver residual: abs=3.786349e-10, rel=4.971720e-12
+Linear solver residual: abs=3.293208e-10, rel=4.324194e-12
+Linear solver residual: abs=3.242892e-10, rel=4.258126e-12
+Linear solver residual: abs=3.280580e-10, rel=4.307613e-12
+Linear solver residual: abs=3.250791e-10, rel=4.268498e-12
+Iteration 180 | mean loss = 75.095868 | individual = [75.276489 | 75.007676 | 75.152377 | 74.946929]
+Iterations:  90%|█████████ | 181/200 [05:13<00:20,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.781816e-10, rel=4.965767e-12
+Adjoint solver residual: abs=3.808994e-10, rel=5.001454e-12
+Adjoint solver residual: abs=3.835203e-10, rel=5.035868e-12
+Adjoint solver residual: abs=3.732094e-10, rel=4.900480e-12
+Linear solver residual: abs=3.252464e-10, rel=4.270695e-12
+Linear solver residual: abs=3.229352e-10, rel=4.240346e-12
+Linear solver residual: abs=3.323269e-10, rel=4.363666e-12
+Linear solver residual: abs=3.245088e-10, rel=4.261009e-12
+Iteration 181 | mean loss = 75.093274 | individual = [75.263727 | 75.007438 | 75.153829 | 74.948102]
+Iterations:  91%|█████████ | 182/200 [05:14<00:19,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.812526e-10, rel=5.006092e-12
+Adjoint solver residual: abs=3.773362e-10, rel=4.954667e-12
+Adjoint solver residual: abs=3.799617e-10, rel=4.989141e-12
+Adjoint solver residual: abs=3.779640e-10, rel=4.962911e-12
+Linear solver residual: abs=3.239118e-10, rel=4.253170e-12
+Linear solver residual: abs=3.260825e-10, rel=4.281673e-12
+Linear solver residual: abs=3.247731e-10, rel=4.264480e-12
+Linear solver residual: abs=3.237758e-10, rel=4.251385e-12
+Iteration 182 | mean loss = 75.091015 | individual = [75.259446 | 75.000343 | 75.153698 | 74.950574]
+Iterations:  92%|█████████▏| 183/200 [05:15<00:18,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.740160e-10, rel=4.911071e-12
+Adjoint solver residual: abs=3.738629e-10, rel=4.909061e-12
+Adjoint solver residual: abs=3.795682e-10, rel=4.983975e-12
+Adjoint solver residual: abs=3.760141e-10, rel=4.937308e-12
+Linear solver residual: abs=3.229223e-10, rel=4.240178e-12
+Linear solver residual: abs=3.236199e-10, rel=4.249338e-12
+Linear solver residual: abs=3.291871e-10, rel=4.322438e-12
+Linear solver residual: abs=3.227878e-10, rel=4.238412e-12
+Iteration 183 | mean loss = 75.089869 | individual = [75.260174 | 74.996806 | 75.152131 | 74.950364]
+Iterations:  92%|█████████▏| 184/200 [05:16<00:17,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.793943e-10, rel=4.981692e-12
+Adjoint solver residual: abs=3.796751e-10, rel=4.985379e-12
+Adjoint solver residual: abs=3.792403e-10, rel=4.979670e-12
+Adjoint solver residual: abs=3.789090e-10, rel=4.975319e-12
+Linear solver residual: abs=3.294474e-10, rel=4.325856e-12
+Linear solver residual: abs=3.277957e-10, rel=4.304169e-12
+Linear solver residual: abs=3.304437e-10, rel=4.338939e-12
+Linear solver residual: abs=3.226785e-10, rel=4.236976e-12
+Iteration 184 | mean loss = 75.090990 | individual = [75.260137 | 74.997523 | 75.157472 | 74.948828]
+Iterations:  92%|█████████▎| 185/200 [05:18<00:16,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.798694e-10, rel=4.987930e-12
+Adjoint solver residual: abs=3.733654e-10, rel=4.902528e-12
+Adjoint solver residual: abs=3.859744e-10, rel=5.068093e-12
+Adjoint solver residual: abs=3.814343e-10, rel=5.008478e-12
+Linear solver residual: abs=3.236038e-10, rel=4.249126e-12
+Linear solver residual: abs=3.214767e-10, rel=4.221195e-12
+Linear solver residual: abs=3.256500e-10, rel=4.275994e-12
+Linear solver residual: abs=3.248301e-10, rel=4.265228e-12
+Iteration 185 | mean loss = 75.091082 | individual = [75.259414 | 74.997089 | 75.161673 | 74.946151]
+Iterations:  93%|█████████▎| 186/200 [05:19<00:15,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.797812e-10, rel=4.986772e-12
+Adjoint solver residual: abs=3.780670e-10, rel=4.964263e-12
+Adjoint solver residual: abs=3.776505e-10, rel=4.958795e-12
+Adjoint solver residual: abs=3.803032e-10, rel=4.993625e-12
+Linear solver residual: abs=3.241903e-10, rel=4.256827e-12
+Linear solver residual: abs=3.240520e-10, rel=4.255011e-12
+Linear solver residual: abs=3.289314e-10, rel=4.319081e-12
+Linear solver residual: abs=3.201416e-10, rel=4.203665e-12
+Iteration 186 | mean loss = 75.088590 | individual = [75.258160 | 74.995627 | 75.158028 | 74.942543]
+Iterations:  94%|█████████▎| 187/200 [05:20<00:14,  1.11s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.804798e-10, rel=4.995944e-12
+Adjoint solver residual: abs=3.756089e-10, rel=4.931986e-12
+Adjoint solver residual: abs=3.843354e-10, rel=5.046571e-12
+Adjoint solver residual: abs=3.747416e-10, rel=4.920598e-12
+Linear solver residual: abs=3.252713e-10, rel=4.271021e-12
+Linear solver residual: abs=3.216583e-10, rel=4.223580e-12
+Linear solver residual: abs=3.270171e-10, rel=4.293944e-12
+Linear solver residual: abs=3.241203e-10, rel=4.255909e-12
+Iteration 187 | mean loss = 75.095292 | individual = [75.259681 | 75.006421 | 75.150205 | 74.964861]
+Iterations:  94%|█████████▍| 188/200 [05:21<00:13,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.845837e-10, rel=5.049831e-12
+Adjoint solver residual: abs=3.771119e-10, rel=4.951722e-12
+Adjoint solver residual: abs=3.840539e-10, rel=5.042875e-12
+Adjoint solver residual: abs=3.739258e-10, rel=4.909886e-12
+Linear solver residual: abs=3.238836e-10, rel=4.252800e-12
+Linear solver residual: abs=3.261197e-10, rel=4.282161e-12
+Linear solver residual: abs=3.280471e-10, rel=4.307470e-12
+Linear solver residual: abs=3.267850e-10, rel=4.290897e-12
+Iteration 188 | mean loss = 75.101827 | individual = [75.266111 | 75.012347 | 75.150315 | 74.978535]
+Iterations:  94%|█████████▍| 189/200 [05:22<00:11,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.803161e-10, rel=4.993795e-12
+Adjoint solver residual: abs=3.804192e-10, rel=4.995149e-12
+Adjoint solver residual: abs=3.830199e-10, rel=5.029297e-12
+Adjoint solver residual: abs=3.761654e-10, rel=4.939294e-12
+Linear solver residual: abs=3.289714e-10, rel=4.319607e-12
+Linear solver residual: abs=3.281453e-10, rel=4.308758e-12
+Linear solver residual: abs=3.300923e-10, rel=4.334324e-12
+Linear solver residual: abs=3.226595e-10, rel=4.236726e-12
+Iteration 189 | mean loss = 75.102360 | individual = [75.264430 | 75.010794 | 75.149972 | 74.984245]
+Iterations:  95%|█████████▌| 190/200 [05:23<00:10,  1.10s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.830352e-10, rel=5.029498e-12
+Adjoint solver residual: abs=3.775049e-10, rel=4.956882e-12
+Adjoint solver residual: abs=3.818325e-10, rel=5.013707e-12
+Adjoint solver residual: abs=3.781762e-10, rel=4.965697e-12
+Linear solver residual: abs=3.269949e-10, rel=4.293654e-12
+Linear solver residual: abs=3.258079e-10, rel=4.278067e-12
+Linear solver residual: abs=3.294785e-10, rel=4.326265e-12
+Linear solver residual: abs=3.233446e-10, rel=4.245723e-12
+Iteration 190 | mean loss = 75.098594 | individual = [75.259929 | 75.002531 | 75.149171 | 74.982746]
+Iterations:  96%|█████████▌| 191/200 [05:24<00:09,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.783150e-10, rel=4.967519e-12
+Adjoint solver residual: abs=3.737895e-10, rel=4.908097e-12
+Adjoint solver residual: abs=3.802008e-10, rel=4.992281e-12
+Adjoint solver residual: abs=3.830938e-10, rel=5.030268e-12
+Linear solver residual: abs=3.276789e-10, rel=4.302634e-12
+Linear solver residual: abs=3.229255e-10, rel=4.240219e-12
+Linear solver residual: abs=3.249826e-10, rel=4.267230e-12
+Linear solver residual: abs=3.223989e-10, rel=4.233305e-12
+Iteration 191 | mean loss = 75.093988 | individual = [75.256313 | 74.995465 | 75.149400 | 74.974773]
+Iterations:  96%|█████████▌| 192/200 [05:25<00:08,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.743353e-10, rel=4.915263e-12
+Adjoint solver residual: abs=3.820275e-10, rel=5.016267e-12
+Adjoint solver residual: abs=3.848685e-10, rel=5.053571e-12
+Adjoint solver residual: abs=3.763093e-10, rel=4.941183e-12
+Linear solver residual: abs=3.234791e-10, rel=4.247489e-12
+Linear solver residual: abs=3.253599e-10, rel=4.272185e-12
+Linear solver residual: abs=3.264332e-10, rel=4.286278e-12
+Linear solver residual: abs=3.253131e-10, rel=4.271570e-12
+Iteration 192 | mean loss = 75.090616 | individual = [75.256464 | 74.996287 | 75.148673 | 74.961038]
+Iterations:  96%|█████████▋| 193/200 [05:26<00:07,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.765706e-10, rel=4.944615e-12
+Adjoint solver residual: abs=3.747740e-10, rel=4.921023e-12
+Adjoint solver residual: abs=3.742962e-10, rel=4.914750e-12
+Adjoint solver residual: abs=3.741057e-10, rel=4.912248e-12
+Linear solver residual: abs=3.251679e-10, rel=4.269663e-12
+Linear solver residual: abs=3.222601e-10, rel=4.231483e-12
+Linear solver residual: abs=3.242011e-10, rel=4.256969e-12
+Linear solver residual: abs=3.255595e-10, rel=4.274806e-12
+Iteration 193 | mean loss = 75.086102 | individual = [75.256336 | 74.995950 | 75.149906 | 74.942215]
+Iterations:  97%|█████████▋| 194/200 [05:27<00:06,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.777899e-10, rel=4.960624e-12
+Adjoint solver residual: abs=3.758578e-10, rel=4.935255e-12
+Adjoint solver residual: abs=3.821469e-10, rel=5.017835e-12
+Adjoint solver residual: abs=3.721493e-10, rel=4.886559e-12
+Linear solver residual: abs=3.237955e-10, rel=4.251643e-12
+Linear solver residual: abs=3.264388e-10, rel=4.286351e-12
+Linear solver residual: abs=3.245512e-10, rel=4.261566e-12
+Linear solver residual: abs=3.268770e-10, rel=4.292106e-12
+Iteration 194 | mean loss = 75.086199 | individual = [75.255955 | 74.994580 | 75.148233 | 74.946028]
+Iterations:  98%|█████████▊| 195/200 [05:28<00:05,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.778666e-10, rel=4.961631e-12
+Adjoint solver residual: abs=3.795270e-10, rel=4.983434e-12
+Adjoint solver residual: abs=3.772745e-10, rel=4.953857e-12
+Adjoint solver residual: abs=3.795605e-10, rel=4.983873e-12
+Linear solver residual: abs=3.299085e-10, rel=4.331911e-12
+Linear solver residual: abs=3.291672e-10, rel=4.322177e-12
+Linear solver residual: abs=3.262439e-10, rel=4.283793e-12
+Linear solver residual: abs=3.263934e-10, rel=4.285755e-12
+Iteration 195 | mean loss = 75.090494 | individual = [75.258674 | 75.004292 | 75.150123 | 74.948886]
+Iterations:  98%|█████████▊| 196/200 [05:30<00:04,  1.08s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.837351e-10, rel=5.038689e-12
+Adjoint solver residual: abs=3.808575e-10, rel=5.000904e-12
+Adjoint solver residual: abs=3.818144e-10, rel=5.013469e-12
+Adjoint solver residual: abs=3.759319e-10, rel=4.936228e-12
+Linear solver residual: abs=3.284997e-10, rel=4.313413e-12
+Linear solver residual: abs=3.219451e-10, rel=4.227346e-12
+Linear solver residual: abs=3.321344e-10, rel=4.361138e-12
+Linear solver residual: abs=3.257327e-10, rel=4.277080e-12
+Iteration 196 | mean loss = 75.092204 | individual = [75.260797 | 75.009629 | 75.148228 | 74.950160]
+Iterations:  98%|█████████▊| 197/200 [05:31<00:03,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.862568e-10, rel=5.071801e-12
+Adjoint solver residual: abs=3.780959e-10, rel=4.964642e-12
+Adjoint solver residual: abs=3.806366e-10, rel=4.998004e-12
+Adjoint solver residual: abs=3.809982e-10, rel=5.002751e-12
+Linear solver residual: abs=3.264961e-10, rel=4.287104e-12
+Linear solver residual: abs=3.250991e-10, rel=4.268761e-12
+Linear solver residual: abs=3.291293e-10, rel=4.321679e-12
+Linear solver residual: abs=3.279356e-10, rel=4.306005e-12
+Iteration 197 | mean loss = 75.091299 | individual = [75.258961 | 75.007583 | 75.148701 | 74.949949]
+Iterations:  99%|█████████▉| 198/200 [05:32<00:02,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.772294e-10, rel=4.953265e-12
+Adjoint solver residual: abs=3.809102e-10, rel=5.001596e-12
+Adjoint solver residual: abs=3.799174e-10, rel=4.988559e-12
+Adjoint solver residual: abs=3.790619e-10, rel=4.977327e-12
+Linear solver residual: abs=3.243244e-10, rel=4.258588e-12
+Linear solver residual: abs=3.229278e-10, rel=4.240250e-12
+Linear solver residual: abs=3.293499e-10, rel=4.324576e-12
+Linear solver residual: abs=3.265810e-10, rel=4.288218e-12
+Iteration 198 | mean loss = 75.087850 | individual = [75.255312 | 74.998913 | 75.148763 | 74.948412]
+Iterations: 100%|█████████▉| 199/200 [05:33<00:01,  1.09s/it]vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+vmap batch_axes: a_b=0, a_val=0, a_off=0, a_col=0
+cudss batch: CSR pattern pointers changed
+cudss batch: CSR pattern pointers changed
+Adjoint solver residual: abs=3.758570e-10, rel=4.935245e-12
+Adjoint solver residual: abs=3.746266e-10, rel=4.919088e-12
+Adjoint solver residual: abs=3.824936e-10, rel=5.022387e-12
+Adjoint solver residual: abs=3.734882e-10, rel=4.904141e-12
+Linear solver residual: abs=3.203304e-10, rel=4.206144e-12
+Linear solver residual: abs=3.230937e-10, rel=4.242428e-12
+Linear solver residual: abs=3.272917e-10, rel=4.297551e-12
+Linear solver residual: abs=3.227997e-10, rel=4.238568e-12
+Iteration 199 | mean loss = 75.085992 | individual = [75.255277 | 74.994845 | 75.148104 | 74.945741]
+Iterations: 100%|██████████| 200/200 [05:34<00:00,  1.08s/it]Iterations: 100%|██████████| 200/200 [05:34<00:00,  1.67s/it]
+Timing summary
+  wall total    :  337.179s (100.00%)
+  hot optimise  :  215.621s ( 63.95%)
+  compile/first :  116.881s ( 34.66%)
+  other         :    4.677s (  1.39%)
