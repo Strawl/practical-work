@@ -331,16 +331,36 @@ class MaterialConfig(ConfigSerializable):
     nu: float = 0.3
     penal: float = 3.0
     traction: float = 1e2
+    problem_type: str = "density"
+    load_mode: str = "traction"
+    point_load_magnitude: float = 1.0
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "MaterialConfig":
         d = dict(d or {})
+        problem_type = str(d.get("problem_type", cls.problem_type)).strip().lower()
+        if problem_type not in {"density", "plane_stress"}:
+            raise ValueError(
+                "MaterialConfig.problem_type must be 'density' or 'plane_stress', "
+                f"got {problem_type!r}"
+            )
+        load_mode = str(d.get("load_mode", cls.load_mode)).strip().lower()
+        if load_mode not in {"traction", "equivalent_point_load"}:
+            raise ValueError(
+                "MaterialConfig.load_mode must be 'traction' or "
+                f"'equivalent_point_load', got {load_mode!r}"
+            )
         return cls(
             E=float(d.get("E", d.get("E0", cls.E))),
             Emin=float(d.get("Emin", d.get("E_eps", cls.Emin))),
             nu=float(d.get("nu", cls.nu)),
             penal=float(d.get("penal", d.get("p", cls.penal))),
             traction=float(d.get("traction", d.get("T", cls.traction))),
+            problem_type=problem_type,
+            load_mode=load_mode,
+            point_load_magnitude=float(
+                d.get("point_load_magnitude", cls.point_load_magnitude)
+            ),
         )
 
 

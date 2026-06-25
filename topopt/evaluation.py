@@ -15,6 +15,7 @@ from matplotlib.collections import LineCollection
 
 from topopt.bc import (
     canonicalize_neumann_boundary_conditions,
+    equivalent_traction_for_point_load,
     make_dirichlet_boundary_conditions,
     make_neumann_boundary_location,
     make_neumann_surface_var_fn,
@@ -236,11 +237,22 @@ def evaluate_models(
                 Lx,
                 Ly,
             )
+            if train_config.material.load_mode == "equivalent_point_load":
+                traction_value = equivalent_traction_for_point_load(
+                    canonical_name,
+                    point_load_magnitude=train_config.material.point_load_magnitude,
+                    Ly=Ly,
+                    Ny=Ny,
+                )
+            else:
+                traction_value = train_config.material.traction
+
             surface_var_fn = make_neumann_surface_var_fn(
                 canonical_name,
                 Lx,
                 Ly,
-                traction_value=1e2,
+                traction_value=traction_value,
+                Ny=Ny,
             )
             (
                 solve_forward,
@@ -259,6 +271,12 @@ def evaluate_models(
                 radius=train_config.training.helmholtz_radius,
                 fwd_linear_solver="spsolve",
                 bwd_linear_solver="spsolve",
+                E0=train_config.material.E,
+                E_eps=train_config.material.Emin,
+                nu=train_config.material.nu,
+                p=train_config.material.penal,
+                T=traction_value,
+                problem_type=train_config.material.problem_type,
             )
             surface_vars = create_surface_vars(
                 problem,
@@ -363,7 +381,10 @@ def evaluate_models(
             penalty=penalty,
             neumann_boundary_conditions=neumann_boundary_conditions,
             omega=omega,
-            scale=scale_original,
+            train_scale=scale_original,
+            eval_scale=used_scale,
+            load_mode=train_config.material.load_mode,
+            point_load_magnitude=train_config.material.point_load_magnitude,
             heaviside_beta=heaviside_beta,
             heaviside_threshold=heaviside_threshold,
         )

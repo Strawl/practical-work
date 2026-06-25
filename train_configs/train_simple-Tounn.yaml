@@ -4,20 +4,20 @@ training:
   scale: 3
   dirichlet_boundary_conditions: "cantilever_left_support"
 
-  num_iterations: 150
-  lr: 0.0005
+  num_iterations: 50
+  lr: 0.001
   jitted_coords: false
   grad_clip_norm: 1.0
   max_consecutive_errors: 30
-  train_rng_seed: 534
-  model_rng_seed: 34
+  train_rng_seed: 112
+  model_rng_seed: 32
   deterministic_models: false
   helmholtz_radius: 0.0
   learning_rate_schedule:
     init_value: 1.0
-    end_value: 0.05
+    end_value: 0.01
     power: 2
-    transition_steps: 100
+    transition_steps: 0
     transition_begin: 50
 
 material:
@@ -25,6 +25,9 @@ material:
   Emin: 1.0e-6
   nu: 0.3
   penal: 3.0
+  problem_type: plane_stress
+  load_mode: equivalent_point_load
+  point_load_magnitude: 1.0
   traction: 100.0
 
 models:
@@ -32,22 +35,46 @@ models:
     model_kwargs:
       num_channels_in: 2
       num_channels_out: 1
-      num_layers: 5
-      num_latent_channels: 60
-      omega: 18.0
+      num_hidden_layers: 5
+      num_hidden_units: 64
+      omega: 20.0
     training:
       target_density: 0.5
-      penalty: 0.002
+      penalty: 0.09
       neumann_boundary_conditions: "cantilever_corner"
 
   - model_type: SIREN
     model_kwargs:
       num_channels_in: 2
       num_channels_out: 1
-      num_layers: 5
-      num_latent_channels: 60
-      omega: 18.0
+      num_hidden_layers: 5
+      num_hidden_units: 64
+      omega: 20.0
     training:
       target_density: 0.5
-      penalty: 0.002
+      penalty: 0.09
+      neumann_boundary_conditions: "cantilever_corner"
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_hidden_layers: 5
+      num_hidden_units: 64
+      omega: 20.0
+    training:
+      target_density: 0.5
+      penalty: 0.09
+      neumann_boundary_conditions: "cantilever_corner"
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_hidden_layers: 5
+      num_hidden_units: 64
+      omega: 20.0
+    training:
+      target_density: 0.5
+      penalty: 0.07
       neumann_boundary_conditions: "cantilever_corner"

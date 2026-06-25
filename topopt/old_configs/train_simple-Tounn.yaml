@@ -1,0 +1,53 @@
+training:
+  Lx: 60.0
+  Ly: 30.0
+  scale: 3
+  dirichlet_boundary_conditions: "cantilever_left_support"
+
+  num_iterations: 200
+  lr: 0.0005
+  jitted_coords: false
+  grad_clip_norm: 1.0
+  max_consecutive_errors: 30
+  train_rng_seed: 534
+  model_rng_seed: 34
+  deterministic_models: false
+  helmholtz_radius: 0.0
+  learning_rate_schedule:
+    init_value: 1.0
+    end_value: 0.0001
+    power: 2
+    transition_steps: 150
+    transition_begin: 50
+
+material:
+  E: 1.0
+  Emin: 1.0e-6
+  nu: 0.3
+  penal: 3.0
+  traction: 100.0
+
+models:
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 4
+      num_latent_channels: 64
+      omega: 18.0
+    training:
+      target_density: 0.5
+      penalty: 0.0013
+      neumann_boundary_conditions: "cantilever_corner"
+
+  - model_type: SIREN
+    model_kwargs:
+      num_channels_in: 2
+      num_channels_out: 1
+      num_layers: 4
+      num_latent_channels: 64
+      omega: 19.0
+    training:
+      target_density: 0.5
+      penalty: 0.0013
+      neumann_boundary_conditions: "cantilever_corner"

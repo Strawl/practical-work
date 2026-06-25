@@ -126,6 +126,24 @@ def evaluate(
 )
 @click.option("--vol-frac", type=float, default=0.5, show_default=True)
 @click.option("--radius", type=float, default=0.5, show_default=True)
+@click.option("--youngs-modulus", "youngs_modulus", type=float, default=1.0, show_default=True)
+@click.option("--emin", type=float, default=1e-6, show_default=True)
+@click.option("--nu", type=float, default=0.3, show_default=True)
+@click.option("--penal", type=float, default=3.0, show_default=True)
+@click.option(
+    "--problem-type",
+    type=click.Choice(["density", "plane_stress"], case_sensitive=False),
+    default="density",
+    show_default=True,
+)
+@click.option(
+    "--load-mode",
+    type=click.Choice(["traction", "equivalent_point_load"], case_sensitive=False),
+    default="traction",
+    show_default=True,
+)
+@click.option("--traction", type=float, default=100.0, show_default=True)
+@click.option("--point-load", type=float, default=1.0, show_default=True)
 @click.option("--heaviside-beta", type=float, default=10.0, show_default=True)
 @click.option(
     "--heaviside-threshold",
@@ -153,6 +171,14 @@ def mma(
     bc_preset_name: str,
     vol_frac: float,
     radius: float,
+    youngs_modulus: float,
+    emin: float,
+    nu: float,
+    penal: float,
+    problem_type: str,
+    load_mode: str,
+    traction: float,
+    point_load: float,
     heaviside_beta: float,
     heaviside_threshold: float,
     solver: str,
@@ -173,6 +199,14 @@ def mma(
         neumann_boundary_conditions=bc_preset_name,
         vol_frac=vol_frac,
         radius=radius,
+        E0=youngs_modulus,
+        E_eps=emin,
+        nu=nu,
+        p=penal,
+        problem_type=problem_type,
+        load_mode=load_mode,
+        T=traction,
+        point_load_magnitude=point_load,
         heaviside_beta=heaviside_beta,
         heaviside_threshold=heaviside_threshold,
         solver=solver,

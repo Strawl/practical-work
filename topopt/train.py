@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 import jax
 from topopt.bc import (
+    equivalent_traction_for_point_load,
     make_dirichlet_boundary_conditions,
     make_neumann_boundary_location,
     make_neumann_surface_var_fns,
@@ -67,8 +68,10 @@ def batched_loss_and_grad(
 
         vol_frac = volume_fraction_fn(rhos)
         vol_frac_error = vol_frac - target_densities
-        normalized_constraint = (
-            vol_frac_error * 10
+        normalized_constraint = jnp.where(
+            target_densities > 0.0,
+            vol_frac_error / target_densities,
+            0.0,
         )
         normalized_violation = jnp.maximum(normalized_constraint, 0.0)
 
@@ -449,12 +452,33 @@ def train_from_config(
         dict.fromkeys(model_neumann_boundary_conditions)
     )
     neumann_boundary_location = make_neumann_boundary_location(Lx, Ly)
-    named_surface_var_fns = make_neumann_surface_var_fns(
-        unique_neumann_boundary_conditions,
-        Lx,
-        Ly,
-        traction_value=material.traction,
-    )
+    if material.load_mode == "equivalent_point_load":
+        named_surface_var_fns = tuple(
+            (
+                neumann_name,
+                make_neumann_surface_var_fns(
+                    (neumann_name,),
+                    Lx,
+                    Ly,
+                    traction_value=equivalent_traction_for_point_load(
+                        neumann_name,
+                        point_load_magnitude=material.point_load_magnitude,
+                        Ly=Ly,
+                        Ny=Ny,
+                    ),
+                    Ny=Ny,
+                )[0][1],
+            )
+            for neumann_name in unique_neumann_boundary_conditions
+        )
+    else:
+        named_surface_var_fns = make_neumann_surface_var_fns(
+            unique_neumann_boundary_conditions,
+            Lx,
+            Ly,
+            traction_value=material.traction,
+            Ny=Ny,
+        )
 
     solve_forward, evaluate_volume, filter_fn, _, _, problem = create_objective_functions(
         mesh,
@@ -471,6 +495,7 @@ def train_from_config(
         radius=train_config.training.helmholtz_radius,
         fwd_linear_solver=fwd_linear_solver,
         bwd_linear_solver=bwd_linear_solver,
+        problem_type=material.problem_type,
     )
 
     rng = jax.random.PRNGKey(train_config.training.model_rng_seed)
@@ -514,7 +539,6 @@ def train_from_config(
 
     full_material_rho = jnp.ones(problem.num_cells)
     no_material_rho = jnp.zeros(problem.num_cells)
-    gamma = material.penal / 2
     full_material_compliances = []
     compliance_normalizers = []
     print("Compliance bounds after solver warm-up")
@@ -532,14 +556,13 @@ def train_from_config(
         )
         void_compliance = float(solve_forward(no_material_rho, model_surface_var))
         full_material_compliances.append(full_material_compliance)
-        compliance_normalizer = target_density_compliance * (target_density ** gamma)
+        compliance_normalizer = target_density_compliance
         compliance_normalizers.append(compliance_normalizer)
         print(
             f"  model {model_index:02d} [{neumann_boundary_condition}] "
             f"full = {full_material_compliance:.6f} | "
             f"uniform(v={target_density:.3f}) = {target_density_compliance:.6f} | "
             f"void = {void_compliance:.6f} | "
-            f"gamma = {gamma:.3f} | "
             f"C_ref = {compliance_normalizer:.6f}"
         )
     full_material_compliances = jnp.asarray(full_material_compliances, dtype=float)

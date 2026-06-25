@@ -9,6 +9,7 @@ from feax.gene.optimizer import Pipeline, constraint
 from feax.mesh import rectangle_mesh
 
 from topopt.bc import (
+    equivalent_traction_for_point_load,
     make_dirichlet_boundary_conditions,
     make_neumann_boundary_location,
     make_neumann_surface_var_fn,
@@ -44,11 +45,14 @@ def run_feax_topopt_mma(
     neumann_boundary_conditions: str = "cantilever_corner",
     vol_frac: float = 0.5,
     ele_type: str = "QUAD4",
-    E0: float = 70e3,
-    E_eps: float = 7.0,
+    E0: float = 1.0,
+    E_eps: float = 1e-6,
     nu: float = 0.3,
     p: float = 3.0,
     T: float = 1e2,
+    problem_type: str = "density",
+    load_mode: str = "traction",
+    point_load_magnitude: float = 1.0,
     gauss_order: int = 2,
     iter_num: int = 1,
     max_iter: int = 100,
@@ -69,6 +73,30 @@ def run_feax_topopt_mma(
     mesh = rectangle_mesh(Nx, Ny, domain_x=Lx, domain_y=Ly)
     rho_init = np.full(mesh.points.shape[0], vol_frac, dtype=float)
 
+    problem_type = str(problem_type).strip().lower()
+    if problem_type not in {"density", "plane_stress"}:
+        raise ValueError(
+            "problem_type must be 'density' or 'plane_stress', "
+            f"got {problem_type!r}"
+        )
+
+    load_mode = str(load_mode).strip().lower()
+    if load_mode not in {"traction", "equivalent_point_load"}:
+        raise ValueError(
+            "load_mode must be 'traction' or 'equivalent_point_load', "
+            f"got {load_mode!r}"
+        )
+
+    if load_mode == "equivalent_point_load":
+        traction_value = equivalent_traction_for_point_load(
+            neumann_boundary_conditions,
+            point_load_magnitude=point_load_magnitude,
+            Ly=Ly,
+            Ny=Ny,
+        )
+    else:
+        traction_value = T
+
     dirichlet_boundary_condition_specs = make_dirichlet_boundary_conditions(
         dirichlet_boundary_conditions,
         Lx,
@@ -79,7 +107,8 @@ def run_feax_topopt_mma(
         neumann_boundary_conditions,
         Lx,
         Ly,
-        traction_value=T,
+        traction_value=traction_value,
+        Ny=Ny,
     )
 
     class TopOpt2DPipeline(Pipeline):
@@ -114,7 +143,7 @@ def run_feax_topopt_mma(
                 E_eps=E_eps,
                 nu=nu,
                 p=p,
-                T=T,
+                T=traction_value,
                 gauss_order=gauss_order,
                 iter_num=iter_num,
                 check_convergence=True,
@@ -122,6 +151,7 @@ def run_feax_topopt_mma(
                 radius=radius,
                 fwd_linear_solver=solver,
                 bwd_linear_solver=solver,
+                problem_type=problem_type,
             )
             self._surface_vars = create_surface_vars(
                 self._problem,
@@ -178,6 +208,10 @@ def run_feax_topopt_mma(
 
     print("-" * 60)
     print("2D topology optimization finished with feax.gene pipeline")
+    print(
+        f"Problem setup: problem_type={problem_type}, load_mode={load_mode}, "
+        f"traction={traction_value:.6g}"
+    )
     if heaviside_beta > 0.0:
         print(
             "Final compliance\n"
@@ -246,6 +280,10 @@ def run_feax_topopt_mma(
         volume_fraction_filtered=volume_filtered,
         volume_fraction_projected=volume_projected,
         target_volume_fraction=float(vol_frac),
+        problem_type=problem_type,
+        load_mode=load_mode,
+        traction=float(traction_value),
+        point_load_magnitude=float(point_load_magnitude),
         heaviside_beta=float(heaviside_beta),
         heaviside_threshold=float(heaviside_threshold),
         **{

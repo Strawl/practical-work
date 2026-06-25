@@ -16,7 +16,7 @@ from feax import (
     create_solver,
     zero_like_initial_guess,
 )
-from topopt.problems import DensityElasticityProblem
+from topopt.problems import DensityElasticityProblem, PlaneStressElasticityProblem
 from topopt.solver_config import build_solver_setup
 
 
@@ -87,6 +87,7 @@ def create_objective_functions(
     radius: float = 0,
     fwd_linear_solver: str = "cg",
     bwd_linear_solver: str = "cg",
+    problem_type: str = "density",
 ):
     if isinstance(dirichlet_boundary_conditions, DirichletBCSpec):
         dirichlet_boundary_conditions = (dirichlet_boundary_conditions,)
@@ -102,7 +103,18 @@ def create_objective_functions(
         verbose=verbose,
     )
 
-    problem = DensityElasticityProblem(
+    problem_type = str(problem_type).strip().lower()
+    if problem_type == "density":
+        problem_cls = DensityElasticityProblem
+    elif problem_type == "plane_stress":
+        problem_cls = PlaneStressElasticityProblem
+    else:
+        raise ValueError(
+            "problem_type must be 'density' or 'plane_stress', "
+            f"got {problem_type!r}"
+        )
+
+    problem = problem_cls(
         mesh=mesh,
         vec=2,
         dim=2,

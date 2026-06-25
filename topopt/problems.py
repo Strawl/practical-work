@@ -104,17 +104,19 @@ class PlaneStressElasticityProblem(Problem):
         """
 
         def stress(u_grad: jnp.ndarray, rho: float) -> jnp.ndarray:
-            # SIMP interpolation for Young's modulus
+            # SIMP interpolation for Young's modulus (matching TOuNN FE_Solver)
             E = self.Emin + (self.Emax - self.Emin) * rho**self.penal
 
-            # Small strain tensor
+            # Small strain tensor components
             epsilon = 0.5 * (u_grad + u_grad.T)
             eps11, eps22, eps12 = epsilon[0, 0], epsilon[1, 1], epsilon[0, 1]
 
-            # Plane stress constitutive relation
-            sig11 = E / (1 + self.nu) / (1 - self.nu) * (eps11 + self.nu * eps22)
-            sig22 = E / (1 + self.nu) / (1 - self.nu) * (self.nu * eps11 + eps22)
-            sig12 = E / (1 + self.nu) * eps12
+            # Plane-stress constitutive matrix form used by TOuNN:
+            # C = E/(1-nu^2) * [[1, nu, 0], [nu, 1, 0], [0, 0, (1-nu)/2]]
+            pref = E / (1.0 - self.nu**2)
+            sig11 = pref * (eps11 + self.nu * eps22)
+            sig22 = pref * (self.nu * eps11 + eps22)
+            sig12 = pref * ((1.0 - self.nu) * 0.5) * (2.0 * eps12)
 
             return jnp.array([[sig11, sig12], [sig12, sig22]])
 
